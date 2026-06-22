@@ -1,0 +1,14 @@
+# PEG runtime + evaluation dependencies (Python 3.10).
+# Versions are those used to produce the paper's results.
+# Install a CUDA-matched torch build from https://pytorch.org if 2.11 is unavailable.
+torch==2.11.0
+torchvision==0.26.0
+ultralytics==8.4.56
+numpy==2.2.6
+opencv-python==4.13.0.92
+PyYAML==6.0.3
+scipy==1.15.3
+lap==0.5.13
+filterpy==1.4.5
+# Evaluation only (HOTA/CLEAR-MOT/IDF1 via TrackEval):
+#   pip install git+https://github.com/JonathonLuiten/TrackEval.git

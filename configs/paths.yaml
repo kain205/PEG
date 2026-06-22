@@ -1,0 +1,34 @@
+# PEG path configuration. Relative paths resolve to the repository root
+# (the folder that contains this `configs/` directory); absolute paths are kept
+# as-is. Override the whole file with the GLAREMOT_CONFIG environment variable.
+
+data:
+  # The mine footage is access-controlled and is not shipped with the code.
+  # Point these at your own MOTChallenge-format sequences to reproduce the
+  # tables (see README "Data layout").
+  detector:  datasets/det          # YOLO detection-training split (optional)
+  tracking:  datasets/real         # real held-out test sequences (Tables I)
+  glare:     datasets/synth        # synthetic-burn twins (Tables II-IV)
+  occlusion: datasets/real
+  videos:    datasets/video
+
+imgsz: 1536
+
+weights:
+  pretrained_yolo: weights/pretrained/yolo11m.pt   # only needed to retrain
+  detector:        weights/detector/best.pt        # shipped
+  hpsi:            weights/hpsi/h_psi_head.pt       # shipped (visibility head)
+
+cache_dir:   cache
+results_dir: results
+
+train:
+  detector:
+    epochs: 180
+    patience: 30
+    batch: 4
+    workers: 4
+  hpsi:
+    epochs: 100
+    frame_stride: 5
+    glare_mix: 0.0

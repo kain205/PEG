@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+cache/
+results/
+*.log
+# Keep the shipped model weights tracked; ignore everything else dropped in weights/
+weights/pretrained/
+weights/**/events.*
+# Datasets are access-controlled and never committed
+datasets/

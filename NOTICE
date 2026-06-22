@@ -1,0 +1,23 @@
+PEG — third-party components
+============================
+
+This release bundles or depends on third-party software that remains under its
+own license. The MIT license in LICENSE applies to the PEG-authored code only.
+
+Vendored (distributed in this repository)
+-----------------------------------------
+* glaremot/external/ocsort/  — OC-SORT association + Kalman box tracker, from
+  Deep-OC-SORT (https://github.com/GerardMaggiolino/Deep-OC-SORT). The Kalman
+  filter derives from filterpy (MIT, (c) 2014-2018 Roger R. Labbe Jr.).
+  Refer to the upstream projects for their license terms.
+
+Required dependencies (installed via requirements.txt, not redistributed here)
+-----------------------------------------------------------------------------
+* Ultralytics YOLO11 (https://github.com/ultralytics/ultralytics) is licensed
+  under AGPL-3.0. The detector weights shipped in weights/detector/ were trained
+  with it; users must comply with the Ultralytics license for their own use.
+* PyTorch, TorchVision, NumPy, OpenCV, SciPy, PyYAML, lap, filterpy — each under
+  its respective upstream license.
+* Evaluation uses TrackEval (https://github.com/JonathonLuiten/TrackEval).
+
+The mine dataset is not distributed with this code (see README, "Data layout").
