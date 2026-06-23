@@ -3,7 +3,7 @@
 Reference implementation for the paper *"Burnt, Not Gone: A Photometric Emission Gate
 for Tracking Through Sensor Saturation."*
 
-**[📄 Paper (PDF)](paper/PEG_paper.pdf)** · **[💻 GitHub](https://github.com/minhdq245/PEG)** · **[🎬 Demo videos (Google Drive)](https://drive.google.com/drive/folders/1DEk0QK1hT9mvxjWl1a_bop5dj8di-ifs?usp=sharing)**
+**[💻 GitHub](https://github.com/minhdq245/PEG)** · **[🎬 Demo videos (Google Drive)](https://drive.google.com/drive/folders/1DEk0QK1hT9mvxjWl1a_bop5dj8di-ifs?usp=sharing)**
 
 When a worker's helmet lamp points into a fixed mine camera it saturates (blooms) the
 sensor and erases the body in place: the detector returns nothing and the track is
