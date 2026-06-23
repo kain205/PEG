@@ -1,13 +1,13 @@
-"""Step 06 — Train the h_psi head on the cached frozen-backbone ROI features.
+"""Step 05 — Train the h_psi head on the cached frozen-backbone ROI features.
 
-Run scripts/05 first. The head is tiny and the cache lives on the GPU, so this
+Run scripts/03 first. The head is tiny and the cache lives on the GPU, so this
 trains in seconds per epoch. Reports ``present`` P/R/F1/AP, ``m_glare`` MAE
 and beacon Sigma NLL on the val split; with ``--hardneg`` (after step 07) the
 mined lamp blobs join training and the lamp false-positive rate is reported —
 checkpoint selection then uses F1 − 0.5·lamp_fp, because a head that keeps F1
 but still fires on lamps is exactly the failure the retrain must fix.
 
-Run:  python scripts/06_train_hpsi.py [--hardneg]
+Run:  python scripts/05_train_hpsi.py [--hardneg]
 """
 import argparse
 import glob as _glob
@@ -98,7 +98,7 @@ def main():
     if args.hardneg:
         tr_paths = sorted(_glob.glob(os.path.join(cdir, "cache_hardneg_train*.pt")))
         if not tr_paths:
-            raise FileNotFoundError("no cache_hardneg_train*.pt — run scripts/07 first")
+            raise FileNotFoundError("no cache_hardneg_train*.pt — run scripts/04 first")
         for trp in tr_paths:
             hn_tr, hn_meta = load_cache(trp, device)
             assert hn_meta["tap"] == meta["tap"] and hn_meta["imgsz"] == meta["imgsz"]

@@ -1,4 +1,4 @@
-"""Step 05 — Precompute frozen-backbone ROI features + analytic targets for h_psi.
+"""Step 03 — Precompute frozen-backbone ROI features + analytic targets for h_psi.
 
 Because the detector backbone is FROZEN, its ROI features never change across
 epochs, so we run it ONCE here and cache pooled features + analytic targets.
@@ -13,7 +13,7 @@ burnt bodies and ``present`` sees lamps over people under heavy glare.
 CPU (DataLoader workers: JPEG decode + cv2 analytic) and GPU (backbone
 forward) run concurrently.
 
-Run:  python scripts/05_preprocess_hpsi.py [--workers 12]
+Run:  python scripts/03_preprocess_hpsi.py [--workers 12]
 """
 import argparse
 import os
@@ -104,7 +104,7 @@ def main():
         pv, mv = cache["present_gt"], cache["m_valid"]
         print(f"[{split}] saved {path}  ROIs={pv.numel()} present1={int((pv > 0.5).sum())} "
               f"person={int(mv.sum())} env_neg={int((~mv).sum())}", flush=True)
-    print("STEP 05 DONE ->", out_dir)
+    print("STEP 03 DONE ->", out_dir)
 
 
 if __name__ == "__main__":
