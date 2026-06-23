@@ -3,6 +3,8 @@
 Reference implementation for the paper *"Burnt, Not Gone: A Photometric Emission Gate
 for Tracking Through Sensor Saturation."*
 
+**[📄 Paper (PDF)](paper/PEG_paper.pdf)** · **[💻 GitHub](https://github.com/minhdq245/PEG)** · **[🎬 Demo videos (Google Drive)](https://drive.google.com/drive/folders/1DEk0QK1hT9mvxjWl1a_bop5dj8di-ifs?usp=sharing)**
+
 When a worker's helmet lamp points into a fixed mine camera it saturates (blooms) the
 sensor and erases the body in place: the detector returns nothing and the track is
 dropped. A constant-velocity coast still predicts the near-static body, but a *blind*
@@ -66,7 +68,7 @@ A CUDA GPU is recommended (the paper reports ~26 fps end-to-end on an RTX 5070 T
 
 ## Demo
 
-Qualitative tracking-through-burn clips: **[demo videos (Google Drive)](<ADD_DRIVE_LINK>)**.
+Qualitative tracking-through-burn clips: **[demo videos (Google Drive)](https://drive.google.com/drive/folders/1DEk0QK1hT9mvxjWl1a_bop5dj8di-ifs?usp=sharing)**.
 Each clip shows a worker burnt out by a helmet lamp, the box held through the burn by the
 photometric emission gate, and the identity recovered when the glare clears.
 
