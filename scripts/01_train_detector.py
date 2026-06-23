@@ -1,4 +1,4 @@
-"""Step 02 — Fine-tune the YOLO person detector at imgsz=1536 (default: YOLO11m).
+"""Step 01 — Fine-tune the YOLO person detector at imgsz=1536 (default: YOLO11m).
 
 Model choice (measured on RTX 5070 Ti, FP16 @1536): 11m runs 21.8 ms/frame —
 the full pipeline stays realtime at 22 fps source rate; 11x runs 38.1 ms and
@@ -6,7 +6,7 @@ breaks realtime. People are small (~30 px), so resolution is kept at the
 native 1536 and capacity is traded instead.
 
 Anti-overfit setup:
-  * sequence-level split (step 01) — no near-duplicate frame leakage into val;
+  * sequence-level split (glaremot/data/splits.json) — no near-duplicate frame leakage into val;
   * Ultralytics augmentation (mosaic / scale / translate / HSV / fliplr) with
     ``close_mosaic`` so the final epochs converge on undistorted frames;
   * ``degrees=0`` — people in a mine are upright; rotation augment would create
@@ -16,7 +16,7 @@ Anti-overfit setup:
 GPU usage: AMP is on by default; ``batch`` and ``workers`` are read from the
 config. CPU only feeds the DataLoader (``workers``).
 
-Run:  python scripts/02_train_detector.py [--config configs/paths.yaml]
+Run:  python scripts/01_train_detector.py [--config configs/paths.yaml]
 """
 import argparse
 import os
@@ -41,7 +41,7 @@ def main():
 
     data_yaml = os.path.join(data_path(cfg, "detector"), "dataset.yaml")
     if not os.path.exists(data_yaml):
-        raise FileNotFoundError(f"{data_yaml} not found — run scripts/01_prepare_dataset.py first")
+        raise FileNotFoundError(f"{data_yaml} not found — build a YOLO dataset.yaml over your own data first (the shipped weights need no retraining)")
 
     from ultralytics import YOLO
     model = YOLO(weight_path(cfg, "pretrained_yolo"))
@@ -70,7 +70,7 @@ def main():
     dst = weight_path(cfg, "detector")
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     shutil.copy2(best, dst)
-    print(f"STEP 02 DONE — best checkpoint copied to {dst}")
+    print(f"STEP 01 DONE — best checkpoint copied to {dst}")
 
 
 if __name__ == "__main__":

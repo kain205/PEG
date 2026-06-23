@@ -1,10 +1,10 @@
-"""Step 06 — Run the tracker on a sequence or a raw video (annotated mp4 out).
+"""Step 05 — Run the tracker on a sequence or a raw video (annotated mp4 out).
 
 Select PEG with GMOT_TRACKER=beacon (default is the bare glare-aware backbone).
 
 Examples:
-  GMOT_TRACKER=beacon python scripts/06_run_tracker.py --video path/to/clip.mp4
-  GMOT_TRACKER=beacon python scripts/06_run_tracker.py --seq 204_sequence_81q_complete
+  GMOT_TRACKER=beacon python scripts/05_run_tracker.py --video path/to/clip.mp4
+  GMOT_TRACKER=beacon python scripts/05_run_tracker.py --seq 204_sequence_81q_complete
 """
 import os
 import sys

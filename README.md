@@ -49,15 +49,15 @@ glaremot/
   eval/eval_mot.py             # full-scene MOT eval (Tables I, II, IV)
   eval/eval_recovery.py        # burnt-target recovery eval (Table III)
   config.py, data/, photometric.py
-scripts/                       # numbered pipeline entry points:
-                               #   01_prepare_dataset    build detector train/val from the frozen split
-                               #   02_train_detector     fine-tune YOLO11m @1536
-                               #   03_preprocess_hpsi    cache frozen ROI features + analytic targets
-                               #   04_mine_hard_negatives mine lamp-blob hard negatives
-                               #   05_train_hpsi         train the visibility head (frozen backbone)
-                               #   06_run_tracker        annotated demo on a video / sequence
-                               #   07_eval_mot           full-scene MOT benchmark (Tables I, II, IV)
-                               #   08_eval_recovery      burnt-target recovery (Table III)
+scripts/                       # numbered entry points (weights are shipped, so
+                               # 01-04 are optional retraining; 05-07 are the ones you run):
+                               #   01_train_detector     (optional) fine-tune YOLO11m @1536
+                               #   02_preprocess_hpsi    (optional) cache frozen ROI features
+                               #   03_mine_hard_negatives(optional) mine lamp-blob hard negatives
+                               #   04_train_hpsi         (optional) train the visibility head
+                               #   05_run_tracker        run / render the tracker on a video or sequence
+                               #   06_eval_mot           full-scene MOT benchmark (Tables I, II, IV)
+                               #   07_eval_recovery      burnt-target recovery (Table III)
 configs/paths.yaml             # all paths; edit or override with $GLAREMOT_CONFIG
 weights/                       # shipped: detector/best.pt, hpsi/h_psi_head.pt
 ```
@@ -80,11 +80,33 @@ Qualitative tracking-through-burn clips: **[demo videos (Google Drive)](https://
 Each clip shows a worker burnt out by a helmet lamp, the box held through the burn by the
 photometric emission gate, and the identity recovered when the glare clears.
 
-Render your own annotated clip (per-id colored boxes, amodal box held through the burn):
+## Run the tracker
+
+The detector and visibility-head weights are **shipped** (`weights/detector/best.pt`,
+`weights/hpsi/h_psi_head.pt`), so no training or dataset preparation is needed — point it
+at a video and run. `GMOT_TRACKER=beacon` selects PEG (the photometric emission gate);
+omit it for the bare glare-aware backbone.
 
 ```bash
-GMOT_TRACKER=beacon python scripts/06_run_tracker.py --video path/to/clip.mp4
+# annotated .mp4 out: per-id colored boxes, amodal box held through the burn
+GMOT_TRACKER=beacon python scripts/05_run_tracker.py --video path/to/clip.mp4
+
+# a frame-folder sequence (<seq>/images/*.jpg) instead of a raw video
+GMOT_TRACKER=beacon python scripts/05_run_tracker.py --seq 204_sequence_81q_complete
+
+# also write the MOTChallenge result file alongside the video
+GMOT_TRACKER=beacon python scripts/05_run_tracker.py --video clip.mp4 \
+       --out out.mp4 --mot_out out.txt
 ```
+
+Useful flags: `--out` (output mp4 path), `--mot_out` (MOTChallenge txt), `--conf`
+(detector confidence, default 0.25), `--device {auto,cuda,cpu}`, `--max_frames N`
+(quick preview). The output is written under `results/tracking/` by default.
+
+Drawing / gate knobs (env): `GMOT_DRAW_BY_ID=0` reverts to reliability colouring;
+`GBEACON_CUSUM_H` is the gate threshold `h` (default 0.40); `GBEACON_COAST_FLOOR` is the
+brief-miss floor `δ` (default 3); `GMOT_BIRTH_SIZE_GUARD=0` disables the anti glare-bloom
+phantom-birth guard.
 
 ## Data layout
 
@@ -110,21 +132,18 @@ PEG is selected with `GMOT_TRACKER=beacon`; the deployed configuration is the de
 export GMOT_TRACKER=beacon
 
 # Table I  — real held-out test (20 sequences)
-python scripts/07_eval_mot.py --split test --tracker_name peg
+python scripts/06_eval_mot.py --split test --tracker_name peg
 
 # Tables II & IV — full-scene MOT on the synthetic glare twins (FP/FN, operating point)
-python scripts/07_eval_mot.py --split test --data_root <data.glare> \
+python scripts/06_eval_mot.py --split test --data_root <data.glare> \
        --results_subdir eval_synthfs --tracker_name peg_fs
 
 # Table III — recovery on burnt targets only
-python scripts/08_eval_recovery.py --split test --tracker_name peg_rcv
+python scripts/07_eval_recovery.py --split test --tracker_name peg_rcv
 ```
 
-The train/val/test split is frozen and shipped (`glaremot/data/splits.json`), so the
-eval commands above run against it directly. To regenerate the detector's
-`train.txt`/`val.txt`/`dataset.yaml` from that split over your own data, run
-`python scripts/01_prepare_dataset.py` first (it never touches the held-out test
-sequences).
+The train/val/test split is frozen and shipped (`glaremot/data/splits.json`), so the eval
+commands above run against it directly.
 
 Operating-point and ablation knobs (all optional, default off / deployed):
 `GBEACON_CUSUM_H` (the gate threshold `h`), `GBEACON_COAST_FLOOR` (`δ`, default 3),
@@ -134,9 +153,9 @@ innovation refinements shown not to help).
 ## Retrain the visibility head (optional; weights are shipped)
 
 ```bash
-python scripts/03_preprocess_hpsi.py        # precompute frozen ROI features
-python scripts/04_mine_hard_negatives.py    # mine lamp-like hard negatives
-python scripts/05_train_hpsi.py --hardneg   # train the head (frozen backbone)
+python scripts/02_preprocess_hpsi.py        # precompute frozen ROI features
+python scripts/03_mine_hard_negatives.py    # mine lamp-like hard negatives
+python scripts/04_train_hpsi.py --hardneg   # train the head (frozen backbone)
 ```
 
 The head minimises `L = 2·focal_BCE(present) + 1·Huber(m, m_analytic) + 0.5·GaussianNLL(Σ)`

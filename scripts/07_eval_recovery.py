@@ -1,4 +1,4 @@
-"""Step 08 — Glare Recovery Benchmark (amodal box + ID retention through burn).
+"""Step 07 — Glare Recovery Benchmark (amodal box + ID retention through burn).
 
 Scores trackers on the SYNTHETIC-GLARE twin (GlareMOT-Synth), isolating the
 glare-recovery question that real-TEST can't (real-TEST is detector-bound). See
@@ -8,10 +8,10 @@ Default split is 'heldout' = val+test q-twins, the held-out clean pool.
 
 Examples:
   # PEG (emission cap lifted so the held box is scored through the burn):
-  GMOT_TRACKER=beacon python scripts/08_eval_recovery.py --split test --tracker_name peg_rcv
+  GMOT_TRACKER=beacon python scripts/07_eval_recovery.py --split test --tracker_name peg_rcv
 
   # re-score an existing tracker txt only (e.g. a baseline dropped into the workspace):
-  python scripts/08_eval_recovery.py --tracker_name deepocsort_rcv --skip_track
+  python scripts/07_eval_recovery.py --tracker_name deepocsort_rcv --skip_track
 """
 import os
 import sys

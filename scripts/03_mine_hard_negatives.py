@@ -1,4 +1,4 @@
-"""Step 04 — Mine lamp-blob hard negatives for h_psi, then retrain (step 05 --hardneg).
+"""Step 03 — Mine lamp-blob hard negatives for h_psi, then retrain (step 04 --hardneg).
 
 WHY. The detector fires on bright lamp blobs; without counter-examples the
 h_psi head scores them present ~0.7 and the tracker would give birth to "lamp
@@ -15,8 +15,8 @@ person" and collapse recall.
 The 12 real-glare TEST sequences are never touched: the new detector has not
 seen them, and mining them would leak test imagery into h_psi training.
 
-Run:  python scripts/04_mine_hard_negatives.py            # mine caches
-      python scripts/05_train_hpsi.py --hardneg            # then retrain
+Run:  python scripts/03_mine_hard_negatives.py            # mine caches
+      python scripts/04_train_hpsi.py --hardneg            # then retrain
 """
 import argparse
 import csv
@@ -174,7 +174,7 @@ def main():
         path = os.path.join(out_dir, f"cache_hardneg_{split}.pt")
         torch.save(cache, path)
         print(f"[{split}] saved {pooled.shape[0]} lamp negatives -> {path}")
-    print("STEP 04 DONE — now retrain:  python scripts/05_train_hpsi.py --hardneg")
+    print("STEP 03 DONE — now retrain:  python scripts/04_train_hpsi.py --hardneg")
 
 
 if __name__ == "__main__":
