@@ -102,6 +102,20 @@ BIRTH_CENTER_MIN_IOU = float(os.environ.get("GMOT_BIRTH_CENTER_MIN_IOU", "0.20")
 # Env-tunable so the recall/precision trade can be swept.
 CONFIRM_HITS = int(os.environ.get("GMOT_CONFIRM_HITS", "2"))
 TENTATIVE_MAX_MISS = 2
+# --- birth size-plausibility guard (anti glare-bloom phantom) ----------------
+# During an intense headlamp flare the detector hallucinates implausibly sized
+# boxes on the bloom/reflections (measured: h ~ 2-2.5x the real bodies on the bloom,
+# or tiny h ~ 0.5x on a reflection up the wall, all at low conf), which GCDT's
+# relaxed clean-box path (conf-only birth + 1-frame confirm) then admits as brand-new
+# identities that coast on as phantom tracks. The camera is fixed and workers sit at
+# a near-constant depth, so a NEW birth whose height is far from the already-confirmed
+# bodies (either way) is implausible. When confirmed references exist, reject a birth
+# whose height falls outside [median/RATIO, median*RATIO] AND whose detector
+# confidence is below CONF (a high-conf box is left alone -> a genuine worker at an
+# unusual scale still births).
+BIRTH_SIZE_GUARD = os.environ.get("GMOT_BIRTH_SIZE_GUARD", "1") not in ("0", "off", "false", "")
+BIRTH_SIZE_RATIO = float(os.environ.get("GMOT_BIRTH_SIZE_RATIO", "1.7"))
+BIRTH_SIZE_CONF = float(os.environ.get("GMOT_BIRTH_SIZE_CONF", "0.60"))
 
 # --- Glare-Conditioned Detection Trust (GCDT, NOVEL) ------------------------
 # The two easy-scene detection taxes — anti-lamp birth FN and coasting FP — share one
@@ -616,6 +630,15 @@ class GlareAwareTracker:
             return False
         if bh / max(bw, 1e-6) < 0.80:
             return False
+        # anti glare-bloom phantom: a low-conf birth whose size is far from the
+        # established bodies (either way) is a detector hallucination on the flare.
+        if BIRTH_SIZE_GUARD and meta["conf"] < BIRTH_SIZE_CONF:
+            ref_h = [float(t.smooth[3]) for t in self.tracks
+                     if t.is_confirmed and not t.exiting]
+            if ref_h:
+                med_h = float(np.median(ref_h))
+                if bh > BIRTH_SIZE_RATIO * med_h or bh < med_h / BIRTH_SIZE_RATIO:
+                    return False
         dx1, dy1, dx2, dy2 = det_row[:4]
         dcx, dcy = (dx1 + dx2) * 0.5, (dy1 + dy2) * 0.5
         for t in self.tracks:
@@ -946,15 +969,33 @@ class GlareAwareTracker:
                                     0.0, 1.0))
 
 
+# Distinct per-identity colors (BGR). GMOT_DRAW_BY_ID=1 (default) colors each box
+# by its track id like a standard MOT viewer (OC-SORT / DeepSORT style); set to 0 to
+# recover the legacy reliability colouring (green=observed, red=low-m).
+DRAW_BY_ID = os.environ.get("GMOT_DRAW_BY_ID", "1") not in ("0", "off", "false", "")
+_ID_PALETTE = [
+    (80, 220, 80), (60, 200, 255), (255, 120, 60), (200, 80, 255), (60, 255, 255),
+    (255, 200, 40), (40, 120, 255), (180, 255, 120), (255, 80, 200), (120, 220, 255),
+    (90, 160, 255), (210, 160, 60), (160, 90, 255), (60, 230, 160), (230, 230, 90),
+]
+
+
+def id_color(tid):
+    return _ID_PALETTE[int(tid) % len(_ID_PALETTE)]
+
+
 def draw_track(frame, t, W, H):
     x1, y1, x2, y2 = [int(round(v)) for v in norm_box_to_xyxy(t.smooth, W, H)]
-    col = reliability_color(t.m)
-    thick = 1 if t.mode in {"KALMAN", "BEACON", "FORECAST"} else 2
+    col = id_color(t.id) if DRAW_BY_ID else reliability_color(t.m)
+    thick = 2 if t.mode in {"KALMAN", "BEACON", "FORECAST"} else 3
     cv2.rectangle(frame, (x1, y1), (x2, y2), col, thick)
     if t.beacon is not None:
         cv2.circle(frame, (int(round(t.beacon[0])), int(round(t.beacon[1]))), 5, (0, 255, 255), 2)
-    cv2.putText(frame, f"#{t.id} {t.mode} m{t.m:.2f}", (x1, max(14, y1 - 6)),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.5, col, 1, cv2.LINE_AA)
+    label = f"ID {t.id}"
+    (tw, th), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2)
+    cv2.rectangle(frame, (x1, y1 - th - 8), (x1 + tw + 8, y1), col, -1)
+    cv2.putText(frame, label, (x1 + 4, y1 - 6),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2, cv2.LINE_AA)
 
 
 def write_mot_row(rows, frame_idx, t, W, H):
@@ -994,7 +1035,16 @@ def run_sequence(seq_dir, percep, out_path, max_frames=0, mot_out=None):
         raise FileNotFoundError(f"no frames in {seq_dir}")
     H, W = cv2.imread(img_paths[0]).shape[:2]
     writer = cv2.VideoWriter(out_path, cv2.VideoWriter_fourcc(*"mp4v"), 22.0, (W, H))
-    tracker = GlareAwareTracker()
+    if os.environ.get("GMOT_TRACKER", "base").lower() in ("beacon", "peg"):
+        from .beacon_tracker import PEG
+        tracker = PEG()
+        print("tracker: PEG (photometric emission gate)")
+    else:
+        tracker = GlareAwareTracker()
+        print("tracker: GlareAwareTracker (base)")
+    # the φ-gate needs the saturation map to confirm a burn and emit amodal boxes
+    if hasattr(tracker, "attach_perception"):
+        tracker.attach_perception(percep)
     mot_rows = []
     stats = {}
     n, t_proc = 0, 0.0
@@ -1060,7 +1110,16 @@ def run_video(video_path, percep, out_path, max_frames=0, mot_out=None,
         raise RuntimeError(f"bad video dimensions: {video_path}")
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     writer = cv2.VideoWriter(out_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, (W, H))
-    tracker = GlareAwareTracker()
+    if os.environ.get("GMOT_TRACKER", "base").lower() in ("beacon", "peg"):
+        from .beacon_tracker import PEG
+        tracker = PEG()
+        print("tracker: PEG (photometric emission gate)")
+    else:
+        tracker = GlareAwareTracker()
+        print("tracker: GlareAwareTracker (base)")
+    # the φ-gate needs the saturation map to confirm a burn and emit amodal boxes
+    if hasattr(tracker, "attach_perception"):
+        tracker.attach_perception(percep)
     mot_rows, dbg_rows = [], []
     stats = {}
     n, t_proc = 0, 0.0
