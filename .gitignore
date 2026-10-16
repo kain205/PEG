@@ -10,3 +10,6 @@ weights/pretrained/
 weights/**/events.*
 # Datasets are access-controlled and never committed
 datasets/
+dataset/
+# Local copy of the upstream repo archive
+PEG-main.zip
