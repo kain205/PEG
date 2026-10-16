@@ -358,6 +358,8 @@ def main():
                     help="override the glare dataset root (e.g. a denser eval-only "
                          "twin built by synth_glare --split heldout --max_events N). "
                          "Defaults to data.glare from the config.")
+    ap.add_argument("--percep_cache", default=None,
+                    help="dir of per-sequence perception caches (see eval_mot --percep_cache)")
     ap.add_argument("--skip_track", action="store_true",
                     help="reuse existing MOT txt, only score")
     ap.add_argument("--resume", action="store_true",
@@ -394,17 +396,19 @@ def main():
 
     if not args.skip_track:
         import torch
-        from .eval_mot import track_sequence  # triggers tracker import (env set above)
-        from ..tracking.tracker import Perception
+        # triggers tracker import (env set above)
+        from .eval_mot import lazy_perception, seq_perception, track_sequence
         device = "cuda" if torch.cuda.is_available() else "cpu"
-        percep = Perception(weight_path(cfg, "detector"), weight_path(cfg, "hpsi"),
-                            device, args.conf)
+        get_percep = lazy_perception(cfg, device, args.conf)
         for i, seq in enumerate(seqs, 1):
             out_txt = os.path.join(data_dir, f"{seq}.txt")
             if args.resume and os.path.exists(out_txt):
                 print(f"[{i}/{len(seqs)}] {seq}: resume, skip", flush=True)
                 continue
+            percep, save_to = seq_perception(seq, get_percep, args.percep_cache, args.conf)
             n, fps = track_sequence(os.path.join(glare_root, seq), percep, out_txt)
+            if save_to:
+                percep.save(save_to, args.conf)
             print(f"[{i}/{len(seqs)}] {seq}: {n} frames @ {fps:.1f} FPS", flush=True)
 
     print("\nscoring recovery ...", flush=True)

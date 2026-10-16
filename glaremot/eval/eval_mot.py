@@ -47,7 +47,34 @@ def make_tracker():
     return GlareAwareTracker()
 
 
-def track_sequence(seq_dir, percep, out_txt, max_frames=0):
+def seq_perception(seq, get_percep, cache_dir, conf, max_frames=0):
+    """Perception for one sequence. With ``cache_dir``: replay ``<cache_dir>/<seq>.npz`` if
+    it exists, else wrap the live detector in a recorder (returned save path is not None;
+    call ``percep.save(path, conf)`` after tracking). ``get_percep`` lazily builds the
+    live ``Perception`` so a fully cached run never loads the detector."""
+    if cache_dir:
+        from .percep_cache import CachedPerception, RecordingPerception, cache_path
+        path = cache_path(cache_dir, seq)
+        if os.path.exists(path):
+            return CachedPerception(path, conf), None
+        return RecordingPerception(get_percep()), (None if max_frames else path)
+    return get_percep(), None
+
+
+def lazy_perception(cfg, device, conf):
+    box = []
+
+    def get():
+        if not box:
+            box.append(Perception(weight_path(cfg, "detector"), weight_path(cfg, "hpsi"),
+                                  device, conf))
+        return box[0]
+    return get
+
+
+def track_sequence(seq_dir, percep, out_txt, max_frames=0, diag_out=None):
+    """diag_out: optional callable(frame_idx, tracker, emitted_tracks) called after every step
+    (used by glaremot.analysis.diag to dump per-track state). Default path is unchanged."""
     img_paths = sorted(glob.glob(os.path.join(seq_dir, "images", "*.jpg")))
     if max_frames:
         img_paths = img_paths[:max_frames]
@@ -68,6 +95,17 @@ def track_sequence(seq_dir, percep, out_txt, max_frames=0):
             rq.put(cv2.imread(p))
         rq.put(None)
 
+    if not getattr(percep, "needs_frame", True):
+        # cached perception: replayed outputs, no image decode needed
+        n_cached = getattr(percep, "n_frames", len(img_paths))
+        if n_cached < len(img_paths):
+            raise ValueError(f"perception cache has {n_cached} frames, sequence has {len(img_paths)}")
+
+        def _reader():
+            for _ in img_paths:
+                rq.put(0)
+            rq.put(None)
+
     threading.Thread(target=_reader, daemon=True).start()
     fi = 0
     while True:
@@ -77,6 +115,8 @@ def track_sequence(seq_dir, percep, out_txt, max_frames=0):
         fi += 1
         dets = percep(frame)
         tracks = tracker.step(dets, W, H, fi, core_fn=percep.core_mask)
+        if diag_out is not None:
+            diag_out(fi, tracker, tracks)
         for t in tracks:
             x1, y1, x2, y2 = norm_box_to_xyxy(t.out_box(), W, H)
             rows.append(
@@ -84,6 +124,8 @@ def track_sequence(seq_dir, percep, out_txt, max_frames=0):
                 f"{max(1.0, x2 - x1):.2f},{max(1.0, y2 - y1):.2f},"
                 f"{max(t.m, 0.001):.4f},-1,-1,-1")
     fps = len(img_paths) / max(time.time() - t0, 1e-6)
+    if hasattr(tracker, "dump_stats"):
+        tracker.dump_stats(os.path.basename(seq_dir.rstrip("/\\")))
     os.makedirs(os.path.dirname(out_txt), exist_ok=True)
     with open(out_txt, "w", encoding="utf-8") as f:
         f.write("\n".join(rows) + ("\n" if rows else ""))
@@ -191,6 +233,10 @@ def main():
                     help="reuse existing MOT txt, only run TrackEval")
     ap.add_argument("--resume", action="store_true",
                     help="skip sequences whose MOT txt already exists")
+    ap.add_argument("--percep_cache", default=None,
+                    help="dir of per-sequence perception caches (<seq>.npz): replayed when "
+                         "present, recorded on the first run. Tracker-only ablations then "
+                         "skip the detector entirely.")
     ap.add_argument("--data_root", default=None,
                     help="image+GT dataset root (default data.tracking). Point at the "
                          "glare bench to get full-scene metrics on the recovery twin.")
@@ -221,15 +267,18 @@ def main():
 
     total_frames, total_time = 0, 0.0
     if not args.skip_track:
-        percep = Perception(weight_path(cfg, "detector"), weight_path(cfg, "hpsi"),
-                            device, args.conf)
+        get_percep = lazy_perception(cfg, device, args.conf)
         for i, seq in enumerate(seqs, 1):
             out_txt = os.path.join(data_dir, f"{seq}.txt")
             if args.resume and os.path.exists(out_txt):
                 print(f"[{i}/{len(seqs)}] {seq}: resume, skip", flush=True)
                 continue
+            percep, save_to = seq_perception(seq, get_percep, args.percep_cache, args.conf,
+                                             args.max_frames)
             n, fps = track_sequence(os.path.join(trk_root, seq), percep,
                                     out_txt, max_frames=args.max_frames)
+            if save_to:
+                percep.save(save_to, args.conf)
             total_frames += n
             total_time += n / max(fps, 1e-6)
             print(f"[{i}/{len(seqs)}] {seq}: {n} frames @ {fps:.1f} FPS", flush=True)
