@@ -165,6 +165,10 @@ FC_MIN_GOOD_HITS = 20    # a young track has no trustworthy velocity to coast on
 # (the person has usually just left / been briefly missed, not burnt). Env-tunable.
 OUTPUT_MAX_GAP = int(os.environ.get("GMOT_OUTPUT_MAX_GAP", "12"))
 VEL_DAMP = 0.95          # per-frame Kalman velocity decay while unobserved past FORECAST_START
+# PEG+ size lock: a coasting person does not shrink or grow, so zero the Kalman area
+# velocity x[6] on every missed frame (VEL_DAMP only damps x/y). Without it the coast box
+# can collapse (92x80 -> 16x14 px in 20 frames) and leave the person. Default off = paper.
+SIZE_LOCK = os.environ.get("GPEG_SIZE_LOCK", "0") not in ("0", "off", "false", "")
 
 # --- exit gate (a person who walked OUT of the frame must die fast) ---
 # The detector loses a leaving person BEFORE the box touches the edge (half a
@@ -202,6 +206,106 @@ BEACON_MIN_PX = 2
 BEACON_HEAD_BAND = 0.45
 BEACON_EXPAND_UP = 0.15
 BEACON_GATE_FRAC = 0.75
+
+# --- PEG-F (friend's methods; each flag defaults to the master switch GPEG_F, default off) ---
+# GPEG_F=1 turns on M1-M5 (M3/M5 live in beacon_tracker.py); an individual env var overrides it.
+#   M1 GMOT_ADAPTIVE_MOTION  velocity damping for close pairs + extra swap tests in _resolve_identity
+#   M2 GMOT_REID             pre-burn HSV appearance (EMA per track) as identity votes
+#   M4 GMOT_DORMANT          dormant pool: a lost confirmed track's ID is revived on a matching birth
+#   (GMOT_DEGLARE, M6, is not ported.)
+def peg_f_flag(name):
+    return os.environ.get(name, os.environ.get("GPEG_F", "0")) not in ("0", "off", "false", "")
+
+
+ENABLE_ADAPTIVE_MOTION = peg_f_flag("GMOT_ADAPTIVE_MOTION")
+ENABLE_REID = peg_f_flag("GMOT_REID")
+ENABLE_DORMANT = peg_f_flag("GMOT_DORMANT")
+USE_APPEARANCE = ENABLE_REID or ENABLE_DORMANT   # Perception computes appearance only if needed
+# M1 split into two sub-parts; each defaults to the M1 flag, an explicit env value overrides.
+#   GMOT_AM_DAMP  x0.88 velocity damping of close confirmed pairs (step())
+#   GMOT_AM_SWAP  extra swap logic in _resolve_identity (far-pair gate, direction-aware flip,
+#                 velocity-continuity, height-consistency)
+AM_DAMP = peg_f_flag("GMOT_AM_DAMP") if "GMOT_AM_DAMP" in os.environ else ENABLE_ADAPTIVE_MOTION
+AM_SWAP = peg_f_flag("GMOT_AM_SWAP") if "GMOT_AM_SWAP" in os.environ else ENABLE_ADAPTIVE_MOTION
+DORMANT_MAX_AGE = int(os.environ.get("GMOT_DORMANT_MAX_AGE", "45"))
+DORMANT_APP_THRESH = float(os.environ.get("GMOT_DORMANT_APP_THRESH", "0.60"))
+
+
+def extract_appearance(image_bgr, box_xyxy):
+    """Fast spatial 2-part HSV color descriptor (upper body + lower body).
+    Returns normalized 48-dim float32 vector or None."""
+    if image_bgr is None:
+        return None
+    x1, y1, x2, y2 = [int(round(v)) for v in box_xyxy[:4]]
+    h_img, w_img = image_bgr.shape[:2]
+    x1, y1 = max(0, x1), max(0, y1)
+    x2, y2 = min(w_img, x2), min(h_img, y2)
+    if x2 - x1 < 4 or y2 - y1 < 8:
+        return None
+    crop = image_bgr[y1:y2, x1:x2]
+    mid = crop.shape[0] // 2
+
+    def _hist(patch):
+        if patch.size == 0:
+            return np.zeros(24, dtype=np.float32)
+        hsv = cv2.cvtColor(patch, cv2.COLOR_BGR2HSV)
+        h_hist = cv2.calcHist([hsv], [0], None, [16], [0, 180])
+        s_hist = cv2.calcHist([hsv], [1], None, [8], [0, 256])
+        feat = np.concatenate([h_hist.flatten(), s_hist.flatten()]).astype(np.float32)
+        return feat / max(float(np.linalg.norm(feat)), 1e-6)
+
+    feat = np.concatenate([_hist(crop[:mid, :]), _hist(crop[mid:, :])])
+    return (feat / max(float(np.linalg.norm(feat)), 1e-6)).astype(np.float32)
+
+
+class _FStats:
+    """Opt-in firing counters for PEG-F (GPEG_F_STATS=1). Read-only: never changes a decision.
+    Dumped once per sequence by track_sequence() as a '[F_STATS] {json}' line (and appended to
+    $GPEG_F_STATS_OUT if set)."""
+
+    def __init__(self):
+        self.on = os.environ.get("GPEG_F_STATS", "0") not in ("0", "off", "false", "")
+        self.reset()
+
+    def reset(self):
+        self.c = {}
+        self.v = {}
+        self.ev = []
+
+    def inc(self, k, n=1):
+        self.c[k] = self.c.get(k, 0) + n
+
+    def val(self, k, x):
+        self.v.setdefault(k, []).append(float(x))
+
+    def event(self, **kw):
+        if len(self.ev) < 400:
+            self.ev.append(kw)
+
+    def dump(self, seq):
+        import json
+        vs = {}
+        for k, a in self.v.items():
+            arr = np.asarray(a, np.float64)
+            vs[k] = {"n": int(arr.size), "min": round(float(arr.min()), 3), "p10": round(float(np.percentile(arr, 10)), 3),
+                     "median": round(float(np.median(arr)), 3), "p90": round(float(np.percentile(arr, 90)), 3),
+                     "max": round(float(arr.max()), 3)}
+        rec = {"seq": seq, "counts": self.c, "dists": vs, "events": self.ev}
+        print("[F_STATS] " + json.dumps(rec), flush=True)
+        out = os.environ.get("GPEG_F_STATS_OUT")
+        if out:
+            with open(out, "a", encoding="utf-8") as f:
+                f.write(json.dumps(rec) + "\n")
+
+
+FS = _FStats()
+
+
+def appearance_similarity(f1, f2):
+    """Cosine similarity between two normalized appearance features in [-1, 1]."""
+    if f1 is None or f2 is None:
+        return 0.5
+    return float(np.clip(np.dot(f1, f2), -1.0, 1.0))
 
 
 def xyxy_to_norm_box(xyxy, W, H):
@@ -264,6 +368,12 @@ def fast_core_mask(sat_bool):
     return out
 
 
+def square_frame(frame, S):
+    """The S x S detector input (shared with scripts/12_cache_appearance.py)."""
+    return frame if frame.shape[0] == S and frame.shape[1] == S else \
+        cv2.resize(frame, (S, S), interpolation=cv2.INTER_AREA)
+
+
 class Perception:
     """YOLO detector + frozen-backbone h_psi head + photometric runtime.
 
@@ -307,8 +417,7 @@ class Perception:
     @torch.no_grad()
     def __call__(self, frame):
         S = self.S
-        sq = frame if frame.shape[0] == S and frame.shape[1] == S else \
-            cv2.resize(frame, (S, S), interpolation=cv2.INTER_AREA)
+        sq = square_frame(frame, S)
         small = cv2.resize(sq, (PHOTO_S, PHOTO_S), interpolation=cv2.INTER_AREA)
         self._sat = fast_saturation_map(small)
         self._core = None
@@ -344,6 +453,7 @@ class Perception:
                 "m_glare": float(np.clip(mg[i], 0.0, 1.0)),
                 "present": float(np.clip(present[i], 0.0, 1.0)),
                 "core_frac": core_frac,
+                "appearance": extract_appearance(sq, (x1, y1, x2, y2)) if USE_APPEARANCE else None,
             })
         return dets
 
@@ -422,6 +532,7 @@ class MotionTrack:
         self.box = xyxy_to_norm_box(kf.get_state()[0], W, H)
         self.smooth = self.box.copy()
         self.det_box = np.array(det["box"], np.float32)  # raw detector box (tight) for output
+        self.appearance = det.get("appearance")          # PEG-F M2/M4
         self._push_hist(self.box, max(self.m_glare, HIST_M_MIN))
 
     def out_box(self):
@@ -489,6 +600,17 @@ class MotionTrack:
         self.det_box = np.array(det["box"], np.float32)  # tight box for this observed frame
         self.last_frame = frame_idx
 
+        # PEG-F M2: pre-burn appearance cache (EMA of clean views; frozen once m_glare drops)
+        if USE_APPEARANCE:
+            new_app = det.get("appearance")
+            if new_app is not None and m_det >= 0.45:
+                if self.appearance is None:
+                    self.appearance = new_app
+                else:
+                    self.appearance = 0.85 * self.appearance + 0.15 * new_app
+                    norm = float(np.linalg.norm(self.appearance))
+                    self.appearance = (self.appearance / max(norm, 1e-6)).astype(np.float32)
+
         # GCDT floors m for clean detector-confident dets upstream, so they clear
         # TAU_HI here and confirm normally — no saturated core means no lamp to fear.
         good = m_det >= TAU_HI
@@ -543,6 +665,8 @@ class MotionTrack:
         if gap >= FORECAST_START:
             # constant-velocity is not credible over long unobserved stretches
             self.kf.kf.x[4:6] *= VEL_DAMP
+        if SIZE_LOCK:
+            self.kf.kf.x[6] = 0.0
         self.box = xyxy_to_norm_box(self.kf.get_state()[0], W, H)
         if self.is_confirmed:
             self.state = "LOST"
@@ -557,6 +681,8 @@ class MotionTrack:
 class GlareAwareTracker:
     def __init__(self):
         self.tracks = []
+        self.dormant_tracks = []   # PEG-F M4
+        FS.reset()
         self.frame_count = 0
         self._W = 1
         self._H = 1
@@ -664,7 +790,12 @@ class GlareAwareTracker:
                     return False
         return True
 
-    def _resolve_identity(self, matched, det_arr, trks, unmatched_trks):
+    def dump_stats(self, seq):
+        """GPEG_F_STATS=1: print this sequence's PEG-F firing counters (no effect on tracking)."""
+        if FS.on:
+            FS.dump(seq)
+
+    def _resolve_identity(self, matched, det_arr, det_meta, trks, unmatched_trks):
         """Anti ID-steal/swap inside close groups — the price of no appearance.
 
         1. CONTESTED STEAL: a det matched to track ti while an overlapping
@@ -675,6 +806,8 @@ class GlareAwareTracker:
            is still in the scene).
         2. PAIR SWAP: two matched dets whose assignment inverts the pair's
            stable historical order in BOTH x and foot-y get swapped back.
+        PEG-F adds (flag-gated): M2 appearance votes in 1 and 2; M1 direction-aware
+        order test, a far-pair gate, velocity-continuity and height-consistency swaps.
         """
         if len(matched) == 0 or len(self.tracks) < 2 or not len(det_arr):
             return matched, unmatched_trks
@@ -702,11 +835,35 @@ class GlareAwareTracker:
                 iou_lo_j = float(iou_batch(det_arr[di:di + 1, :4],
                                            np.asarray(lo_j, np.float32)[None, :])[0, 0])
                 w_exit = self.tracks[winner].exiting and not self.tracks[tj].exiting
-                if iou_lo_j > iou_lo_w + 1e-6 or (
+                # PEG-F M2: the det looks much more like tj's pre-burn appearance
+                app_vote = False
+                if ENABLE_REID and det_meta is not None and di < len(det_meta):
+                    det_app = det_meta[di].get("appearance")
+                    app_w = appearance_similarity(det_app, getattr(self.tracks[winner], "appearance", None))
+                    app_j = appearance_similarity(det_app, getattr(self.tracks[tj], "appearance", None))
+                    if app_j > app_w + 0.25 and iou_dt[di, tj] > 0.05:
+                        app_vote = True
+                    if FS.on:
+                        FS.inc("m2_steal_evals")
+                        if det_app is None or getattr(self.tracks[winner], "appearance", None) is None \
+                                or getattr(self.tracks[tj], "appearance", None) is None:
+                            FS.inc("m2_steal_evals_missing_app")
+                        else:
+                            FS.val("m2_steal_sim_winner", app_w)
+                            FS.val("m2_steal_sim_challenger", app_j)
+                            FS.val("m2_steal_sim_diff", app_j - app_w)
+
+                other_cond = (iou_lo_j > iou_lo_w + 1e-6 or (
                         abs(iou_lo_j - iou_lo_w) <= 1e-6
                         and self.tracks[tj].kf.time_since_update
                         < self.tracks[winner].kf.time_since_update) or (
-                        w_exit and iou_lo_j > 0.1):
+                        w_exit and iou_lo_j > 0.1))
+                if FS.on and ENABLE_REID and app_vote:
+                    FS.inc("m2_steal_votes")
+                    if not other_cond:
+                        FS.inc("m2_steal_changed")
+                        FS.event(t="m2_steal", f=self._fi, win=self.tracks[winner].id, ch=self.tracks[tj].id)
+                if app_vote or other_cond:
                     winner = tj
             if winner != ti:
                 unmatched.discard(winner)
@@ -722,8 +879,6 @@ class GlareAwareTracker:
             for b in range(a + 1, len(pairs)):
                 di, ti = pairs[a]
                 dj, tj = pairs[b]
-                if iou_tt[ti, tj] < AMBIG_IOU:
-                    continue
                 if len(self.tracks[ti].centers) < 3 or len(self.tracks[tj].centers) < 3:
                     continue
                 hxi, hyi = hist_med(ti)
@@ -732,13 +887,104 @@ class GlareAwareTracker:
                 dxj, dyj = (det_arr[dj, 0] + det_arr[dj, 2]) * 0.5, (det_arr[dj, 1] + det_arr[dj, 3]) * 0.5
                 w_ref = max(det_arr[di, 2] - det_arr[di, 0], det_arr[dj, 2] - det_arr[dj, 0], 1.0)
                 h_ref = max(det_arr[di, 3] - det_arr[di, 1], det_arr[dj, 3] - det_arr[dj, 1], 1.0)
-                flip_x = (abs(hxi - hxj) > SWAP_SEP_FRAC * w_ref
+                if iou_tt[ti, tj] < AMBIG_IOU and (
+                        not AM_SWAP
+                        or float(np.hypot(hxi - hxj, hyi - hyj)) > 1.8 * max(w_ref, h_ref)):
+                    continue
+                if FS.on:
+                    FS.inc("swap_pairs_evaluated")
+                    if iou_tt[ti, tj] < AMBIG_IOU:
+                        FS.inc("swap_pairs_far_gate")  # only reachable with M1-swap
+                sep_x_hist = abs(hxi - hxj)
+                sep_y_hist = abs(hyi - hyj)
+                flip_x = (sep_x_hist > SWAP_SEP_FRAC * w_ref
                           and abs(dxi - dxj) > SWAP_SEP_FRAC * w_ref
                           and np.sign(dxi - dxj) == -np.sign(hxi - hxj))
-                flip_y = (abs(hyi - hyj) > SWAP_SEP_FRAC * h_ref
+                flip_y = (sep_y_hist > SWAP_SEP_FRAC * h_ref
                           and abs(dyi - dyj) > SWAP_SEP_FRAC * h_ref
                           and np.sign(dyi - dyj) == -np.sign(hyi - hyj))
-                if flip_x and flip_y:
+                # the original (paper) rule, for the firing counters only
+                orig_swap = bool(iou_tt[ti, tj] >= AMBIG_IOU and flip_x and flip_y)
+                swap_src = "orig" if orig_swap else None
+                if not AM_SWAP:
+                    swap_needed = flip_x and flip_y
+                elif sep_x_hist >= sep_y_hist * 1.2:
+                    # PEG-F M1: direction-aware -- in a horizontal tunnel flip_x is decisive
+                    swap_needed = flip_x
+                elif sep_y_hist >= sep_x_hist * 1.2:
+                    swap_needed = flip_y
+                else:
+                    swap_needed = (flip_x and flip_y) or (flip_x and not (abs(dyi - dyj) > SWAP_SEP_FRAC * h_ref))
+                if FS.on and AM_SWAP:
+                    if swap_needed and not orig_swap:
+                        swap_src = "dir"
+                    elif orig_swap and not swap_needed:
+                        FS.inc("m1_dir_suppressed_orig_swap")
+                        swap_src = None
+
+                if ENABLE_REID and not swap_needed and det_meta is not None and di < len(det_meta) and dj < len(det_meta):
+                    # PEG-F M2: the crossed assignment explains the appearances clearly better
+                    det_app_i = det_meta[di].get("appearance")
+                    det_app_j = det_meta[dj].get("appearance")
+                    app_ii = appearance_similarity(det_app_i, getattr(self.tracks[ti], "appearance", None))
+                    app_jj = appearance_similarity(det_app_j, getattr(self.tracks[tj], "appearance", None))
+                    app_ij = appearance_similarity(det_app_i, getattr(self.tracks[tj], "appearance", None))
+                    app_ji = appearance_similarity(det_app_j, getattr(self.tracks[ti], "appearance", None))
+                    if FS.on:
+                        FS.inc("m2_swap_evals")
+                        if all(x is not None for x in (det_app_i, det_app_j, getattr(self.tracks[ti], "appearance", None),
+                                                       getattr(self.tracks[tj], "appearance", None))):
+                            FS.val("m2_swap_sim_own", (app_ii + app_jj) * 0.5)
+                            FS.val("m2_swap_sim_cross", (app_ij + app_ji) * 0.5)
+                            FS.val("m2_swap_cross_minus_own_sum", (app_ij + app_ji) - (app_ii + app_jj))
+                        else:
+                            FS.inc("m2_swap_evals_missing_app")
+                    if (app_ij + app_ji) > (app_ii + app_jj) + 0.15:
+                        swap_needed = True
+                        swap_src = "app"
+                        if FS.on:
+                            FS.inc("m2_swap_changed")
+                            FS.event(t="m2_swap", f=self._fi, a=self.tracks[ti].id, b=self.tracks[tj].id)
+
+                if AM_SWAP and not swap_needed:
+                    # PEG-F M1: velocity continuity (anti order-inverting swap)
+                    ci = np.asarray(self.tracks[ti].centers[-1], np.float32) * [self._W, self._H]
+                    cj = np.asarray(self.tracks[tj].centers[-1], np.float32) * [self._W, self._H]
+                    c_hist_i = np.asarray(list(self.tracks[ti].centers)[-6:], np.float32) * [self._W, self._H]
+                    c_hist_j = np.asarray(list(self.tracks[tj].centers)[-6:], np.float32) * [self._W, self._H]
+                    vi = (c_hist_i[-1] - c_hist_i[0]) / max(len(c_hist_i) - 1, 1)
+                    vj = (c_hist_j[-1] - c_hist_j[0]) / max(len(c_hist_j) - 1, 1)
+                    p_det_i = np.array([dxi, dyi], np.float32)
+                    p_det_j = np.array([dxj, dyj], np.float32)
+                    err_curr = float(np.linalg.norm((p_det_i - ci) - vi) + np.linalg.norm((p_det_j - cj) - vj))
+                    err_swap = float(np.linalg.norm((p_det_j - ci) - vi) + np.linalg.norm((p_det_i - cj) - vj))
+                    if err_swap < 0.65 * err_curr and (err_curr - err_swap) > 4.0:
+                        swap_needed = True
+                        swap_src = "vel"
+
+                if (AM_SWAP and not swap_needed
+                        and len(self.tracks[ti].hist) >= 2 and len(self.tracks[tj].hist) >= 2):
+                    # PEG-F M1: scale / height consistency (invariant under crossing and glare)
+                    h_det_i = float(det_arr[di, 3] - det_arr[di, 1])
+                    h_det_j = float(det_arr[dj, 3] - det_arr[dj, 1])
+                    h_hist_i = float(np.median([r[3] for r in self.tracks[ti].hist])) * self._H
+                    h_hist_j = float(np.median([r[3] for r in self.tracks[tj].hist])) * self._H
+                    scale_h = max(h_hist_i, h_hist_j, 1.0)
+                    err_h_curr = abs(h_det_i - h_hist_i) + abs(h_det_j - h_hist_j)
+                    err_h_swap = abs(h_det_j - h_hist_i) + abs(h_det_i - h_hist_j)
+                    if (err_h_curr - err_h_swap > 0.20 * scale_h) and (err_h_swap < 0.60 * err_h_curr):
+                        swap_needed = True
+                        swap_src = "hgt"
+
+                if FS.on and swap_needed:
+                    FS.inc("swaps_total")
+                    FS.inc("swaps_src_" + str(swap_src))
+                    if not orig_swap:
+                        FS.inc("m1_swaps_not_in_orig")
+                        FS.inc("m1_swaps_not_in_orig_" + str(swap_src))
+                        FS.event(t="m1_swap", f=self._fi, a=self.tracks[ti].id, b=self.tracks[tj].id, src=swap_src,
+                                 ta=int(self.tracks[ti].kf.time_since_update), tb=int(self.tracks[tj].kf.time_since_update))
+                if swap_needed:
                     pairs[a] = (di, tj)
                     pairs[b] = (dj, ti)
         return pairs, np.asarray(sorted(unmatched), dtype=int)
@@ -829,6 +1075,46 @@ class GlareAwareTracker:
         self._H = H
         det_arr, det_meta, byte_arr, byte_meta = self._valid_detections(dets, W, H)
         det_arr = det_arr[det_arr[:, 4] > TRACK_THRESH] if len(det_arr) else det_arr
+        self._fi = frame_idx
+        if FS.on:
+            FS.inc("frames")
+            for _t in self.tracks:
+                if _t.is_confirmed:
+                    FS.inc("m2_confirmed_trackframes")
+                    if getattr(_t, "appearance", None) is not None:
+                        FS.inc("m2_confirmed_trackframes_with_app")
+            FS.inc("dets_total", len(det_meta))
+            FS.inc("dets_with_app", sum(1 for _d in det_meta if _d.get("appearance") is not None))
+
+        if AM_DAMP and len(self.tracks) > 1:
+            # PEG-F M1: close confirmed pairs decelerate or turn -- damp velocity so the
+            # constant-velocity extrapolation does not overshoot
+            _damped = set()
+            for a in range(len(self.tracks)):
+                for b in range(a + 1, len(self.tracks)):
+                    ta, tb = self.tracks[a], self.tracks[b]
+                    if not ta.is_confirmed or not tb.is_confirmed:
+                        continue
+                    ca = ta.centers[-1] if len(ta.centers) else (0, 0)
+                    cb = tb.centers[-1] if len(tb.centers) else (0, 0)
+                    dist_px = float(np.hypot((ca[0] - cb[0]) * W, (ca[1] - cb[1]) * H))
+                    scale_px = max(ta.box[2] * W, ta.box[3] * H, tb.box[2] * W, tb.box[3] * H, 1.0)
+                    if dist_px < 2.0 * scale_px:
+                        ta.kf.kf.x[4:6] *= 0.88
+                        tb.kf.kf.x[4:6] *= 0.88
+                        if FS.on:
+                            FS.inc("m1_damp_pair_apps")
+                            _damped.add(a)
+                            _damped.add(b)
+            if FS.on and _damped:
+                for a in _damped:
+                    ta = self.tracks[a]
+                    FS.inc("m1_damp_trackframes")
+                    if int(ta.kf.time_since_update) >= 1:
+                        FS.inc("m1_damp_trackframes_missed")
+                        if getattr(ta, "_lamp_emit_until", -1) >= frame_idx - 1:
+                            FS.inc("m1_damp_trackframes_missed_armed")
+                            FS.event(t="m1_damp_armed", f=frame_idx, tid=ta.id)
 
         trks = np.zeros((len(self.tracks), 5), np.float32)
         to_del = []
@@ -852,7 +1138,7 @@ class GlareAwareTracker:
 
         matched, unmatched_dets, unmatched_trks = oc_associate(
             det_arr, trks, IOU_THRESH, velocities, k_obs, INERTIA)
-        matched, unmatched_trks = self._resolve_identity(matched, det_arr, trks, unmatched_trks)
+        matched, unmatched_trks = self._resolve_identity(matched, det_arr, det_meta, trks, unmatched_trks)
         rej_d, rej_t = [], []
         for di, ti in matched:
             di, ti = int(di), int(ti)
@@ -921,6 +1207,52 @@ class GlareAwareTracker:
             d = det_meta[int(di)]
             if not self._birth_allowed(det_arr[int(di)], d):
                 continue
+
+            # PEG-F M4: a birth that looks like a recently lost confirmed track revives its ID
+            revived_id = None
+            old_meta_app = None
+            if FS.on and ENABLE_DORMANT:
+                FS.inc("m4_births")
+                if self.dormant_tracks:
+                    FS.inc("m4_births_with_pool")
+            if ENABLE_DORMANT:
+                best_dormant_idx = -1
+                best_score = -1.0
+                dx1, dy1, dx2, dy2 = [float(v) for v in det_arr[int(di)][:4]]
+                dcx, dcy = (dx1 + dx2) * 0.5, (dy1 + dy2) * 0.5
+                det_app = d.get("appearance")
+                for d_idx, dt in enumerate(self.dormant_tracks):
+                    d_gap = frame_idx - dt["last_frame"]
+                    if d_gap < 1 or d_gap > DORMANT_MAX_AGE:
+                        continue
+                    rx1, ry1, rx2, ry2 = [float(v) for v in dt["last_observation"][:4]]
+                    rcx, rcy = (rx1 + rx2) * 0.5, (ry1 + ry2) * 0.5
+                    diag = float(np.hypot(rx2 - rx1, ry2 - ry1))
+                    dist = float(np.hypot(dcx - rcx, dcy - rcy))
+                    max_reach = max(diag * 2.0 + (diag * 0.15) * d_gap, 1.0)
+                    if dist > max_reach:
+                        continue
+                    app_sim = appearance_similarity(det_app, dt.get("appearance"))
+                    if FS.on:
+                        FS.inc("m4_candidates_in_reach")
+                        if det_app is None or dt.get("appearance") is None:
+                            FS.inc("m4_candidates_missing_app")
+                        else:
+                            FS.val("m4_cand_sim", app_sim)
+                    if app_sim >= DORMANT_APP_THRESH:
+                        score = app_sim - (dist / max_reach) * 0.2
+                        if score > best_score:
+                            best_score = score
+                            best_dormant_idx = d_idx
+                if best_dormant_idx >= 0:
+                    dt = self.dormant_tracks.pop(best_dormant_idx)
+                    revived_id = dt["id"]
+                    if FS.on:
+                        FS.inc("m4_revivals")
+                        FS.event(t="m4_revive", f=frame_idx, tid=int(revived_id), sim=round(float(best_score), 3),
+                                 gap=int(frame_idx - dt["last_frame"]))
+                    old_meta_app = dt.get("appearance")
+
             kf = KalmanBoxTracker(det_arr[int(di)], delta_t=DELTA_T)
             # OC-SORT's constructor seeds the state but does not count the
             # initial detection as a hit; mark it once without a double update.
@@ -929,7 +1261,15 @@ class GlareAwareTracker:
             kf.history_observations.append(det_arr[int(di)].copy())
             kf.hits = 1
             kf.hit_streak = 1
-            self.tracks.append(MotionTrack(kf, d, W, H, frame_idx))
+            nt = MotionTrack(kf, d, W, H, frame_idx)
+            if revived_id is not None:
+                nt.id = revived_id
+                nt.is_confirmed = True
+                nt.state = "RELIABLE"
+                nt.mode = "RELIABLE"
+                if old_meta_app is not None:
+                    nt.appearance = old_meta_app
+            self.tracks.append(nt)
 
         alive = []
         for t in self.tracks:
@@ -937,9 +1277,24 @@ class GlareAwareTracker:
             if not t.is_confirmed and t.age_frames > TENTATIVE_MAX_AGE:
                 continue  # never proved to be a person
             if gap > t.allowed_gap():
+                if ENABLE_DORMANT and t.is_confirmed and not t.exiting:
+                    if FS.on:
+                        FS.inc("m4_inserts")
+                        if getattr(t, "appearance", None) is None:
+                            FS.inc("m4_inserts_without_app")
+                    self.dormant_tracks.append({
+                        "id": t.id,
+                        "last_observation": np.asarray(t.kf.last_observation, np.float32).flatten()[:4].copy(),
+                        "last_frame": t.last_frame,
+                        "appearance": getattr(t, "appearance", None),
+                    })
                 continue  # fill budget exhausted (or exit gate fired)
             alive.append(t)
         self.tracks = alive
+
+        if ENABLE_DORMANT and len(self.dormant_tracks) > 0:
+            self.dormant_tracks = [dt for dt in self.dormant_tracks
+                                   if frame_idx - dt["last_frame"] <= DORMANT_MAX_AGE]
 
         # Emit a confirmed track while it has been observed within OUTPUT_MAX_GAP
         # frames. Its ID lives longer (allowed_gap, for re-association through a

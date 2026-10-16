@@ -34,6 +34,18 @@ Env knobs (all optional; defaults reproduce the deployed PEG):
   GBEACON_MF_CONFIRM=1        opt-in matched-filter headlamp confirmation (does not help)
   GBEACON_CUSUM=1             opt-in CUSUM sequential test (does not help)
   GBEACON_NIS=1               opt-in chi-square innovation gate (does not help)
+
+PEG+ (our extension, default off = the paper's PEG): the gate already knows the worker is
+still there; these keep the held box ON the worker.
+  GPEG_SIZE_LOCK=1            freeze the coast box size (zero Kalman area velocity; tracker.py)
+  GPEG_LAMP_FOLLOW=1          while the gate is armed, nudge the box centre to the lamp
+                              (the backbone's weak lamp pseudo-measurement)
+
+PEG-F (friend's methods; default off, GPEG_F=1 turns on all; an individual var overrides):
+  GBEACON_DYNAMIC_H           M3: gate threshold h grows with the loss gap (wall-flare FPs)
+  GBEACON_ADAPTIVE_TTL        M3: emit grace window scaled by the burn-evidence strength
+  GBEACON_ANCHOR              M5: headlamp centroid pulls the coast box (posture change / turns)
+  (M1/M2/M4: GMOT_ADAPTIVE_MOTION / GMOT_REID / GMOT_DORMANT, see tracker.py)
 """
 import os
 
@@ -42,7 +54,8 @@ import numpy as np
 
 from ..photometric import core_centroid_in_box, mask_area_inside
 from .tracker import (BEACON_EXPAND_UP, BEACON_GATE_FRAC, BEACON_HEAD_BAND,
-                      BEACON_MIN_PX, OUTPUT_MAX_GAP, GlareAwareTracker)
+                      BEACON_MIN_PX, FS, OUTPUT_MAX_GAP, GlareAwareTracker,
+                      peg_f_flag, smooth_box, xyxy_to_norm_box)
 
 
 def _flag(name, default="1"):
@@ -59,6 +72,7 @@ MF_CONFIRM = _flag("GBEACON_MF_CONFIRM", "0")    # require a matched-filter head
 MF_ENABLE = _flag("GBEACON_MF")                  # matched filter vs plain centroid (if confirming)
 CUSUM_ENABLE = _flag("GBEACON_CUSUM", "0")       # sequential test vs instantaneous phi
 NIS_ENABLE = _flag("GBEACON_NIS", "0")           # spatial innovation gate on the lamp
+LAMP_FOLLOW = _flag("GPEG_LAMP_FOLLOW", "0")     # PEG+: armed gate -> box follows the lamp
 
 MF_SIGMA_FRAC = float(os.environ.get("GBEACON_MF_SIGMA", "0.25"))  # of head-band height
 MF_MIN_RESP = float(os.environ.get("GBEACON_MF_MINRESP", "0.05"))  # min matched-filter peak
@@ -83,6 +97,13 @@ GATE_EMIT = _flag("GBEACON_GATE_EMIT")  # 0 -> inherit the backbone's fixed outp
 # keeping, instead of holding all of them blindly. Deployed default = 3 frames: a
 # brief miss is bridged freely, anything longer must be photometrically confirmed.
 COAST_FLOOR = int(os.environ.get("GBEACON_COAST_FLOOR", "3"))
+
+
+# --- PEG-F (flags default to GPEG_F, default off) ---
+DYNAMIC_H = peg_f_flag("GBEACON_DYNAMIC_H")      # M3: h grows with the gap past COAST_FLOOR
+H_DECAY = float(os.environ.get("GBEACON_H_DECAY", "0.06"))
+ADAPTIVE_TTL = peg_f_flag("GBEACON_ADAPTIVE_TTL")  # M3: EMIT_TTL scaled by phi / h
+ANCHOR_ENABLE = peg_f_flag("GBEACON_ANCHOR")     # M5: headlamp centroid anchoring
 
 
 def _matched_filter_peak(core_patch, sigma_px):
@@ -241,15 +262,30 @@ class PEG(GlareAwareTracker):
 
         # --- (1) analytic burn evidence + (2) CUSUM sequential test --------- #
         phi = self._body_burn_fraction(mt, W, H)
+        mt._phi = phi                      # kept for the failure-analysis diag dump
         gap = int(mt.kf.time_since_update)
         if gap <= 1:                       # first missing frame of a new loss episode
             mt._cusum_g = 0.0
             mt._burn = False
         g = getattr(mt, "_cusum_g", 0.0) + (phi - CUSUM_K)
         mt._cusum_g = float(max(0.0, g))
-        if mt._cusum_g > CUSUM_H:
+        eff_h = CUSUM_H
+        if DYNAMIC_H and gap > COAST_FLOOR:
+            # PEG-F M3: scale the threshold with the gap to suppress persistent wall-flare FPs
+            eff_h = min(0.65, CUSUM_H * (1.0 + H_DECAY * (gap - COAST_FLOOR)))
+        if mt._cusum_g > eff_h:
             mt._burn = True
-        burn = mt._burn if CUSUM_ENABLE else (phi >= CUSUM_H)
+        burn = mt._burn if CUSUM_ENABLE else (phi >= eff_h)
+        if FS.on:
+            FS.inc("gate_evals")
+            if burn:
+                FS.inc("gate_burn_frames")
+            if DYNAMIC_H and eff_h > CUSUM_H:
+                FS.inc("m3_frames_eff_h_gt_base")
+                if (not CUSUM_ENABLE) and phi >= CUSUM_H and not burn:
+                    FS.inc("m3_burn_flipped_false")
+                    FS.event(t="m3_flip", f=self._cur_frame, tid=mt.id, gap=gap, phi=round(float(phi), 3),
+                             eff_h=round(float(eff_h), 3))
         if not burn:
             return False
 
@@ -277,9 +313,47 @@ class PEG(GlareAwareTracker):
                     return False
             mt.beacon = (u * sx, v * sy)   # PHOTO_S coords, for drawing
 
+        # PEG-F M5: headlamp centroid anchoring (prevents box drift on posture change / turns)
+        if ANCHOR_ENABLE and core_fn is not None and not MF_CONFIRM:
+            core, S = core_fn()
+            if core is not None:
+                sx, sy = S / float(W), S / float(H)
+                roi = ((x1 - 0.10 * bw) * sx, (y1 - BEACON_EXPAND_UP * bh) * sy,
+                       (x2 + 0.10 * bw) * sx, (y1 + BEACON_HEAD_BAND * bh) * sy)
+                if mask_area_inside(core, roi) >= BEACON_MIN_PX:
+                    mu = core_centroid_in_box(core, roi)
+                    if mu is not None:
+                        u, v = float(mu[0]) / sx, float(mu[1]) / sy
+                        zx, zy = u, v + BODY_OFFSET * bh
+                        pcx, pcy = (x1 + x2) * 0.5, (y1 + y2) * 0.5
+                        if float(np.hypot(zx - pcx, zy - pcy)) <= BEACON_GATE_FRAC * float(np.hypot(bw, bh)):
+                            r_x = WEAK_R_MULT * max(25.0, (0.08 * bh) ** 2)
+                            r_y = 4.0 * r_x
+                            self._weak_center_update(mt.kf.kf, zx, zy, r_x, r_y)
+                            if FS.on:
+                                FS.inc("m5_anchor_updates")
+                            mt.box = xyxy_to_norm_box(mt.kf.get_state()[0], W, H)
+                            mt.smooth = smooth_box(mt.smooth, mt.box)
+                            mt.beacon = (u * sx, v * sy)
+
+        # PEG+: the lamp that burns the worker also marks where they are -- reuse the
+        # backbone's weak lamp-centre update so the held box follows a moving worker.
+        if LAMP_FOLLOW and core_fn is not None:
+            GlareAwareTracker._try_beacon(self, mt, core_fn, W, H)
+
         # A confirmed burn licenses emitting the coasting box past the ordinary
         # output cap (see step()): arm the grace window.
-        mt._lamp_emit_until = self._cur_frame + EMIT_TTL
+        cur_ttl = EMIT_TTL
+        if ADAPTIVE_TTL:
+            # PEG-F M3: scale the grace window by the burn-evidence strength
+            phi_ratio = min(1.0, max(0.4, float(phi) / max(0.5, eff_h)))
+            cur_ttl = max(1, int(round(EMIT_TTL * phi_ratio)))
+        if FS.on and ADAPTIVE_TTL:
+            FS.inc("m3_ttl_evals")
+            if cur_ttl < EMIT_TTL:
+                FS.inc("m3_ttl_shortened")
+                FS.inc("m3_ttl_frames_removed", EMIT_TTL - cur_ttl)
+        mt._lamp_emit_until = self._cur_frame + cur_ttl
         return True
 
     @staticmethod
