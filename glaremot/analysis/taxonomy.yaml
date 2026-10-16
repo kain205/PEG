@@ -1,0 +1,23 @@
+# Root-cause labels for failure-analysis reviews (one label per case).
+# Use `unclear` rather than guessing; `other` requires a --note.
+glare_burn_miss:      detector misses a person who is burnt/washed out by glare (no pred box where the person is)
+glare_bloom_phantom:  false positive on a lamp/bloom/glare halo (no person there)
+gate_miss:            PEG gate should have coasted through the burn but did not (track died / not emitted)
+gate_false_coast:     the gate kept a track alive into a false positive or a drifted box
+coast_drift:          a coasting (Kalman/forecast) box drifted off the person while the gate was holding it
+stale_reassociation:  a track hidden for many frames (backbone max-age, allowed_gap up to 160) is re-attached to a DIFFERENT person
+occlusion:            miss or id loss caused by another person/object hiding the target
+crowd_crossing_swap:  ids swapped when two people cross or overlap
+reinit_after_loss:    target was lost, then re-acquired under a brand-new id
+small_or_far:         target is tiny/far (detector recall or localisation limit)
+frame_edge:           target is cut by / near the image border
+detector_miss_other:  detector miss not explained by glare, occlusion, size or edge
+detector_fp_other:    detector false positive not explained by glare
+late_birth:           track born late (first frames of a visible person are missed)
+early_death:          track killed early (person still visible)
+partial_box:          pred box covers only part of the person (head/lamp/upper body), IoU < 0.5 -> one error counted as FP + FN
+duplicate_track:      two pred ids on the same person at once (one of them is the FP)
+gt_annotation_error:  ground truth is wrong/uncertain (person absent, box off, missing GT)
+eval_artifact:        metric artifact (e.g. IoU just under 0.5, duplicate GT, id relabel)
+other:                none of the above (explain in --note)
+unclear:              images do not let you decide
