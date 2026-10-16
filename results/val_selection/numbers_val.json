@@ -1,0 +1,1482 @@
+{
+ "selection": {
+  "rounds": [
+   {
+    "current": "v_peg",
+    "candidates": [
+     {
+      "component": "A",
+      "delta": [
+       -0.14,
+       0.06,
+       -0.3
+      ],
+      "score": -0.38,
+      "admissible": true,
+      "config": "v_A"
+     },
+     {
+      "component": "B",
+      "delta": [
+       -0.02,
+       -2.24,
+       -11.6
+      ],
+      "score": -13.86,
+      "admissible": false,
+      "config": "v_B"
+     },
+     {
+      "component": "M1damp",
+      "delta": [
+       0.0,
+       -0.44,
+       1.4
+      ],
+      "score": 0.96,
+      "admissible": true,
+      "config": "v_M1damp"
+     },
+     {
+      "component": "M1swap",
+      "delta": [
+       -0.04,
+       0.0,
+       0.0
+      ],
+      "score": -0.04,
+      "admissible": true,
+      "config": "v_M1swap"
+     },
+     {
+      "component": "M2",
+      "delta": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "score": 0.0,
+      "admissible": true,
+      "config": "v_M2"
+     },
+     {
+      "component": "M3",
+      "delta": [
+       0.04,
+       0.0,
+       0.0
+      ],
+      "score": 0.04,
+      "admissible": true,
+      "config": "v_M3"
+     },
+     {
+      "component": "M4",
+      "delta": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "score": 0.0,
+      "admissible": true,
+      "config": "v_M4"
+     },
+     {
+      "component": "M5",
+      "delta": [
+       -0.01,
+       -1.29,
+       -4.2
+      ],
+      "score": -5.5,
+      "admissible": false,
+      "config": "v_M5"
+     }
+    ],
+    "accepted": "M1damp"
+   },
+   {
+    "current": "v_M1damp",
+    "candidates": [
+     {
+      "component": "A",
+      "delta": [
+       -0.19,
+       0.08,
+       -0.9
+      ],
+      "score": -1.01,
+      "admissible": false,
+      "config": "v_A+M1damp"
+     },
+     {
+      "component": "B",
+      "delta": [
+       -0.02,
+       -2.25,
+       -11.4
+      ],
+      "score": -13.67,
+      "admissible": false,
+      "config": "v_B+M1damp"
+     },
+     {
+      "component": "M1swap",
+      "delta": [
+       -0.2,
+       0.0,
+       0.0
+      ],
+      "score": -0.2,
+      "admissible": true,
+      "config": "v_M1damp+M1swap"
+     },
+     {
+      "component": "M2",
+      "delta": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "score": 0.0,
+      "admissible": true,
+      "config": "v_M1damp+M2"
+     },
+     {
+      "component": "M3",
+      "delta": [
+       0.06,
+       0.01,
+       0.0
+      ],
+      "score": 0.07,
+      "admissible": true,
+      "config": "v_M1damp+M3"
+     },
+     {
+      "component": "M4",
+      "delta": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "score": 0.0,
+      "admissible": true,
+      "config": "v_M1damp+M4"
+     },
+     {
+      "component": "M5",
+      "delta": [
+       -0.01,
+       -1.27,
+       -3.9
+      ],
+      "score": -5.18,
+      "admissible": false,
+      "config": "v_M1damp+M5"
+     }
+    ],
+    "accepted": null
+   }
+  ],
+  "final": "v_M1damp",
+  "final_env": "GMOT_TRACKER=beacon GMOT_BIRTH_SIZE_GUARD=0 GMOT_AM_DAMP=1",
+  "sequence": [
+   "M1damp"
+  ]
+ },
+ "val": {
+  "v_peg": {
+   "config": [],
+   "name": "v_peg",
+   "T1": {
+    "HOTA": 70.27,
+    "DetA": 69.14,
+    "AssA": 72.1,
+    "IDF1": 86.39,
+    "MOTA": 82.12,
+    "IDSW": 15,
+    "Rcll": 90.26,
+    "Prcn": 91.78,
+    "FP": 2051,
+    "FN": 2471
+   },
+   "T2": {
+    "HOTA": 76.25,
+    "DetA": 77.86,
+    "AssA": 74.8,
+    "IDF1": 89.18,
+    "MOTA": 89.75,
+    "IDSW": 7,
+    "Rcll": 92.7,
+    "Prcn": 96.98,
+    "FP": 303,
+    "FN": 766
+   },
+   "T3": {
+    "total": {
+     "n": 282,
+     "Rcv@.5": 67.4
+    },
+    "all_burn": {
+     "n": 571,
+     "Rcv@.5": 67.6
+    },
+    "ID_off_pct": 10.0,
+    "survived": 7,
+    "episodes": 18
+   },
+   "primary": [
+    70.27,
+    76.25,
+    67.6
+   ]
+  },
+  "v_A": {
+   "config": [
+    "A"
+   ],
+   "name": "v_A",
+   "T1": {
+    "HOTA": 70.13,
+    "DetA": 69.19,
+    "AssA": 71.79,
+    "IDF1": 86.1,
+    "MOTA": 82.27,
+    "IDSW": 17,
+    "Rcll": 90.28,
+    "Prcn": 91.92,
+    "FP": 2014,
+    "FN": 2467
+   },
+   "T2": {
+    "HOTA": 76.31,
+    "DetA": 77.93,
+    "AssA": 74.84,
+    "IDF1": 89.23,
+    "MOTA": 89.84,
+    "IDSW": 7,
+    "Rcll": 92.74,
+    "Prcn": 97.03,
+    "FP": 298,
+    "FN": 762
+   },
+   "T3": {
+    "total": {
+     "n": 282,
+     "Rcv@.5": 66.3
+    },
+    "all_burn": {
+     "n": 571,
+     "Rcv@.5": 67.3
+    },
+    "ID_off_pct": 10.0,
+    "survived": 7,
+    "episodes": 18
+   },
+   "primary": [
+    70.13,
+    76.31,
+    67.3
+   ]
+  },
+  "v_B": {
+   "config": [
+    "B"
+   ],
+   "name": "v_B",
+   "T1": {
+    "HOTA": 70.25,
+    "DetA": 69.12,
+    "AssA": 72.08,
+    "IDF1": 86.37,
+    "MOTA": 82.07,
+    "IDSW": 15,
+    "Rcll": 90.25,
+    "Prcn": 91.74,
+    "FP": 2061,
+    "FN": 2473
+   },
+   "T2": {
+    "HOTA": 74.01,
+    "DetA": 77.09,
+    "AssA": 71.17,
+    "IDF1": 85.41,
+    "MOTA": 88.28,
+    "IDSW": 9,
+    "Rcll": 92.0,
+    "Prcn": 96.2,
+    "FP": 381,
+    "FN": 840
+   },
+   "T3": {
+    "total": {
+     "n": 282,
+     "Rcv@.5": 58.2
+    },
+    "all_burn": {
+     "n": 571,
+     "Rcv@.5": 56.0
+    },
+    "ID_off_pct": 34.2,
+    "survived": 3,
+    "episodes": 18
+   },
+   "primary": [
+    70.25,
+    74.01,
+    56.0
+   ]
+  },
+  "v_M1damp": {
+   "config": [
+    "M1damp"
+   ],
+   "name": "v_M1damp",
+   "T1": {
+    "HOTA": 70.27,
+    "DetA": 69.3,
+    "AssA": 71.96,
+    "IDF1": 86.32,
+    "MOTA": 82.55,
+    "IDSW": 13,
+    "Rcll": 90.55,
+    "Prcn": 91.93,
+    "FP": 2017,
+    "FN": 2397
+   },
+   "T2": {
+    "HOTA": 75.81,
+    "DetA": 77.84,
+    "AssA": 73.96,
+    "IDF1": 88.73,
+    "MOTA": 89.9,
+    "IDSW": 8,
+    "Rcll": 92.79,
+    "Prcn": 97.06,
+    "FP": 295,
+    "FN": 757
+   },
+   "T3": {
+    "total": {
+     "n": 282,
+     "Rcv@.5": 68.8
+    },
+    "all_burn": {
+     "n": 571,
+     "Rcv@.5": 69.0
+    },
+    "ID_off_pct": 10.0,
+    "survived": 7,
+    "episodes": 18
+   },
+   "primary": [
+    70.27,
+    75.81,
+    69.0
+   ]
+  },
+  "v_M1swap": {
+   "config": [
+    "M1swap"
+   ],
+   "name": "v_M1swap",
+   "T1": {
+    "HOTA": 70.23,
+    "DetA": 69.12,
+    "AssA": 72.04,
+    "IDF1": 86.35,
+    "MOTA": 82.09,
+    "IDSW": 22,
+    "Rcll": 90.26,
+    "Prcn": 91.78,
+    "FP": 2051,
+    "FN": 2471
+   },
+   "T2": {
+    "HOTA": 76.25,
+    "DetA": 77.86,
+    "AssA": 74.8,
+    "IDF1": 89.18,
+    "MOTA": 89.75,
+    "IDSW": 7,
+    "Rcll": 92.7,
+    "Prcn": 96.98,
+    "FP": 303,
+    "FN": 766
+   },
+   "T3": {
+    "total": {
+     "n": 282,
+     "Rcv@.5": 67.4
+    },
+    "all_burn": {
+     "n": 571,
+     "Rcv@.5": 67.6
+    },
+    "ID_off_pct": 10.0,
+    "survived": 7,
+    "episodes": 18
+   },
+   "primary": [
+    70.23,
+    76.25,
+    67.6
+   ]
+  },
+  "v_M2": {
+   "config": [
+    "M2"
+   ],
+   "name": "v_M2",
+   "T1": {
+    "HOTA": 70.27,
+    "DetA": 69.14,
+    "AssA": 72.1,
+    "IDF1": 86.39,
+    "MOTA": 82.12,
+    "IDSW": 15,
+    "Rcll": 90.26,
+    "Prcn": 91.78,
+    "FP": 2051,
+    "FN": 2471
+   },
+   "T2": {
+    "HOTA": 76.25,
+    "DetA": 77.86,
+    "AssA": 74.8,
+    "IDF1": 89.18,
+    "MOTA": 89.75,
+    "IDSW": 7,
+    "Rcll": 92.7,
+    "Prcn": 96.98,
+    "FP": 303,
+    "FN": 766
+   },
+   "T3": {
+    "total": {
+     "n": 282,
+     "Rcv@.5": 67.4
+    },
+    "all_burn": {
+     "n": 571,
+     "Rcv@.5": 67.6
+    },
+    "ID_off_pct": 10.0,
+    "survived": 7,
+    "episodes": 18
+   },
+   "primary": [
+    70.27,
+    76.25,
+    67.6
+   ]
+  },
+  "v_M3": {
+   "config": [
+    "M3"
+   ],
+   "name": "v_M3",
+   "T1": {
+    "HOTA": 70.31,
+    "DetA": 69.16,
+    "AssA": 72.15,
+    "IDF1": 86.49,
+    "MOTA": 82.35,
+    "IDSW": 15,
+    "Rcll": 90.23,
+    "Prcn": 92.02,
+    "FP": 1985,
+    "FN": 2479
+   },
+   "T2": {
+    "HOTA": 76.25,
+    "DetA": 77.86,
+    "AssA": 74.8,
+    "IDF1": 89.2,
+    "MOTA": 89.78,
+    "IDSW": 7,
+    "Rcll": 92.7,
+    "Prcn": 97.01,
+    "FP": 300,
+    "FN": 766
+   },
+   "T3": {
+    "total": {
+     "n": 282,
+     "Rcv@.5": 67.4
+    },
+    "all_burn": {
+     "n": 571,
+     "Rcv@.5": 67.6
+    },
+    "ID_off_pct": 10.0,
+    "survived": 7,
+    "episodes": 18
+   },
+   "primary": [
+    70.31,
+    76.25,
+    67.6
+   ]
+  },
+  "v_M4": {
+   "config": [
+    "M4"
+   ],
+   "name": "v_M4",
+   "T1": {
+    "HOTA": 70.27,
+    "DetA": 69.14,
+    "AssA": 72.1,
+    "IDF1": 86.39,
+    "MOTA": 82.12,
+    "IDSW": 15,
+    "Rcll": 90.26,
+    "Prcn": 91.78,
+    "FP": 2051,
+    "FN": 2471
+   },
+   "T2": {
+    "HOTA": 76.25,
+    "DetA": 77.86,
+    "AssA": 74.8,
+    "IDF1": 89.18,
+    "MOTA": 89.75,
+    "IDSW": 7,
+    "Rcll": 92.7,
+    "Prcn": 96.98,
+    "FP": 303,
+    "FN": 766
+   },
+   "T3": {
+    "total": {
+     "n": 282,
+     "Rcv@.5": 67.4
+    },
+    "all_burn": {
+     "n": 571,
+     "Rcv@.5": 67.6
+    },
+    "ID_off_pct": 10.0,
+    "survived": 7,
+    "episodes": 18
+   },
+   "primary": [
+    70.27,
+    76.25,
+    67.6
+   ]
+  },
+  "v_M5": {
+   "config": [
+    "M5"
+   ],
+   "name": "v_M5",
+   "T1": {
+    "HOTA": 70.26,
+    "DetA": 69.13,
+    "AssA": 72.09,
+    "IDF1": 86.38,
+    "MOTA": 82.1,
+    "IDSW": 15,
+    "Rcll": 90.27,
+    "Prcn": 91.76,
+    "FP": 2057,
+    "FN": 2469
+   },
+   "T2": {
+    "HOTA": 74.96,
+    "DetA": 77.53,
+    "AssA": 72.6,
+    "IDF1": 86.76,
+    "MOTA": 89.13,
+    "IDSW": 8,
+    "Rcll": 92.39,
+    "Prcn": 96.67,
+    "FP": 334,
+    "FN": 799
+   },
+   "T3": {
+    "total": {
+     "n": 282,
+     "Rcv@.5": 63.8
+    },
+    "all_burn": {
+     "n": 571,
+     "Rcv@.5": 63.4
+    },
+    "ID_off_pct": 21.9,
+    "survived": 5,
+    "episodes": 18
+   },
+   "primary": [
+    70.26,
+    74.96,
+    63.4
+   ]
+  },
+  "v_A+M1damp": {
+   "config": [
+    "A",
+    "M1damp"
+   ],
+   "name": "v_A+M1damp",
+   "T1": {
+    "HOTA": 70.08,
+    "DetA": 69.28,
+    "AssA": 71.61,
+    "IDF1": 85.98,
+    "MOTA": 82.5,
+    "IDSW": 15,
+    "Rcll": 90.53,
+    "Prcn": 91.91,
+    "FP": 2022,
+    "FN": 2403
+   },
+   "T2": {
+    "HOTA": 75.89,
+    "DetA": 77.94,
+    "AssA": 74.01,
+    "IDF1": 88.8,
+    "MOTA": 90.07,
+    "IDSW": 8,
+    "Rcll": 92.87,
+    "Prcn": 97.15,
+    "FP": 286,
+    "FN": 748
+   },
+   "T3": {
+    "total": {
+     "n": 282,
+     "Rcv@.5": 67.4
+    },
+    "all_burn": {
+     "n": 571,
+     "Rcv@.5": 68.1
+    },
+    "ID_off_pct": 10.0,
+    "survived": 7,
+    "episodes": 18
+   },
+   "primary": [
+    70.08,
+    75.89,
+    68.1
+   ]
+  },
+  "v_B+M1damp": {
+   "config": [
+    "B",
+    "M1damp"
+   ],
+   "name": "v_B+M1damp",
+   "T1": {
+    "HOTA": 70.25,
+    "DetA": 69.28,
+    "AssA": 71.94,
+    "IDF1": 86.3,
+    "MOTA": 82.5,
+    "IDSW": 13,
+    "Rcll": 90.54,
+    "Prcn": 91.89,
+    "FP": 2027,
+    "FN": 2399
+   },
+   "T2": {
+    "HOTA": 73.56,
+    "DetA": 77.09,
+    "AssA": 70.33,
+    "IDF1": 84.95,
+    "MOTA": 88.45,
+    "IDSW": 10,
+    "Rcll": 92.09,
+    "Prcn": 96.29,
+    "FP": 373,
+    "FN": 830
+   },
+   "T3": {
+    "total": {
+     "n": 282,
+     "Rcv@.5": 59.6
+    },
+    "all_burn": {
+     "n": 571,
+     "Rcv@.5": 57.6
+    },
+    "ID_off_pct": 34.2,
+    "survived": 3,
+    "episodes": 18
+   },
+   "primary": [
+    70.25,
+    73.56,
+    57.6
+   ]
+  },
+  "v_M1damp+M1swap": {
+   "config": [
+    "M1damp",
+    "M1swap"
+   ],
+   "name": "v_M1damp+M1swap",
+   "T1": {
+    "HOTA": 70.07,
+    "DetA": 69.26,
+    "AssA": 71.61,
+    "IDF1": 85.96,
+    "MOTA": 82.49,
+    "IDSW": 22,
+    "Rcll": 90.55,
+    "Prcn": 91.91,
+    "FP": 2022,
+    "FN": 2398
+   },
+   "T2": {
+    "HOTA": 75.81,
+    "DetA": 77.84,
+    "AssA": 73.96,
+    "IDF1": 88.73,
+    "MOTA": 89.9,
+    "IDSW": 8,
+    "Rcll": 92.79,
+    "Prcn": 97.06,
+    "FP": 295,
+    "FN": 757
+   },
+   "T3": {
+    "total": {
+     "n": 282,
+     "Rcv@.5": 68.8
+    },
+    "all_burn": {
+     "n": 571,
+     "Rcv@.5": 69.0
+    },
+    "ID_off_pct": 10.0,
+    "survived": 7,
+    "episodes": 18
+   },
+   "primary": [
+    70.07,
+    75.81,
+    69.0
+   ]
+  },
+  "v_M1damp+M2": {
+   "config": [
+    "M1damp",
+    "M2"
+   ],
+   "name": "v_M1damp+M2",
+   "T1": {
+    "HOTA": 70.27,
+    "DetA": 69.3,
+    "AssA": 71.96,
+    "IDF1": 86.32,
+    "MOTA": 82.55,
+    "IDSW": 13,
+    "Rcll": 90.55,
+    "Prcn": 91.93,
+    "FP": 2017,
+    "FN": 2397
+   },
+   "T2": {
+    "HOTA": 75.81,
+    "DetA": 77.84,
+    "AssA": 73.96,
+    "IDF1": 88.73,
+    "MOTA": 89.9,
+    "IDSW": 8,
+    "Rcll": 92.79,
+    "Prcn": 97.06,
+    "FP": 295,
+    "FN": 757
+   },
+   "T3": {
+    "total": {
+     "n": 282,
+     "Rcv@.5": 68.8
+    },
+    "all_burn": {
+     "n": 571,
+     "Rcv@.5": 69.0
+    },
+    "ID_off_pct": 10.0,
+    "survived": 7,
+    "episodes": 18
+   },
+   "primary": [
+    70.27,
+    75.81,
+    69.0
+   ]
+  },
+  "v_M1damp+M3": {
+   "config": [
+    "M1damp",
+    "M3"
+   ],
+   "name": "v_M1damp+M3",
+   "T1": {
+    "HOTA": 70.33,
+    "DetA": 69.19,
+    "AssA": 72.16,
+    "IDF1": 86.5,
+    "MOTA": 82.42,
+    "IDSW": 13,
+    "Rcll": 90.25,
+    "Prcn": 92.06,
+    "FP": 1974,
+    "FN": 2473
+   },
+   "T2": {
+    "HOTA": 75.82,
+    "DetA": 77.85,
+    "AssA": 73.96,
+    "IDF1": 88.75,
+    "MOTA": 89.94,
+    "IDSW": 8,
+    "Rcll": 92.79,
+    "Prcn": 97.1,
+    "FP": 291,
+    "FN": 757
+   },
+   "T3": {
+    "total": {
+     "n": 282,
+     "Rcv@.5": 68.8
+    },
+    "all_burn": {
+     "n": 571,
+     "Rcv@.5": 69.0
+    },
+    "ID_off_pct": 10.0,
+    "survived": 7,
+    "episodes": 18
+   },
+   "primary": [
+    70.33,
+    75.82,
+    69.0
+   ]
+  },
+  "v_M1damp+M4": {
+   "config": [
+    "M1damp",
+    "M4"
+   ],
+   "name": "v_M1damp+M4",
+   "T1": {
+    "HOTA": 70.27,
+    "DetA": 69.3,
+    "AssA": 71.96,
+    "IDF1": 86.32,
+    "MOTA": 82.55,
+    "IDSW": 13,
+    "Rcll": 90.55,
+    "Prcn": 91.93,
+    "FP": 2017,
+    "FN": 2397
+   },
+   "T2": {
+    "HOTA": 75.81,
+    "DetA": 77.84,
+    "AssA": 73.96,
+    "IDF1": 88.73,
+    "MOTA": 89.9,
+    "IDSW": 8,
+    "Rcll": 92.79,
+    "Prcn": 97.06,
+    "FP": 295,
+    "FN": 757
+   },
+   "T3": {
+    "total": {
+     "n": 282,
+     "Rcv@.5": 68.8
+    },
+    "all_burn": {
+     "n": 571,
+     "Rcv@.5": 69.0
+    },
+    "ID_off_pct": 10.0,
+    "survived": 7,
+    "episodes": 18
+   },
+   "primary": [
+    70.27,
+    75.81,
+    69.0
+   ]
+  },
+  "v_M1damp+M5": {
+   "config": [
+    "M1damp",
+    "M5"
+   ],
+   "name": "v_M1damp+M5",
+   "T1": {
+    "HOTA": 70.26,
+    "DetA": 69.3,
+    "AssA": 71.95,
+    "IDF1": 86.32,
+    "MOTA": 82.54,
+    "IDSW": 13,
+    "Rcll": 90.56,
+    "Prcn": 91.91,
+    "FP": 2023,
+    "FN": 2395
+   },
+   "T2": {
+    "HOTA": 74.54,
+    "DetA": 77.54,
+    "AssA": 71.78,
+    "IDF1": 86.34,
+    "MOTA": 89.35,
+    "IDSW": 9,
+    "Rcll": 92.51,
+    "Prcn": 96.78,
+    "FP": 323,
+    "FN": 786
+   },
+   "T3": {
+    "total": {
+     "n": 282,
+     "Rcv@.5": 65.2
+    },
+    "all_burn": {
+     "n": 571,
+     "Rcv@.5": 65.1
+    },
+    "ID_off_pct": 21.9,
+    "survived": 5,
+    "episodes": 18
+   },
+   "primary": [
+    70.26,
+    74.54,
+    65.1
+   ]
+  },
+  "v_A+M1swap+M3": {
+   "config": [
+    "A",
+    "M1swap",
+    "M3"
+   ],
+   "name": "v_A+M1swap+M3",
+   "T1": {
+    "HOTA": 70.16,
+    "DetA": 69.15,
+    "AssA": 71.88,
+    "IDF1": 86.16,
+    "MOTA": 82.38,
+    "IDSW": 22,
+    "Rcll": 90.24,
+    "Prcn": 92.07,
+    "FP": 1971,
+    "FN": 2477
+   },
+   "T2": {
+    "HOTA": 76.31,
+    "DetA": 77.93,
+    "AssA": 74.84,
+    "IDF1": 89.24,
+    "MOTA": 89.86,
+    "IDSW": 7,
+    "Rcll": 92.74,
+    "Prcn": 97.05,
+    "FP": 296,
+    "FN": 762
+   },
+   "T3": {
+    "total": {
+     "n": 282,
+     "Rcv@.5": 66.3
+    },
+    "all_burn": {
+     "n": 571,
+     "Rcv@.5": 67.3
+    },
+    "ID_off_pct": 10.0,
+    "survived": 7,
+    "episodes": 18
+   },
+   "primary": [
+    70.16,
+    76.31,
+    67.3
+   ]
+  }
+ },
+ "test": {
+  "v_peg": {
+   "T1": {
+    "HOTA": 68.19,
+    "DetA": 65.88,
+    "AssA": 71.62,
+    "IDF1": 82.3,
+    "MOTA": 80.62,
+    "IDSW": 17,
+    "Rcll": 87.52,
+    "Prcn": 92.78,
+    "FP": 1425,
+    "FN": 2611
+   },
+   "T2": {
+    "HOTA": 61.7,
+    "DetA": 61.16,
+    "AssA": 63.17,
+    "IDF1": 75.3,
+    "MOTA": 73.26,
+    "IDSW": 19,
+    "Rcll": 85.62,
+    "Prcn": 87.49,
+    "FP": 2022,
+    "FN": 2374
+   },
+   "T3": {
+    "all_burn": {
+     "n": 850,
+     "Rcv@.5": 76.6,
+     "@.75": 44.1,
+     "@.9": 7.8,
+     "mIoU": 0.756,
+     "ID-Rcv": 69.6
+    },
+    "total": {
+     "n": 455,
+     "Rcv@.5": 77.8,
+     "@.75": 48.8,
+     "@.9": 9.5,
+     "mIoU": 0.764,
+     "ID-Rcv": 71.4
+    },
+    "ID_off_pct": 18.5
+   }
+  },
+  "v_A": {
+   "T1": {
+    "HOTA": 68.23,
+    "DetA": 65.96,
+    "AssA": 71.62,
+    "IDF1": 82.24,
+    "MOTA": 80.52,
+    "IDSW": 17,
+    "Rcll": 87.48,
+    "Prcn": 92.7,
+    "FP": 1440,
+    "FN": 2618
+   },
+   "T2": {
+    "HOTA": 62.54,
+    "DetA": 61.14,
+    "AssA": 64.86,
+    "IDF1": 77.95,
+    "MOTA": 73.37,
+    "IDSW": 16,
+    "Rcll": 86.26,
+    "Prcn": 87.08,
+    "FP": 2113,
+    "FN": 2268
+   },
+   "T3": {
+    "all_burn": {
+     "n": 850,
+     "Rcv@.5": 82.2,
+     "@.75": 40.7,
+     "@.9": 5.2,
+     "mIoU": 0.731,
+     "ID-Rcv": 75.2
+    },
+    "total": {
+     "n": 455,
+     "Rcv@.5": 85.1,
+     "@.75": 44.8,
+     "@.9": 5.5,
+     "mIoU": 0.738,
+     "ID-Rcv": 77.6
+    },
+    "ID_off_pct": 15.5
+   }
+  },
+  "v_M1damp": {
+   "T1": {
+    "HOTA": 67.38,
+    "DetA": 65.84,
+    "AssA": 70.07,
+    "IDF1": 80.79,
+    "MOTA": 80.45,
+    "IDSW": 19,
+    "Rcll": 87.4,
+    "Prcn": 92.73,
+    "FP": 1434,
+    "FN": 2636
+   },
+   "T2": {
+    "HOTA": 57.84,
+    "DetA": 59.97,
+    "AssA": 56.77,
+    "IDF1": 70.08,
+    "MOTA": 70.28,
+    "IDSW": 24,
+    "Rcll": 84.32,
+    "Prcn": 85.85,
+    "FP": 2295,
+    "FN": 2588
+   },
+   "T3": {
+    "all_burn": {
+     "n": 850,
+     "Rcv@.5": 66.4,
+     "@.75": 33.1,
+     "@.9": 5.2,
+     "mIoU": 0.728,
+     "ID-Rcv": 58.0
+    },
+    "total": {
+     "n": 455,
+     "Rcv@.5": 69.7,
+     "@.75": 32.7,
+     "@.9": 5.5,
+     "mIoU": 0.72,
+     "ID-Rcv": 62.4
+    },
+    "ID_off_pct": 18.5
+   }
+  },
+  "v_M1swap": {
+   "T1": {
+    "HOTA": 68.69,
+    "DetA": 65.41,
+    "AssA": 73.13,
+    "IDF1": 84.35,
+    "MOTA": 80.05,
+    "IDSW": 36,
+    "Rcll": 87.58,
+    "Prcn": 92.25,
+    "FP": 1539,
+    "FN": 2598
+   },
+   "T2": {
+    "HOTA": 62.45,
+    "DetA": 60.81,
+    "AssA": 65.01,
+    "IDF1": 78.11,
+    "MOTA": 72.73,
+    "IDSW": 35,
+    "Rcll": 85.78,
+    "Prcn": 86.98,
+    "FP": 2120,
+    "FN": 2347
+   },
+   "T3": {
+    "all_burn": {
+     "n": 850,
+     "Rcv@.5": 76.6,
+     "@.75": 44.1,
+     "@.9": 7.8,
+     "mIoU": 0.756,
+     "ID-Rcv": 69.6
+    },
+    "total": {
+     "n": 455,
+     "Rcv@.5": 77.8,
+     "@.75": 48.8,
+     "@.9": 9.5,
+     "mIoU": 0.764,
+     "ID-Rcv": 71.4
+    },
+    "ID_off_pct": 18.5
+   }
+  },
+  "v_M3": {
+   "T1": {
+    "HOTA": 68.3,
+    "DetA": 66.07,
+    "AssA": 71.64,
+    "IDF1": 82.48,
+    "MOTA": 81.01,
+    "IDSW": 17,
+    "Rcll": 87.49,
+    "Prcn": 93.19,
+    "FP": 1338,
+    "FN": 2616
+   },
+   "T2": {
+    "HOTA": 61.96,
+    "DetA": 61.57,
+    "AssA": 63.29,
+    "IDF1": 75.64,
+    "MOTA": 74.08,
+    "IDSW": 19,
+    "Rcll": 85.59,
+    "Prcn": 88.25,
+    "FP": 1882,
+    "FN": 2379
+   },
+   "T3": {
+    "all_burn": {
+     "n": 850,
+     "Rcv@.5": 76.6,
+     "@.75": 44.1,
+     "@.9": 7.8,
+     "mIoU": 0.756,
+     "ID-Rcv": 69.6
+    },
+    "total": {
+     "n": 455,
+     "Rcv@.5": 77.8,
+     "@.75": 48.8,
+     "@.9": 9.5,
+     "mIoU": 0.764,
+     "ID-Rcv": 71.4
+    },
+    "ID_off_pct": 18.5
+   }
+  },
+  "v_A+M1swap+M3": {
+   "T1": {
+    "HOTA": 68.81,
+    "DetA": 65.6,
+    "AssA": 73.17,
+    "IDF1": 84.56,
+    "MOTA": 80.41,
+    "IDSW": 36,
+    "Rcll": 87.54,
+    "Prcn": 92.64,
+    "FP": 1455,
+    "FN": 2607
+   },
+   "T2": {
+    "HOTA": 63.17,
+    "DetA": 61.25,
+    "AssA": 66.0,
+    "IDF1": 79.68,
+    "MOTA": 73.9,
+    "IDSW": 31,
+    "Rcll": 86.23,
+    "Prcn": 87.66,
+    "FP": 2005,
+    "FN": 2273
+   },
+   "T3": {
+    "all_burn": {
+     "n": 850,
+     "Rcv@.5": 82.2,
+     "@.75": 40.7,
+     "@.9": 5.2,
+     "mIoU": 0.731,
+     "ID-Rcv": 75.2
+    },
+    "total": {
+     "n": 455,
+     "Rcv@.5": 85.1,
+     "@.75": 44.8,
+     "@.9": 5.5,
+     "mIoU": 0.738,
+     "ID-Rcv": 77.6
+    },
+    "ID_off_pct": 15.5
+   }
+  }
+ },
+ "episodes": {
+  "test": {
+   "n_episodes": 30,
+   "burn_frames": 850,
+   "PEG": 76.6,
+   "A": {
+    "rcv": 82.2,
+    "delta": 5.6,
+    "ci95": [
+     0.7,
+     12.1
+    ],
+    "better": 6,
+    "worse": 2,
+    "frames_gained": 48,
+    "top_episode_share": 0.42
+   },
+   "M1damp": {
+    "rcv": 66.4,
+    "delta": -10.2,
+    "ci95": [
+     -17.7,
+     -3.8
+    ],
+    "better": 2,
+    "worse": 9,
+    "frames_gained": -87,
+    "top_episode_share": 0.23
+   },
+   "M1swap": {
+    "rcv": 76.6,
+    "delta": 0.0,
+    "ci95": [
+     0.0,
+     0.0
+    ],
+    "better": 0,
+    "worse": 0,
+    "frames_gained": 0,
+    "top_episode_share": null
+   },
+   "M3": {
+    "rcv": 76.6,
+    "delta": 0.0,
+    "ci95": [
+     0.0,
+     0.0
+    ],
+    "better": 0,
+    "worse": 0,
+    "frames_gained": 0,
+    "top_episode_share": null
+   },
+   "A+M1swap+M3": {
+    "rcv": 82.2,
+    "delta": 5.6,
+    "ci95": [
+     0.7,
+     12.1
+    ],
+    "better": 6,
+    "worse": 2,
+    "frames_gained": 48,
+    "top_episode_share": 0.42
+   }
+  },
+  "val": {
+   "n_episodes": 18,
+   "burn_frames": 571,
+   "PEG": 67.6,
+   "A": {
+    "rcv": 67.3,
+    "delta": -0.4,
+    "ci95": [
+     -3.2,
+     2.1
+    ],
+    "better": 2,
+    "worse": 2,
+    "frames_gained": -2,
+    "top_episode_share": 3.0
+   },
+   "M1damp": {
+    "rcv": 69.0,
+    "delta": 1.4,
+    "ci95": [
+     -1.0,
+     5.5
+    ],
+    "better": 1,
+    "worse": 1,
+    "frames_gained": 8,
+    "top_episode_share": 1.25
+   },
+   "M1swap": {
+    "rcv": 67.6,
+    "delta": 0.0,
+    "ci95": [
+     0.0,
+     0.0
+    ],
+    "better": 0,
+    "worse": 0,
+    "frames_gained": 0,
+    "top_episode_share": null
+   },
+   "M3": {
+    "rcv": 67.6,
+    "delta": 0.0,
+    "ci95": [
+     0.0,
+     0.0
+    ],
+    "better": 0,
+    "worse": 0,
+    "frames_gained": 0,
+    "top_episode_share": null
+   },
+   "A+M1swap+M3": {
+    "rcv": 67.3,
+    "delta": -0.4,
+    "ci95": [
+     -3.2,
+     2.1
+    ],
+    "better": 2,
+    "worse": 2,
+    "frames_gained": -2,
+    "top_episode_share": 3.0
+   }
+  },
+  "pooled": {
+   "n_episodes": 48,
+   "burn_frames": 1421,
+   "PEG": 73.0,
+   "A": {
+    "rcv": 76.2,
+    "delta": 3.2,
+    "ci95": [
+     0.1,
+     7.3
+    ],
+    "better": 8,
+    "worse": 4,
+    "frames_gained": 46,
+    "top_episode_share": 0.43
+   },
+   "M1damp": {
+    "rcv": 67.4,
+    "delta": -5.6,
+    "ci95": [
+     -10.6,
+     -1.2
+    ],
+    "better": 3,
+    "worse": 10,
+    "frames_gained": -79,
+    "top_episode_share": 0.25
+   },
+   "M1swap": {
+    "rcv": 73.0,
+    "delta": 0.0,
+    "ci95": [
+     0.0,
+     0.0
+    ],
+    "better": 0,
+    "worse": 0,
+    "frames_gained": 0,
+    "top_episode_share": null
+   },
+   "M3": {
+    "rcv": 73.0,
+    "delta": 0.0,
+    "ci95": [
+     0.0,
+     0.0
+    ],
+    "better": 0,
+    "worse": 0,
+    "frames_gained": 0,
+    "top_episode_share": null
+   },
+   "A+M1swap+M3": {
+    "rcv": 76.2,
+    "delta": 3.2,
+    "ci95": [
+     0.1,
+     7.3
+    ],
+    "better": 8,
+    "worse": 4,
+    "frames_gained": 46,
+    "top_episode_share": 0.43
+   }
+  }
+ }
+}

@@ -113,4 +113,8 @@ $PY scripts/08_failure_analysis.py extract --results_subdir eval --tracker_name 
 - **PEG-F** (friend, guard on, their setting): Table I HOTA 68.82 · IDF1 84.42 · IDSW 27 — reproduced exactly (re-score,
   live run of their code @4.3 fps, cached port byte-identical). Fair baseline = PEG guard on 68.33/82.68/15. Guard off:
   F T2 MOTA 70.91 · T3 Rcv 66.2 (M1-damp hurts burns); M2/M4 never fire. Details + deck: `results/peg_f/RESULTS.md`.
+- **Val selection (2026-10-17)**, pre-registered (`docs/VAL_SELECTION_PROTOCOL.md`) → `docs/VAL_SELECTION_RESULTS.md`:
+  greedy on val picked PEG+M1damp (one episode), which loses to PEG on every test table. Test-selected A+M1swap+M3
+  ≈ PEG on val. PEG+ T3: test +5.6, val −0.4, pooled 48 ep +3.2 [CI +0.1, +7.3]. Val caches built for real+synth
+  (`results/percep_cache/*`, + `.app.npz`); runner `results/val_selection/run_selection.py`. Deck slides 16–21.
 - Failure analysis, first pass: `results/failure_analysis/REPORT.md` (findings + next experiments).
