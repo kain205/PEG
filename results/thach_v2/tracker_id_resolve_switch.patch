@@ -1,0 +1,111 @@
+diff --git a/glaremot/tracking/tracker.py.orig b/glaremot/tracking/tracker.py
+index 6f21d46..c3974ef 100644
+--- a/glaremot/tracking/tracker.py.orig
++++ b/glaremot/tracking/tracker.py
+@@ -238,6 +238,8 @@ CONE_APP_MIN = float(os.environ.get("GMOT_CONE_APP_MIN", "0.35"))   # min fused
+ CONE_CROWD_IOU = float(os.environ.get("GMOT_CONE_CROWD_IOU", "0.10"))  # max IoU with a tracked worker
+ # legacy pairwise interaction damping (kept as a separate, ablatable knob)
+ ENABLE_INTERACT_DAMP = _env_flag("GMOT_INTERACT_DAMP", "1")
++# harness switch (ours): 0 = original PEG resolver (_resolve_identity_peg), 1 = his rewritten one
++ENABLE_ID_RESOLVE_V2 = _env_flag("GMOT_ID_RESOLVE_V2", "1")
+ 
+ # --- Method 2: Pre-Burn Re-ID Feature Caching ---
+ # Descriptor = deep embedding (part-pooled from the detector's P4 feature map —
+@@ -1009,6 +1011,85 @@ class GlareAwareTracker:
+                     return False
+         return True
+ 
++    def _resolve_identity_peg(self, matched, det_arr, trks, unmatched_trks):
++        """Anti ID-steal/swap inside close groups — the price of no appearance.
++
++        1. CONTESTED STEAL: a det matched to track ti while an overlapping
++           hungry track tj fits nearly as well. Predictions drift but LAST
++           OBSERVATIONS are anchored to real bodies, so the det is re-awarded
++           to whichever track's last observation explains it best (tie -> the
++           more recently seen track; an exiting track always loses to one that
++           is still in the scene).
++        2. PAIR SWAP: two matched dets whose assignment inverts the pair's
++           stable historical order in BOTH x and foot-y get swapped back.
++        """
++        if len(matched) == 0 or len(self.tracks) < 2 or not len(det_arr):
++            return matched, unmatched_trks
++        pairs = [(int(d), int(t)) for d, t in matched]
++        iou_dt = np.asarray(iou_batch(det_arr[:, :4], trks[:, :4]))
++        iou_tt = np.asarray(iou_batch(trks[:, :4], trks[:, :4]))
++        unmatched = set(int(t) for t in unmatched_trks)
++
++        out = []
++        for di, ti in pairs:
++            winner = ti
++            for tj in sorted(unmatched):
++                if iou_tt[winner, tj] < AMBIG_IOU:
++                    continue
++                if self.tracks[tj].exiting and not self.tracks[winner].exiting:
++                    continue  # a leaving track may never steal from one still present
++                if iou_dt[di, tj] < iou_dt[di, winner] - AMBIG_MARGIN:
++                    continue
++                lo_w = self.tracks[winner].kf.last_observation[:4]
++                lo_j = self.tracks[tj].kf.last_observation[:4]
++                if lo_w[0] < 0 or lo_j[0] < 0:
++                    continue
++                iou_lo_w = float(iou_batch(det_arr[di:di + 1, :4],
++                                           np.asarray(lo_w, np.float32)[None, :])[0, 0])
++                iou_lo_j = float(iou_batch(det_arr[di:di + 1, :4],
++                                           np.asarray(lo_j, np.float32)[None, :])[0, 0])
++                w_exit = self.tracks[winner].exiting and not self.tracks[tj].exiting
++                if iou_lo_j > iou_lo_w + 1e-6 or (
++                        abs(iou_lo_j - iou_lo_w) <= 1e-6
++                        and self.tracks[tj].kf.time_since_update
++                        < self.tracks[winner].kf.time_since_update) or (
++                        w_exit and iou_lo_j > 0.1):
++                    winner = tj
++            if winner != ti:
++                unmatched.discard(winner)
++                unmatched.add(ti)
++            out.append((di, winner))
++        pairs = out
++
++        def hist_med(t):
++            c = np.asarray(list(self.tracks[t].centers)[-6:], np.float32)
++            return float(np.median(c[:, 0])) * self._W, float(np.median(c[:, 1])) * self._H
++
++        for a in range(len(pairs)):
++            for b in range(a + 1, len(pairs)):
++                di, ti = pairs[a]
++                dj, tj = pairs[b]
++                if iou_tt[ti, tj] < AMBIG_IOU:
++                    continue
++                if len(self.tracks[ti].centers) < 3 or len(self.tracks[tj].centers) < 3:
++                    continue
++                hxi, hyi = hist_med(ti)
++                hxj, hyj = hist_med(tj)
++                dxi, dyi = (det_arr[di, 0] + det_arr[di, 2]) * 0.5, (det_arr[di, 1] + det_arr[di, 3]) * 0.5
++                dxj, dyj = (det_arr[dj, 0] + det_arr[dj, 2]) * 0.5, (det_arr[dj, 1] + det_arr[dj, 3]) * 0.5
++                w_ref = max(det_arr[di, 2] - det_arr[di, 0], det_arr[dj, 2] - det_arr[dj, 0], 1.0)
++                h_ref = max(det_arr[di, 3] - det_arr[di, 1], det_arr[dj, 3] - det_arr[dj, 1], 1.0)
++                flip_x = (abs(hxi - hxj) > SWAP_SEP_FRAC * w_ref
++                          and abs(dxi - dxj) > SWAP_SEP_FRAC * w_ref
++                          and np.sign(dxi - dxj) == -np.sign(hxi - hxj))
++                flip_y = (abs(hyi - hyj) > SWAP_SEP_FRAC * h_ref
++                          and abs(dyi - dyj) > SWAP_SEP_FRAC * h_ref
++                          and np.sign(dyi - dyj) == -np.sign(hyi - hyj))
++                if flip_x and flip_y:
++                    pairs[a] = (di, tj)
++                    pairs[b] = (dj, ti)
++        return pairs, np.asarray(sorted(unmatched), dtype=int)
++
+     def _resolve_identity(self, matched, det_arr, det_meta, trks, unmatched_trks):
+         """Anti ID-steal/swap inside close groups — enhanced with Pre-Burn Appearance (Method 2).
+ 
+@@ -1381,7 +1462,10 @@ class GlareAwareTracker:
+ 
+         matched, unmatched_dets, unmatched_trks = oc_associate(
+             det_arr, trks, IOU_THRESH, velocities, k_obs, INERTIA)
+-        matched, unmatched_trks = self._resolve_identity(matched, det_arr, det_meta, trks, unmatched_trks)
++        if ENABLE_ID_RESOLVE_V2:
++            matched, unmatched_trks = self._resolve_identity(matched, det_arr, det_meta, trks, unmatched_trks)
++        else:
++            matched, unmatched_trks = self._resolve_identity_peg(matched, det_arr, trks, unmatched_trks)
+         rej_d, rej_t = [], []
+         for di, ti in matched:
+             di, ti = int(di), int(ti)
