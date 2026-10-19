@@ -102,7 +102,7 @@ def search():
     kx, mx = evaluate(chosen)
     trace.append({"round": 0, "config": label(chosen), "key": kx, "val": prim(mx)})
     print("S0", prim(mx), flush=True)
-    while len(chosen) < len(GRID):
+    while len(chosen) < len(GRID):  # noqa: E501
         rows = []
         for c in GRID:
             if c in chosen:
@@ -116,6 +116,8 @@ def search():
                 print(f"  round {len(trace)}: {label(cand):40s} d={d} score={sum(d):+.2f}", flush=True)
         ranked = sorted([r for r in rows if r["admissible"] and r["score"] > MIN_GAIN], key=lambda r: (-r["score"], r["comp"]))
         checks, acc = [], None
+        if STRONG:   # "strongest" variant: any admissible gain > 0.5 counts, no single-event check
+            ranked, acc = [], (ranked[0] if ranked else None)
         for r in ranked:
             chk, s_wo = single_event(kx, mx, r["key"], r["m"])
             checks.append({"add": r["add"], "score": r["score"], "checks": chk, "score_without": s_wo, "pass": s_wo > 0})
@@ -148,9 +150,17 @@ def test_once():
     print("TEST", final["label"], prim(m), flush=True)
 
 
+STRONG = False
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--test", action="store_true")
+    ap.add_argument("--strong", action="store_true", help="strongest variant: + PEG+ component, no single-event check -> tune_strong/")
     a = ap.parse_args()
+    if a.strong:
+        STRONG = True
+        GRID["P"] = [{"GPEG_SIZE_LOCK": "1"}]
+        TUNE = os.path.join(HERE, "tune_strong"); os.makedirs(TUNE, exist_ok=True)
+        LEDGER = os.path.join(TUNE, "ledger.json")
     sys.stdout.reconfigure(encoding="utf-8")
     test_once() if a.test else search()

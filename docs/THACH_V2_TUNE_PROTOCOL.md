@@ -44,3 +44,11 @@ X = S0. Each round, every grid point of every component not in X is added to X a
 
 Also reported (not used for selection): the whole search trace (`results/thach_v2/tune/trace.json`), F vs PEG
 on val with per-episode bootstrap CI for T3.
+
+## Addendum (2026-10-19, committed before running): "strongest" variant with PEG+
+Asked for: the strongest combination, counting every gain (even one that rests on a single video), plus our PEG+.
+- Same S0, same grid, plus component **P** = PEG+ size lock (`GPEG_SIZE_LOCK=1`, ported into his tracker at the
+  same place as in ours; verified on test: S0+P = our PEG+ guard on, 68.41 / 62.33 / 82.2).
+- Same greedy and thresholds (admissible every Δ ≥ −0.5, score > +0.5), **without** the single-event check.
+- Test once for the final config, all metrics. Every accepted step is marked with the val unit it rests on.
+- `results/thach_v2/tune_val.py --strong` (→ `results/thach_v2/tune_strong/`), then `--strong --test`.

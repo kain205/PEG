@@ -1,8 +1,17 @@
 diff --git a/glaremot/tracking/tracker.py.orig b/glaremot/tracking/tracker.py
-index 6f21d46..c3974ef 100644
+index 6f21d46..7a0fa7e 100644
 --- a/glaremot/tracking/tracker.py.orig
 +++ b/glaremot/tracking/tracker.py
-@@ -238,6 +238,8 @@ CONE_APP_MIN = float(os.environ.get("GMOT_CONE_APP_MIN", "0.35"))   # min fused
+@@ -170,6 +170,8 @@ FC_MIN_GOOD_HITS = 20    # a young track has no trustworthy velocity to coast on
+ # (the person has usually just left / been briefly missed, not burnt). Env-tunable.
+ OUTPUT_MAX_GAP = int(os.environ.get("GMOT_OUTPUT_MAX_GAP", "12"))
+ VEL_DAMP = 0.95          # per-frame Kalman velocity decay while unobserved past FORECAST_START
++# PEG+ size lock (ours, ported from our repo): zero the Kalman area velocity on every missed frame. Default off.
++SIZE_LOCK = os.environ.get("GPEG_SIZE_LOCK", "0") not in ("0", "off", "false", "")
+ 
+ # --- exit gate (a person who walked OUT of the frame must die fast) ---
+ # The detector loses a leaving person BEFORE the box touches the edge (half a
+@@ -238,6 +240,8 @@ CONE_APP_MIN = float(os.environ.get("GMOT_CONE_APP_MIN", "0.35"))   # min fused
  CONE_CROWD_IOU = float(os.environ.get("GMOT_CONE_CROWD_IOU", "0.10"))  # max IoU with a tracked worker
  # legacy pairwise interaction damping (kept as a separate, ablatable knob)
  ENABLE_INTERACT_DAMP = _env_flag("GMOT_INTERACT_DAMP", "1")
@@ -11,7 +20,16 @@ index 6f21d46..c3974ef 100644
  
  # --- Method 2: Pre-Burn Re-ID Feature Caching ---
  # Descriptor = deep embedding (part-pooled from the detector's P4 feature map —
-@@ -1009,6 +1011,85 @@ class GlareAwareTracker:
+@@ -833,6 +837,8 @@ class MotionTrack:
+         if gap >= FORECAST_START:
+             # constant-velocity is not credible over long unobserved stretches
+             self.kf.kf.x[4:6] *= VEL_DAMP
++        if SIZE_LOCK:
++            self.kf.kf.x[6] = 0.0
+         self.box = xyxy_to_norm_box(self.kf.get_state()[0], W, H)
+         if self.is_confirmed:
+             self.state = "LOST"
+@@ -1009,6 +1015,85 @@ class GlareAwareTracker:
                      return False
          return True
  
@@ -97,7 +115,7 @@ index 6f21d46..c3974ef 100644
      def _resolve_identity(self, matched, det_arr, det_meta, trks, unmatched_trks):
          """Anti ID-steal/swap inside close groups — enhanced with Pre-Burn Appearance (Method 2).
  
-@@ -1381,7 +1462,10 @@ class GlareAwareTracker:
+@@ -1381,7 +1466,10 @@ class GlareAwareTracker:
  
          matched, unmatched_dets, unmatched_trks = oc_associate(
              det_arr, trks, IOU_THRESH, velocities, k_obs, INERTIA)
