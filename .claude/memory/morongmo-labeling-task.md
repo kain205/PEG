@@ -26,4 +26,9 @@ Pitfalls found:
 - Friend's style: continuous tracks (manual_carry, interpolation across occlusions, no occluded flags), full-body boxes,
   one `outside` keyframe at the end.
 
-**How to apply:** continue from `results/label_MoRongMo/` (NOTES.md, edits.json); never trust decode-order frame numbers.
+- Done 2026-10-20: 49 review edits applied via `scripts/18_project_edit.py` (reads/edits project.json like the app;
+  validated against the app's Export). Deliverable `results/label_MoRongMo/handoff_MoRongMo_35068_56611.zip`
+  (project.json + gt.txt + classes). Low-confidence leftovers in `handoff/README_VI.md`. User's rule: lost track → new id.
+
+**How to apply:** continue from `results/label_MoRongMo/NOTES.md`; never trust decode-order frame numbers; the app's
+project.json is the source of truth once the user has edited in the app (edit with script 18, app closed).
