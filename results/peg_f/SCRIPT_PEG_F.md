@@ -2,9 +2,9 @@
 
 _File này được sinh tự động từ deck_build.js; số liệu lấy từ numbers.json._
 
-Tổng: Người 1 ≈ 20.5 phút, Người 2 ≈ 11.1 phút (tốc độ ~160 tiếng/phút), Q&A không tính.
+Tổng: Người 1 ≈ 21.1 phút, Người 2 ≈ 11.1 phút (tốc độ ~160 tiếng/phút), Q&A không tính.
 
-# NGƯỜI 1 — PEG-F, kiểm chứng (≈ 20.4 phút)
+# NGƯỜI 1 — PEG-F, kiểm chứng (≈ 21.0 phút)
 
 ## Slide 1 — PEG-F và PEG+ — giữ ID đúng người khi đèn mũ làm chói camera  _(≈ 39 giây)_
 
@@ -106,9 +106,9 @@ Giờ đến tập val, phần dữ liệu Thạch chưa dùng tới. Cấu hìn
 
 Đây là bước chọn. Luật được viết và đưa lên git trước khi có số val nào. Ứng viên là mười ba cấu hình của Thạch, so với base. Vòng một: không bảng nào được giảm quá 0.5, và tổng mức tăng phải lớn hơn 0.5. Chỉ có 2 cấu hình qua vòng này: full-M5 và base+M1. Vòng hai là điều kiện mình thêm từ bài học lần trước: bỏ đi một video, hoặc một lần chói, có lợi nhất cho cấu hình đó mà vẫn còn tăng thì mới nhận. Cả hai đều trượt: mức tăng của chúng đến từ đúng một video ở Table II, video 147, và một lần chói ở Table III, video 332. Mọi cấu hình có cả M1 và M5 bị loại ngay ở vòng một vì Table III giảm khoảng ba mươi điểm, và M6 bị loại vì cả ba bảng đều giảm trên val. Kết quả: không method nào được val ủng hộ, nên cấu hình được chọn là base. Báo test đúng một lần cho cấu hình này: Table I 68.84, Table II 62.18, Table III 76.2, so với PEG 68.34, 61.41 và 76.2.
 
-## Slide 33 — Tune lại tham số trên val từ đầu  _(≈ 90 giây)_
+## Slide 33 — Tune lại tham số trên val từ đầu  _(≈ 127 giây)_
 
-Chọn lại trên val chưa đủ, vì các tham số bên trong method vẫn là số Thạch đã chỉnh trên test. Nên bọn mình tune lại từ đầu, chỉ trên val, với luật viết trước và đưa lên git trước khi chạy. Điểm xuất phát là PEG: bọn mình chép lại logic đổi ID gốc của PEG vào code của Thạch và kiểm tra là khi tắt hết method thì ra đúng từng số của PEG. Phần đổi ID mà Thạch viết lại cũng thành một thành phần để thử. Mỗi vòng, mỗi thành phần được thử với vài giá trị tham số, vòng đầu tổng cộng 26 lượt. Bảng này là giá trị tốt nhất của từng thành phần ở vòng đầu. Chỉ có hai thứ tăng quá ngưỡng: cone của M1, cộng 1.73, và phần hãm vận tốc, cộng 1.32. Nhưng khi bỏ đi một video hoặc một lần chói có lợi nhất, cone còn −0.01 và hãm vận tốc còn −0.60: toàn bộ mức tăng của cone nằm ở hai video, 156 và 147, còn của hãm vận tốc nằm ở một lần chói trong video 332. Phần nở vùng bất định, Re-ID và pool track ngủ không đổi gì khi đứng một mình; neo đèn và tone-map làm giảm. Nên không thành phần nào được nhận, cấu hình cuối cùng chính là PEG, và test một lần cho nó ra đúng số PEG: 68.34, 61.41 và 76.2.
+Chọn lại trên val chưa đủ, vì các tham số bên trong method vẫn là số Thạch đã chỉnh trên test. Nên bọn mình tune lại từ đầu, chỉ trên val, với luật viết trước và đưa lên git trước khi chạy. Điểm xuất phát là PEG: bọn mình chép lại logic đổi ID gốc của PEG vào code của Thạch và kiểm tra là khi tắt hết method thì ra đúng từng số của PEG. Phần đổi ID mà Thạch viết lại cũng thành một thành phần để thử. Mỗi vòng, mỗi thành phần được thử với vài giá trị tham số, vòng đầu tổng cộng 26 lượt. Bảng này là giá trị tốt nhất của từng thành phần ở vòng đầu. Chỉ có hai thứ tăng quá ngưỡng: cone của M1, cộng 1.73, và phần hãm vận tốc, cộng 1.32. Nhưng khi bỏ đi một video hoặc một lần chói có lợi nhất, cone còn −0.01 và hãm vận tốc còn −0.60: toàn bộ mức tăng của cone nằm ở hai video, 156 và 147, còn của hãm vận tốc nằm ở một lần chói trong video 332. Phần nở vùng bất định, Re-ID và pool track ngủ không đổi gì khi đứng một mình; neo đèn và tone-map làm giảm. Nên không thành phần nào được nhận, cấu hình cuối cùng chính là PEG, và test một lần cho nó ra đúng số PEG: 68.34, 61.41 và 76.2. Cột cuối là số test của từng thành phần, chạy sau khi đã chốt, chỉ để đối chiếu. Trên test cũng vậy: M6 và phần đổi ID viết lại tăng gần như chỉ nhờ sửa đúng một lần đổi ID ở video 129, lần đó đáng hai mươi ba điểm HOTA ở video ấy; cone tăng chủ yếu nhờ video 204; còn hãm vận tốc giảm tám điểm rưỡi, nên val loại nó là đúng. Lưu ý là số test của M6 và phần đổi ID bị lạc quan, vì Thạch đã chỉnh chúng trên chính tập test.
 
 # NGƯỜI 2 — PEG+ và kết hợp (≈ 11.1 phút)
 

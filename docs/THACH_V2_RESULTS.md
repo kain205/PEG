@@ -83,3 +83,10 @@ Trace: `results/thach_v2/tune/trace.json`, all evaluations: `tune/ledger.json`. 
 .venv/Scripts/python.exe results/thach_v2/tune_val.py          # val search (~15 min)
 .venv/Scripts/python.exe results/thach_v2/tune_val.py --test   # test once, final config only
 ```
+
+### Test, for comparison only (run after the decision was committed; `tune/test_diagnostic.json`)
+Sum of Δ (T1 HOTA + T2 HOTA + T3 Rcv) on test for each component's best val point, vs PEG:
+cone +2.53 (T2 from 204 +12.1 and 176 +6.5, T3 one episode of 204; without 204 ≈ +0.6) · damping −8.52 (T3 −6.7) ·
+M6 +3.58 and resolver rewrite +1.27, both almost only from the single ID switch fixed in 129 (+23.5 HOTA on that
+sequence; without 129: M6 ≈ −0.3, resolver ≈ −1.1) · M3 +0.46 · M5 +0.38 · M4 +0.05 · adaptive Q, M2 0.
+M6 and the resolver rewrite were tuned by Thach on test, so their test numbers are optimistic.

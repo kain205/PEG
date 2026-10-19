@@ -1,0 +1,137 @@
+{
+ "M1c": {
+  "add": "M1c[0]",
+  "val_delta": [
+   0.42,
+   1.31,
+   0.0
+  ],
+  "val_score": 1.73,
+  "test_delta": [
+   0.04,
+   1.29,
+   1.2
+  ],
+  "test_score": 2.53
+ },
+ "M1d": {
+  "add": "M1d[0]",
+  "val_delta": [
+   0.0,
+   -0.48,
+   1.8
+  ],
+  "val_score": 1.32,
+  "test_delta": [
+   0.11,
+   -1.93,
+   -6.7
+  ],
+  "test_score": -8.52
+ },
+ "M3": {
+  "add": "M3[0]",
+  "val_delta": [
+   0.04,
+   0.0,
+   0.0
+  ],
+  "val_score": 0.04,
+  "test_delta": [
+   0.15,
+   0.31,
+   0.0
+  ],
+  "test_score": 0.46
+ },
+ "M1q": {
+  "add": "M1q[0]",
+  "val_delta": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "val_score": 0.0,
+  "test_delta": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "test_score": 0.0
+ },
+ "M2": {
+  "add": "M2[0]",
+  "val_delta": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "val_score": 0.0,
+  "test_delta": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "test_score": 0.0
+ },
+ "M4": {
+  "add": "M4[0]",
+  "val_delta": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "val_score": 0.0,
+  "test_delta": [
+   0.0,
+   0.05,
+   0.0
+  ],
+  "test_score": 0.05
+ },
+ "M5": {
+  "add": "M5[2]",
+  "val_delta": [
+   0.02,
+   -0.07,
+   -0.2
+  ],
+  "val_score": -0.25,
+  "test_delta": [
+   -0.01,
+   -0.01,
+   0.4
+  ],
+  "test_score": 0.38
+ },
+ "R": {
+  "add": "R[0]",
+  "val_delta": [
+   -0.26,
+   0.0,
+   0.0
+  ],
+  "val_score": -0.26,
+  "test_delta": [
+   0.5,
+   0.77,
+   0.0
+  ],
+  "test_score": 1.27
+ },
+ "M6": {
+  "add": "M6[0]",
+  "val_delta": [
+   -0.1,
+   -0.73,
+   -0.7
+  ],
+  "val_score": -1.53,
+  "test_delta": [
+   1.05,
+   1.43,
+   1.1
+  ],
+  "test_score": 3.58
+ }
+}

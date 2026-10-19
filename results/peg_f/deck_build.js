@@ -878,6 +878,7 @@ function v2table(s, sp, y0, sel) {
 {
   const TR = JSON.parse(fs.readFileSync("D:/PROJECT/PEG/results/thach_v2/tune/trace.json", "utf8"));
   const TT = JSON.parse(fs.readFileSync("D:/PROJECT/PEG/results/thach_v2/tune/test.json", "utf8"));
+  const TD = JSON.parse(fs.readFileSync("D:/PROJECT/PEG/results/thach_v2/tune/test_diagnostic.json", "utf8"));
   const r1 = TR[1];
   const NAME = { R: "Đổi-ID viết lại (luôn bật ở base)", M1q: "M1 · nở vùng bất định", M1c: "M1 · cone khớp lại ID", M1d: "M1 · hãm vận tốc ×0.88",
     M2: "M2 · Re-ID", M3: "M3 · h động / TTL", M4: "M4 · pool track ngủ", M5: "M5 · neo đèn", M6: "M6 · tone-map" };
@@ -889,8 +890,8 @@ function v2table(s, sp, y0, sel) {
   const chk = (add) => r1.checks.find((c) => c.add === add);
   const s = base("Tune lại tham số trên val từ đầu: vẫn không thành phần nào qua", "PEG-F v2 · TUNE TRÊN VAL", 1);
   txt(s, "Xuất phát = PEG (đã kiểm: ra đúng từng số). Vòng 1 thử " + r1.rows.length + " giá trị tham số của 9 thành phần; mỗi dòng = giá trị tốt nhất của một thành phần.", { x: 0.6, y: 1.45, w: 12.1, h: 0.35, fontSize: 13, color: C.muted });
-  const cols = ["thành phần", "tham số tốt nhất", "ΔT1 HOTA", "ΔT2 HOTA", "ΔT3 Rcv", "tổng", "bỏ 1 video / lần chói"];
-  const cx = [0.85, 4.35, 6.55, 7.65, 8.75, 9.8, 10.85], cw = [3.5, 2.2, 1.1, 1.1, 1.05, 1.05, 1.85];
+  const cols = ["thành phần", "tham số tốt nhất", "ΔT1 HOTA", "ΔT2 HOTA", "ΔT3 Rcv", "tổng (val)", "bỏ 1 video / lần chói", "test (đối chiếu)"];
+  const cx = [0.85, 3.95, 5.95, 6.9, 7.85, 8.75, 9.75, 11.45], cw = [3.1, 2.0, 0.95, 0.95, 0.9, 1.0, 1.7, 1.25];
   cols.forEach((cn, j) => txt(s, cn, { x: cx[j], y: 1.85, w: cw[j], h: 0.3, fontSize: 11, bold: true, color: C.muted, align: j < 2 ? "left" : "center" }));
   const order = Object.keys(best).sort((a, b) => best[b].score - best[a].score);
   order.forEach((c, i) => {
@@ -899,20 +900,20 @@ function v2table(s, sp, y0, sel) {
     const zero = r.delta.every((d) => d === 0);
     const p = P[c] ? (zero ? "mọi giá trị: không đổi gì" : P[c][r.idx]) : "bật";
     const res = k ? (k.pass ? "QUA" : "còn " + sgn(k.score_without, 2)) : r.admissible && r.score > 0.5 ? "" : r.admissible ? "tăng < 0.5" : "giảm > 0.5";
-    const v = [NAME[c], p, sgn(r.delta[0], 2), sgn(r.delta[1], 2), sgn(r.delta[2], 1), sgn(r.score, 2), res];
+    const v = [NAME[c], p, sgn(r.delta[0], 2), sgn(r.delta[1], 2), sgn(r.delta[2], 1), sgn(r.score, 2), res, sgn(TD[c].test_score, 2)];
     v.forEach((t, j) => txt(s, t, { x: cx[j], y, w: cw[j], h: 0.37, fontSize: j === 0 ? 13 : 12, bold: j === 0 || j === 5, valign: "middle", align: j < 2 ? "left" : "center",
-      color: j === 6 ? (k && !k.pass ? C.red : C.muted) : j === 0 ? C.f : j >= 2 && j <= 5 ? (r.delta[j - 2] > 0.05 || (j === 5 && r.score > 0.05) ? C.good : r.delta[j - 2] < -0.05 || (j === 5 && r.score < -0.05) ? C.red : C.text) : C.text }));
+      color: j === 7 ? C.muted : j === 6 ? (k && !k.pass ? C.red : C.muted) : j === 0 ? C.f : j >= 2 && j <= 5 ? (r.delta[j - 2] > 0.05 || (j === 5 && r.score > 0.05) ? C.good : r.delta[j - 2] < -0.05 || (j === 5 && r.score < -0.05) ? C.red : C.text) : C.text }));
   });
   const yb = 2.2 + order.length * 0.42 + 0.08;
   card(s, 0.6, yb, 12.13, 6.88 - yb, C.card2);
   s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y: yb, w: 0.1, h: 6.88 - yb, fill: { color: C.amber }, line: { color: C.amber } });
   const tt = TT.test;
   txt(s, [{ text: "Kết quả: giữ PEG. ", options: { bold: true, color: C.amber } },
-    { text: "Cone (M1) tăng nhờ đúng 1 video T1 (156) + 1 video T2 (147); hãm vận tốc tăng nhờ 1 lần chói (video 332). Test một lần cho cấu hình cuối = PEG: " + fmt(tt.T1.HOTA, 2) + " · " + fmt(tt.T2.HOTA, 2) + " · " + fmt(tt.T3["Rcv@.5"], 1) + "." }],
+    { text: "Test cho cấu hình cuối = PEG: " + fmt(tt.T1.HOTA, 2) + " · " + fmt(tt.T2.HOTA, 2) + " · " + fmt(tt.T3["Rcv@.5"], 1) + ". Cột test chỉ để đối chiếu (chạy sau khi đã chốt): trên test, M6 và đổi-ID viết lại tăng gần như chỉ nhờ 1 lần đổi ID ở video 129; cone nhờ video 204; hãm vận tốc −8.5 → val loại đúng." }],
     { x: 0.9, y: yb, w: 11.7, h: 6.88 - yb, fontSize: 13, valign: "middle" });
   const cc = chk(best.M1c.add), cd = chk(best.M1d.add);
   done(s, "Tune lại tham số trên val từ đầu",
-    "Chọn lại trên val chưa đủ, vì các tham số bên trong method vẫn là số Thạch đã chỉnh trên test. Nên bọn mình tune lại từ đầu, chỉ trên val, với luật viết trước và đưa lên git trước khi chạy. Điểm xuất phát là PEG: bọn mình chép lại logic đổi ID gốc của PEG vào code của Thạch và kiểm tra là khi tắt hết method thì ra đúng từng số của PEG. Phần đổi ID mà Thạch viết lại cũng thành một thành phần để thử. Mỗi vòng, mỗi thành phần được thử với vài giá trị tham số, vòng đầu tổng cộng " + r1.rows.length + " lượt. Bảng này là giá trị tốt nhất của từng thành phần ở vòng đầu. Chỉ có hai thứ tăng quá ngưỡng: cone của M1, cộng " + fmt(best.M1c.score, 2) + ", và phần hãm vận tốc, cộng " + fmt(best.M1d.score, 2) + ". Nhưng khi bỏ đi một video hoặc một lần chói có lợi nhất, cone còn " + sgn(cc.score_without, 2) + " và hãm vận tốc còn " + sgn(cd.score_without, 2) + ": toàn bộ mức tăng của cone nằm ở hai video, 156 và 147, còn của hãm vận tốc nằm ở một lần chói trong video 332. Phần nở vùng bất định, Re-ID và pool track ngủ không đổi gì khi đứng một mình; neo đèn và tone-map làm giảm. Nên không thành phần nào được nhận, cấu hình cuối cùng chính là PEG, và test một lần cho nó ra đúng số PEG: " + fmt(tt.T1.HOTA, 2) + ", " + fmt(tt.T2.HOTA, 2) + " và " + fmt(tt.T3["Rcv@.5"], 1) + ".");
+    "Chọn lại trên val chưa đủ, vì các tham số bên trong method vẫn là số Thạch đã chỉnh trên test. Nên bọn mình tune lại từ đầu, chỉ trên val, với luật viết trước và đưa lên git trước khi chạy. Điểm xuất phát là PEG: bọn mình chép lại logic đổi ID gốc của PEG vào code của Thạch và kiểm tra là khi tắt hết method thì ra đúng từng số của PEG. Phần đổi ID mà Thạch viết lại cũng thành một thành phần để thử. Mỗi vòng, mỗi thành phần được thử với vài giá trị tham số, vòng đầu tổng cộng " + r1.rows.length + " lượt. Bảng này là giá trị tốt nhất của từng thành phần ở vòng đầu. Chỉ có hai thứ tăng quá ngưỡng: cone của M1, cộng " + fmt(best.M1c.score, 2) + ", và phần hãm vận tốc, cộng " + fmt(best.M1d.score, 2) + ". Nhưng khi bỏ đi một video hoặc một lần chói có lợi nhất, cone còn " + sgn(cc.score_without, 2) + " và hãm vận tốc còn " + sgn(cd.score_without, 2) + ": toàn bộ mức tăng của cone nằm ở hai video, 156 và 147, còn của hãm vận tốc nằm ở một lần chói trong video 332. Phần nở vùng bất định, Re-ID và pool track ngủ không đổi gì khi đứng một mình; neo đèn và tone-map làm giảm. Nên không thành phần nào được nhận, cấu hình cuối cùng chính là PEG, và test một lần cho nó ra đúng số PEG: " + fmt(tt.T1.HOTA, 2) + ", " + fmt(tt.T2.HOTA, 2) + " và " + fmt(tt.T3["Rcv@.5"], 1) + ". Cột cuối là số test của từng thành phần, chạy sau khi đã chốt, chỉ để đối chiếu. Trên test cũng vậy: M6 và phần đổi ID viết lại tăng gần như chỉ nhờ sửa đúng một lần đổi ID ở video 129, lần đó đáng hai mươi ba điểm HOTA ở video ấy; cone tăng chủ yếu nhờ video 204; còn hãm vận tốc giảm tám điểm rưỡi, nên val loại nó là đúng. Lưu ý là số test của M6 và phần đổi ID bị lạc quan, vì Thạch đã chỉnh chúng trên chính tập test.");
 }
 
 // ═════════ 17 ─ Conclusion ═════════
