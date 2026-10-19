@@ -62,3 +62,24 @@ $PY results/thach_v2/analyze.py                       # val rule, per-episode bo
 $PY results/thach_v2/diag_m1m5.py                     # M1 sub-switch diagnostic (T3)
 $PY results/thach_v2/burn_drift.py --dump             # box drift during burn -> drift.json
 ```
+
+## 6. Tuning from scratch on val (`docs/THACH_V2_TUNE_PROTOCOL.md`, committed 0ff194f before any run)
+Start S0 = his code with every switch off and the original PEG resolver = our PEG (val 70.24 / 76.25 / 67.6).
+Round 1 tried 26 parameter points (9 components); best point per component, Δ vs S0 on val:
+
+| component | best point | ΔT1 HOTA | ΔT2 HOTA | ΔT3 Rcv | score | without most favourable unit |
+|---|---|---|---|---|---|---|
+| M1 cone | χ² 5.99, speed 0.04h | +0.42 | +1.31 | 0.0 | +1.73 | −0.01 (156 in T1, 147 in T2) |
+| M1 damping ×0.88 | on | 0.00 | −0.48 | +1.8 | +1.32 | −0.60 (332 in T2 and its burn episode) |
+| M3 | decay 0.03, TTL off | +0.04 | 0 | 0 | +0.04 | – |
+| M1 adaptive Q / M2 / M4 | any value | 0 | 0 | 0 | 0 | – |
+| M5 | weak-R ×96 | +0.02 | −0.07 | −0.2 | −0.25 | – |
+| R (his resolver rewrite) | on | −0.26 | 0 | 0 | −0.26 | – |
+| M6 | on | −0.10 | −0.73 | −0.7 | −1.53 | – |
+
+No point passes → final = S0 = PEG. Test once (`results/thach_v2/tune/test.json`): 68.34 / 61.41 / 76.2 = PEG.
+Trace: `results/thach_v2/tune/trace.json`, all evaluations: `tune/ledger.json`. Deck slide 33.
+```bash
+.venv/Scripts/python.exe results/thach_v2/tune_val.py          # val search (~15 min)
+.venv/Scripts/python.exe results/thach_v2/tune_val.py --test   # test once, final config only
+```

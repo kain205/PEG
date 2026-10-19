@@ -1,0 +1,24 @@
+{
+ "chosen": {},
+ "label": "S0",
+ "key": "tvb9600652",
+ "env": {
+  "GMOT_ADAPTIVE_MOTION": "0",
+  "GMOT_INTERACT_DAMP": "0",
+  "GMOT_REID": "0",
+  "GBEACON_DYNAMIC_H": "0",
+  "GBEACON_ADAPTIVE_TTL": "0",
+  "GMOT_DORMANT": "0",
+  "GBEACON_ANCHOR": "0",
+  "GMOT_DEGLARE": "0",
+  "GMOT_ID_RESOLVE_V2": "0",
+  "GMOT_ADAPTIVE_Q": "0",
+  "GMOT_CONE": "0",
+  "GMOT_REID_DEEP": "1"
+ },
+ "val": [
+  70.24,
+  76.25,
+  67.6
+ ]
+}
