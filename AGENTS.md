@@ -120,5 +120,6 @@ $PY scripts/08_failure_analysis.py extract --results_subdir eval --tracker_name 
 - **Thach v2 (M1-M6, 2026-10-19)**, pre-registered (`docs/THACH_V2_PROTOCOL.md`) → `docs/THACH_V2_RESULTS.md`: his T1
   reproduces 14/14 but was tuned/chosen on test (0 val runs). Val rule selects base (no method). M1 (adaptive Q) × M5
   (anchor) collapses T3: full+M6 Rcv 76.2 → 53.6 test, 67.6 → 37.1 val. Tuning from scratch on val
-  (`docs/THACH_V2_TUNE_PROTOCOL.md`, `results/thach_v2/tune_val.py`) also ends at PEG. Deck 20-33.
+  (`docs/THACH_V2_TUNE_PROTOCOL.md`, `results/thach_v2/tune_val.py`) also ends at PEG. Best overall (test once):
+  PEG+ by design + M1 cone (val-chosen) T1 68.44 · T2 63.14 · T3 83.1. Full metrics: `results/thach_v2/full_metrics.md`. Deck 20-35.
 - Failure analysis, first pass: `results/failure_analysis/REPORT.md` (findings + next experiments).

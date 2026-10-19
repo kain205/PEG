@@ -1,0 +1,969 @@
+[
+ {
+  "round": 0,
+  "config": "S0",
+  "key": "tvb9600652",
+  "val": [
+   70.24,
+   76.25,
+   67.6
+  ]
+ },
+ {
+  "round": 1,
+  "rows": [
+   {
+    "add": "R[0]",
+    "comp": "R",
+    "idx": 0,
+    "key": "tvf4cff94b",
+    "delta": [
+     -0.26,
+     0.0,
+     0.0
+    ],
+    "score": -0.26,
+    "admissible": true
+   },
+   {
+    "add": "M1q[0]",
+    "comp": "M1q",
+    "idx": 0,
+    "key": "tv911c6e9d",
+    "delta": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "score": 0.0,
+    "admissible": true
+   },
+   {
+    "add": "M1q[1]",
+    "comp": "M1q",
+    "idx": 1,
+    "key": "tv9c850e70",
+    "delta": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "score": 0.0,
+    "admissible": true
+   },
+   {
+    "add": "M1q[2]",
+    "comp": "M1q",
+    "idx": 2,
+    "key": "tvc8b9f91b",
+    "delta": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "score": 0.0,
+    "admissible": true
+   },
+   {
+    "add": "M1c[0]",
+    "comp": "M1c",
+    "idx": 0,
+    "key": "tv7331b3ee",
+    "delta": [
+     0.42,
+     1.31,
+     0.0
+    ],
+    "score": 1.73,
+    "admissible": true
+   },
+   {
+    "add": "M1c[1]",
+    "comp": "M1c",
+    "idx": 1,
+    "key": "tvbe33ff5e",
+    "delta": [
+     0.42,
+     1.31,
+     0.0
+    ],
+    "score": 1.73,
+    "admissible": true
+   },
+   {
+    "add": "M1c[2]",
+    "comp": "M1c",
+    "idx": 2,
+    "key": "tvc7ef6a9f",
+    "delta": [
+     0.41,
+     1.26,
+     0.0
+    ],
+    "score": 1.67,
+    "admissible": true
+   },
+   {
+    "add": "M1c[3]",
+    "comp": "M1c",
+    "idx": 3,
+    "key": "tv1d396d7a",
+    "delta": [
+     0.41,
+     1.26,
+     0.0
+    ],
+    "score": 1.67,
+    "admissible": true
+   },
+   {
+    "add": "M1d[0]",
+    "comp": "M1d",
+    "idx": 0,
+    "key": "tv35618a9c",
+    "delta": [
+     0.0,
+     -0.48,
+     1.8
+    ],
+    "score": 1.32,
+    "admissible": true
+   },
+   {
+    "add": "M2[0]",
+    "comp": "M2",
+    "idx": 0,
+    "key": "tvb7236c52",
+    "delta": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "score": 0.0,
+    "admissible": true
+   },
+   {
+    "add": "M2[1]",
+    "comp": "M2",
+    "idx": 1,
+    "key": "tv213ad049",
+    "delta": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "score": 0.0,
+    "admissible": true
+   },
+   {
+    "add": "M2[2]",
+    "comp": "M2",
+    "idx": 2,
+    "key": "tv1be28fa9",
+    "delta": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "score": 0.0,
+    "admissible": true
+   },
+   {
+    "add": "M3[0]",
+    "comp": "M3",
+    "idx": 0,
+    "key": "tv411a1ffe",
+    "delta": [
+     0.04,
+     0.0,
+     0.0
+    ],
+    "score": 0.04,
+    "admissible": true
+   },
+   {
+    "add": "M3[1]",
+    "comp": "M3",
+    "idx": 1,
+    "key": "tva68bd5ff",
+    "delta": [
+     0.04,
+     0.0,
+     0.0
+    ],
+    "score": 0.04,
+    "admissible": true
+   },
+   {
+    "add": "M3[2]",
+    "comp": "M3",
+    "idx": 2,
+    "key": "tv3db93883",
+    "delta": [
+     0.03,
+     0.0,
+     0.0
+    ],
+    "score": 0.03,
+    "admissible": true
+   },
+   {
+    "add": "M3[3]",
+    "comp": "M3",
+    "idx": 3,
+    "key": "tv37d762bc",
+    "delta": [
+     0.03,
+     0.0,
+     0.0
+    ],
+    "score": 0.03,
+    "admissible": true
+   },
+   {
+    "add": "M3[4]",
+    "comp": "M3",
+    "idx": 4,
+    "key": "tvc000575e",
+    "delta": [
+     0.03,
+     0.0,
+     0.0
+    ],
+    "score": 0.03,
+    "admissible": true
+   },
+   {
+    "add": "M3[5]",
+    "comp": "M3",
+    "idx": 5,
+    "key": "tv6b1f23c5",
+    "delta": [
+     0.03,
+     0.0,
+     0.0
+    ],
+    "score": 0.03,
+    "admissible": true
+   },
+   {
+    "add": "M3[6]",
+    "comp": "M3",
+    "idx": 6,
+    "key": "tv38a3ef4c",
+    "delta": [
+     0.01,
+     0.0,
+     0.0
+    ],
+    "score": 0.01,
+    "admissible": true
+   },
+   {
+    "add": "M4[0]",
+    "comp": "M4",
+    "idx": 0,
+    "key": "tve6477891",
+    "delta": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "score": 0.0,
+    "admissible": true
+   },
+   {
+    "add": "M4[1]",
+    "comp": "M4",
+    "idx": 1,
+    "key": "tv4d200193",
+    "delta": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "score": 0.0,
+    "admissible": true
+   },
+   {
+    "add": "M4[2]",
+    "comp": "M4",
+    "idx": 2,
+    "key": "tv974addd8",
+    "delta": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "score": 0.0,
+    "admissible": true
+   },
+   {
+    "add": "M5[0]",
+    "comp": "M5",
+    "idx": 0,
+    "key": "tv6a31a0dd",
+    "delta": [
+     0.0,
+     -1.29,
+     -4.2
+    ],
+    "score": -5.49,
+    "admissible": false
+   },
+   {
+    "add": "M5[1]",
+    "comp": "M5",
+    "idx": 1,
+    "key": "tv55991c4d",
+    "delta": [
+     0.01,
+     -1.19,
+     -2.1
+    ],
+    "score": -3.28,
+    "admissible": false
+   },
+   {
+    "add": "M5[2]",
+    "comp": "M5",
+    "idx": 2,
+    "key": "tv48383be4",
+    "delta": [
+     0.02,
+     -0.07,
+     -0.2
+    ],
+    "score": -0.25,
+    "admissible": true
+   },
+   {
+    "add": "M6[0]",
+    "comp": "M6",
+    "idx": 0,
+    "key": "tv4bc6ee39",
+    "delta": [
+     -0.1,
+     -0.73,
+     -0.7
+    ],
+    "score": -1.53,
+    "admissible": false
+   },
+   {
+    "add": "P[0]",
+    "comp": "P",
+    "idx": 0,
+    "key": "tv51d09158",
+    "delta": [
+     -0.13,
+     0.05,
+     -0.3
+    ],
+    "score": -0.38,
+    "admissible": true
+   }
+  ],
+  "checks": [],
+  "accepted": "M1c[0]"
+ },
+ {
+  "round": 2,
+  "rows": [
+   {
+    "add": "R[0]",
+    "comp": "R",
+    "idx": 0,
+    "key": "tv13a3452c",
+    "delta": [
+     -0.25,
+     0.0,
+     0.0
+    ],
+    "score": -0.25,
+    "admissible": true
+   },
+   {
+    "add": "M1q[0]",
+    "comp": "M1q",
+    "idx": 0,
+    "key": "tv7b1c6eb3",
+    "delta": [
+     -0.01,
+     -0.68,
+     0.0
+    ],
+    "score": -0.69,
+    "admissible": false
+   },
+   {
+    "add": "M1q[1]",
+    "comp": "M1q",
+    "idx": 1,
+    "key": "tv3d103387",
+    "delta": [
+     -0.01,
+     -0.68,
+     0.0
+    ],
+    "score": -0.69,
+    "admissible": false
+   },
+   {
+    "add": "M1q[2]",
+    "comp": "M1q",
+    "idx": 2,
+    "key": "tva02c07cc",
+    "delta": [
+     -0.01,
+     -0.68,
+     0.0
+    ],
+    "score": -0.69,
+    "admissible": false
+   },
+   {
+    "add": "M1d[0]",
+    "comp": "M1d",
+    "idx": 0,
+    "key": "tvb0e2af4c",
+    "delta": [
+     -0.03,
+     -0.47,
+     1.8
+    ],
+    "score": 1.3,
+    "admissible": true
+   },
+   {
+    "add": "M2[0]",
+    "comp": "M2",
+    "idx": 0,
+    "key": "tv1d28a8da",
+    "delta": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "score": 0.0,
+    "admissible": true
+   },
+   {
+    "add": "M2[1]",
+    "comp": "M2",
+    "idx": 1,
+    "key": "tv45df3853",
+    "delta": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "score": 0.0,
+    "admissible": true
+   },
+   {
+    "add": "M2[2]",
+    "comp": "M2",
+    "idx": 2,
+    "key": "tvef64bb60",
+    "delta": [
+     -0.43,
+     0.0,
+     0.0
+    ],
+    "score": -0.43,
+    "admissible": true
+   },
+   {
+    "add": "M3[0]",
+    "comp": "M3",
+    "idx": 0,
+    "key": "tve6d9eadf",
+    "delta": [
+     0.06,
+     0.0,
+     0.0
+    ],
+    "score": 0.06,
+    "admissible": true
+   },
+   {
+    "add": "M3[1]",
+    "comp": "M3",
+    "idx": 1,
+    "key": "tv2626a1f5",
+    "delta": [
+     0.06,
+     0.0,
+     0.0
+    ],
+    "score": 0.06,
+    "admissible": true
+   },
+   {
+    "add": "M3[2]",
+    "comp": "M3",
+    "idx": 2,
+    "key": "tv48eb1c1c",
+    "delta": [
+     0.05,
+     0.0,
+     0.0
+    ],
+    "score": 0.05,
+    "admissible": true
+   },
+   {
+    "add": "M3[3]",
+    "comp": "M3",
+    "idx": 3,
+    "key": "tvc5832cbe",
+    "delta": [
+     0.05,
+     0.0,
+     0.0
+    ],
+    "score": 0.05,
+    "admissible": true
+   },
+   {
+    "add": "M3[4]",
+    "comp": "M3",
+    "idx": 4,
+    "key": "tv2b6759d6",
+    "delta": [
+     0.05,
+     0.0,
+     0.0
+    ],
+    "score": 0.05,
+    "admissible": true
+   },
+   {
+    "add": "M3[5]",
+    "comp": "M3",
+    "idx": 5,
+    "key": "tvd5b69be5",
+    "delta": [
+     0.05,
+     0.0,
+     0.0
+    ],
+    "score": 0.05,
+    "admissible": true
+   },
+   {
+    "add": "M3[6]",
+    "comp": "M3",
+    "idx": 6,
+    "key": "tvff688fc2",
+    "delta": [
+     0.01,
+     0.0,
+     0.0
+    ],
+    "score": 0.01,
+    "admissible": true
+   },
+   {
+    "add": "M4[0]",
+    "comp": "M4",
+    "idx": 0,
+    "key": "tv08bd9b2e",
+    "delta": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "score": 0.0,
+    "admissible": true
+   },
+   {
+    "add": "M4[1]",
+    "comp": "M4",
+    "idx": 1,
+    "key": "tv8c1b143a",
+    "delta": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "score": 0.0,
+    "admissible": true
+   },
+   {
+    "add": "M4[2]",
+    "comp": "M4",
+    "idx": 2,
+    "key": "tv75978364",
+    "delta": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "score": 0.0,
+    "admissible": true
+   },
+   {
+    "add": "M5[0]",
+    "comp": "M5",
+    "idx": 0,
+    "key": "tv700aa3e8",
+    "delta": [
+     0.0,
+     -1.58,
+     -4.2
+    ],
+    "score": -5.78,
+    "admissible": false
+   },
+   {
+    "add": "M5[1]",
+    "comp": "M5",
+    "idx": 1,
+    "key": "tv701b7d9d",
+    "delta": [
+     0.01,
+     -1.42,
+     -2.1
+    ],
+    "score": -3.51,
+    "admissible": false
+   },
+   {
+    "add": "M5[2]",
+    "comp": "M5",
+    "idx": 2,
+    "key": "tvc58b4358",
+    "delta": [
+     0.02,
+     -0.07,
+     -0.2
+    ],
+    "score": -0.25,
+    "admissible": true
+   },
+   {
+    "add": "M6[0]",
+    "comp": "M6",
+    "idx": 0,
+    "key": "tv54f490d0",
+    "delta": [
+     -0.61,
+     -0.7,
+     -0.7
+    ],
+    "score": -2.01,
+    "admissible": false
+   },
+   {
+    "add": "P[0]",
+    "comp": "P",
+    "idx": 0,
+    "key": "tv0c6f6fe3",
+    "delta": [
+     -0.12,
+     0.07,
+     -0.3
+    ],
+    "score": -0.35,
+    "admissible": true
+   }
+  ],
+  "checks": [],
+  "accepted": "M1d[0]"
+ },
+ {
+  "round": 3,
+  "rows": [
+   {
+    "add": "R[0]",
+    "comp": "R",
+    "idx": 0,
+    "key": "tv7ea7d552",
+    "delta": [
+     -0.31,
+     0.0,
+     0.0
+    ],
+    "score": -0.31,
+    "admissible": true
+   },
+   {
+    "add": "M1q[0]",
+    "comp": "M1q",
+    "idx": 0,
+    "key": "tvcfb2adaa",
+    "delta": [
+     -0.01,
+     -0.17,
+     0.0
+    ],
+    "score": -0.18,
+    "admissible": true
+   },
+   {
+    "add": "M1q[1]",
+    "comp": "M1q",
+    "idx": 1,
+    "key": "tvd493ffe0",
+    "delta": [
+     -0.01,
+     -0.17,
+     0.0
+    ],
+    "score": -0.18,
+    "admissible": true
+   },
+   {
+    "add": "M1q[2]",
+    "comp": "M1q",
+    "idx": 2,
+    "key": "tvc43665af",
+    "delta": [
+     -0.01,
+     -0.17,
+     0.0
+    ],
+    "score": -0.18,
+    "admissible": true
+   },
+   {
+    "add": "M2[0]",
+    "comp": "M2",
+    "idx": 0,
+    "key": "tv9636301c",
+    "delta": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "score": 0.0,
+    "admissible": true
+   },
+   {
+    "add": "M2[1]",
+    "comp": "M2",
+    "idx": 1,
+    "key": "tvd3531cc5",
+    "delta": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "score": 0.0,
+    "admissible": true
+   },
+   {
+    "add": "M2[2]",
+    "comp": "M2",
+    "idx": 2,
+    "key": "tv69a376ad",
+    "delta": [
+     -0.4,
+     0.0,
+     0.0
+    ],
+    "score": -0.4,
+    "admissible": true
+   },
+   {
+    "add": "M3[0]",
+    "comp": "M3",
+    "idx": 0,
+    "key": "tv6c754ce8",
+    "delta": [
+     0.12,
+     0.01,
+     0.0
+    ],
+    "score": 0.13,
+    "admissible": true
+   },
+   {
+    "add": "M3[1]",
+    "comp": "M3",
+    "idx": 1,
+    "key": "tvbd2d7e12",
+    "delta": [
+     0.12,
+     0.01,
+     0.0
+    ],
+    "score": 0.13,
+    "admissible": true
+   },
+   {
+    "add": "M3[2]",
+    "comp": "M3",
+    "idx": 2,
+    "key": "tvc7d0e9fe",
+    "delta": [
+     0.11,
+     0.01,
+     0.0
+    ],
+    "score": 0.12,
+    "admissible": true
+   },
+   {
+    "add": "M3[3]",
+    "comp": "M3",
+    "idx": 3,
+    "key": "tvc4643f40",
+    "delta": [
+     0.11,
+     0.01,
+     0.0
+    ],
+    "score": 0.12,
+    "admissible": true
+   },
+   {
+    "add": "M3[4]",
+    "comp": "M3",
+    "idx": 4,
+    "key": "tv3218fa61",
+    "delta": [
+     0.11,
+     0.01,
+     0.0
+    ],
+    "score": 0.12,
+    "admissible": true
+   },
+   {
+    "add": "M3[5]",
+    "comp": "M3",
+    "idx": 5,
+    "key": "tvf4f7c3e8",
+    "delta": [
+     0.11,
+     0.01,
+     0.0
+    ],
+    "score": 0.12,
+    "admissible": true
+   },
+   {
+    "add": "M3[6]",
+    "comp": "M3",
+    "idx": 6,
+    "key": "tv297902a1",
+    "delta": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "score": 0.0,
+    "admissible": true
+   },
+   {
+    "add": "M4[0]",
+    "comp": "M4",
+    "idx": 0,
+    "key": "tv49763321",
+    "delta": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "score": 0.0,
+    "admissible": true
+   },
+   {
+    "add": "M4[1]",
+    "comp": "M4",
+    "idx": 1,
+    "key": "tvbe9041c1",
+    "delta": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "score": 0.0,
+    "admissible": true
+   },
+   {
+    "add": "M4[2]",
+    "comp": "M4",
+    "idx": 2,
+    "key": "tv61f6aa3e",
+    "delta": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "score": 0.0,
+    "admissible": true
+   },
+   {
+    "add": "M5[0]",
+    "comp": "M5",
+    "idx": 0,
+    "key": "tvc67173df",
+    "delta": [
+     0.0,
+     -1.57,
+     -4.3
+    ],
+    "score": -5.87,
+    "admissible": false
+   },
+   {
+    "add": "M5[1]",
+    "comp": "M5",
+    "idx": 1,
+    "key": "tv8dc1862e",
+    "delta": [
+     0.01,
+     -0.09,
+     -2.1
+    ],
+    "score": -2.18,
+    "admissible": false
+   },
+   {
+    "add": "M5[2]",
+    "comp": "M5",
+    "idx": 2,
+    "key": "tv7198a26c",
+    "delta": [
+     0.02,
+     -0.05,
+     -0.6
+    ],
+    "score": -0.63,
+    "admissible": false
+   },
+   {
+    "add": "M6[0]",
+    "comp": "M6",
+    "idx": 0,
+    "key": "tv7d400bb1",
+    "delta": [
+     -0.61,
+     -0.67,
+     -1.1
+    ],
+    "score": -2.38,
+    "admissible": false
+   },
+   {
+    "add": "P[0]",
+    "comp": "P",
+    "idx": 0,
+    "key": "tv0ba56608",
+    "delta": [
+     -0.58,
+     0.1,
+     -0.9
+    ],
+    "score": -1.38,
+    "admissible": false
+   }
+  ],
+  "checks": [],
+  "accepted": null
+ }
+]

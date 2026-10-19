@@ -1,0 +1,196 @@
+S0 (70.24, 76.25, 67.6)
+  round 1: R[0]                                     d=[-0.26, 0.0, 0.0] score=-0.26
+  round 1: M1q[0]                                   d=[0.0, 0.0, 0.0] score=+0.00
+  round 1: M1q[1]                                   d=[0.0, 0.0, 0.0] score=+0.00
+  round 1: M1q[2]                                   d=[0.0, 0.0, 0.0] score=+0.00
+  round 1: M1c[0]                                   d=[0.42, 1.31, 0.0] score=+1.73
+  round 1: M1c[1]                                   d=[0.42, 1.31, 0.0] score=+1.73
+  round 1: M1c[2]                                   d=[0.41, 1.26, 0.0] score=+1.67
+  round 1: M1c[3]                                   d=[0.41, 1.26, 0.0] score=+1.67
+  round 1: M1d[0]                                   d=[0.0, -0.48, 1.8] score=+1.32
+  round 1: M2[0]                                    d=[0.0, 0.0, 0.0] score=+0.00
+  round 1: M2[1]                                    d=[0.0, 0.0, 0.0] score=+0.00
+  round 1: M2[2]                                    d=[0.0, 0.0, 0.0] score=+0.00
+  round 1: M3[0]                                    d=[0.04, 0.0, 0.0] score=+0.04
+  round 1: M3[1]                                    d=[0.04, 0.0, 0.0] score=+0.04
+  round 1: M3[2]                                    d=[0.03, 0.0, 0.0] score=+0.03
+  round 1: M3[3]                                    d=[0.03, 0.0, 0.0] score=+0.03
+  round 1: M3[4]                                    d=[0.03, 0.0, 0.0] score=+0.03
+  round 1: M3[5]                                    d=[0.03, 0.0, 0.0] score=+0.03
+  round 1: M3[6]                                    d=[0.01, 0.0, 0.0] score=+0.01
+  round 1: M4[0]                                    d=[0.0, 0.0, 0.0] score=+0.00
+  round 1: M4[1]                                    d=[0.0, 0.0, 0.0] score=+0.00
+  round 1: M4[2]                                    d=[0.0, 0.0, 0.0] score=+0.00
+  round 1: M5[0]                                    d=[0.0, -1.29, -4.2] score=-5.49
+  round 1: M5[1]                                    d=[0.01, -1.19, -2.1] score=-3.28
+  round 1: M5[2]                                    d=[0.02, -0.07, -0.2] score=-0.25
+  round 1: M6[0]                                    d=[-0.1, -0.73, -0.7] score=-1.53
+  round 1: P[0]                                     d=[-0.13, 0.05, -0.3] score=-0.38
+ACCEPT M1c[0] -> M1c[0] (70.66, 77.56, 67.6)
+  round 2: M1c[0] + R[0]                            d=[-0.25, 0.0, 0.0] score=-0.25
+  round 2: M1c[0] + M1q[0]                          d=[-0.01, -0.68, 0.0] score=-0.69
+  round 2: M1c[0] + M1q[1]                          d=[-0.01, -0.68, 0.0] score=-0.69
+  round 2: M1c[0] + M1q[2]                          d=[-0.01, -0.68, 0.0] score=-0.69
+  round 2: M1c[0] + M1d[0]                          d=[-0.03, -0.47, 1.8] score=+1.30
+t2 val tv1d28a8da: exit 0, 18s
+t1 val tv1d28a8da: exit 0, 30s
+t3 val tv1d28a8da: exit 0, 13s
+  round 2: M1c[0] + M2[0]                           d=[0.0, 0.0, 0.0] score=+0.00
+t2 val tv45df3853: exit 0, 17s
+t3 val tv45df3853: exit 0, 12s
+t1 val tv45df3853: exit 0, 29s
+  round 2: M1c[0] + M2[1]                           d=[0.0, 0.0, 0.0] score=+0.00
+t2 val tvef64bb60: exit 0, 16s
+t3 val tvef64bb60: exit 0, 13s
+t1 val tvef64bb60: exit 0, 29s
+  round 2: M1c[0] + M2[2]                           d=[-0.43, 0.0, 0.0] score=-0.43
+t2 val tve6d9eadf: exit 0, 16s
+t3 val tve6d9eadf: exit 0, 12s
+t1 val tve6d9eadf: exit 0, 27s
+  round 2: M1c[0] + M3[0]                           d=[0.06, 0.0, 0.0] score=+0.06
+t2 val tv2626a1f5: exit 0, 16s
+t3 val tv2626a1f5: exit 0, 12s
+t1 val tv2626a1f5: exit 0, 27s
+  round 2: M1c[0] + M3[1]                           d=[0.06, 0.0, 0.0] score=+0.06
+t2 val tv48eb1c1c: exit 0, 16s
+t1 val tv48eb1c1c: exit 0, 28s
+t3 val tv48eb1c1c: exit 0, 12s
+  round 2: M1c[0] + M3[2]                           d=[0.05, 0.0, 0.0] score=+0.05
+t2 val tvc5832cbe: exit 0, 16s
+t3 val tvc5832cbe: exit 0, 12s
+t1 val tvc5832cbe: exit 0, 28s
+  round 2: M1c[0] + M3[3]                           d=[0.05, 0.0, 0.0] score=+0.05
+t2 val tv2b6759d6: exit 0, 16s
+t1 val tv2b6759d6: exit 0, 28s
+t3 val tv2b6759d6: exit 0, 12s
+  round 2: M1c[0] + M3[4]                           d=[0.05, 0.0, 0.0] score=+0.05
+t2 val tvd5b69be5: exit 0, 16s
+t3 val tvd5b69be5: exit 0, 12s
+t1 val tvd5b69be5: exit 0, 28s
+  round 2: M1c[0] + M3[5]                           d=[0.05, 0.0, 0.0] score=+0.05
+t2 val tvff688fc2: exit 0, 16s
+t3 val tvff688fc2: exit 0, 14s
+t1 val tvff688fc2: exit 0, 30s
+  round 2: M1c[0] + M3[6]                           d=[0.01, 0.0, 0.0] score=+0.01
+t2 val tv08bd9b2e: exit 0, 19s
+t3 val tv08bd9b2e: exit 0, 14s
+t1 val tv08bd9b2e: exit 0, 34s
+  round 2: M1c[0] + M4[0]                           d=[0.0, 0.0, 0.0] score=+0.00
+t2 val tv8c1b143a: exit 0, 18s
+t3 val tv8c1b143a: exit 0, 14s
+t1 val tv8c1b143a: exit 0, 33s
+  round 2: M1c[0] + M4[1]                           d=[0.0, 0.0, 0.0] score=+0.00
+t2 val tv75978364: exit 0, 20s
+t3 val tv75978364: exit 0, 14s
+t1 val tv75978364: exit 0, 34s
+  round 2: M1c[0] + M4[2]                           d=[0.0, 0.0, 0.0] score=+0.00
+t2 val tv700aa3e8: exit 0, 21s
+t1 val tv700aa3e8: exit 0, 32s
+t3 val tv700aa3e8: exit 0, 16s
+  round 2: M1c[0] + M5[0]                           d=[0.0, -1.58, -4.2] score=-5.78
+t2 val tv701b7d9d: exit 0, 21s
+t1 val tv701b7d9d: exit 0, 32s
+t3 val tv701b7d9d: exit 0, 16s
+  round 2: M1c[0] + M5[1]                           d=[0.01, -1.42, -2.1] score=-3.51
+t2 val tvc58b4358: exit 0, 21s
+t1 val tvc58b4358: exit 0, 32s
+t3 val tvc58b4358: exit 0, 16s
+  round 2: M1c[0] + M5[2]                           d=[0.02, -0.07, -0.2] score=-0.25
+t2 val tv54f490d0: exit 0, 17s
+t1 val tv54f490d0: exit 0, 30s
+t3 val tv54f490d0: exit 0, 14s
+  round 2: M1c[0] + M6[0]                           d=[-0.61, -0.7, -0.7] score=-2.01
+t2 val tv0c6f6fe3: exit 0, 17s
+t3 val tv0c6f6fe3: exit 0, 13s
+t1 val tv0c6f6fe3: exit 0, 29s
+  round 2: M1c[0] + P[0]                            d=[-0.12, 0.07, -0.3] score=-0.35
+ACCEPT M1d[0] -> M1c[0] + M1d[0] (70.63, 77.09, 69.4)
+t2 val tv7ea7d552: exit 0, 16s
+t3 val tv7ea7d552: exit 0, 12s
+t1 val tv7ea7d552: exit 0, 29s
+  round 3: M1c[0] + M1d[0] + R[0]                   d=[-0.31, 0.0, 0.0] score=-0.31
+t2 val tvcfb2adaa: exit 0, 17s
+t1 val tvcfb2adaa: exit 0, 29s
+t3 val tvcfb2adaa: exit 0, 12s
+  round 3: M1c[0] + M1d[0] + M1q[0]                 d=[-0.01, -0.17, 0.0] score=-0.18
+t2 val tvd493ffe0: exit 0, 16s
+t1 val tvd493ffe0: exit 0, 28s
+t3 val tvd493ffe0: exit 0, 12s
+  round 3: M1c[0] + M1d[0] + M1q[1]                 d=[-0.01, -0.17, 0.0] score=-0.18
+t2 val tvc43665af: exit 0, 16s
+t3 val tvc43665af: exit 0, 12s
+t1 val tvc43665af: exit 0, 29s
+  round 3: M1c[0] + M1d[0] + M1q[2]                 d=[-0.01, -0.17, 0.0] score=-0.18
+t2 val tv9636301c: exit 0, 17s
+t3 val tv9636301c: exit 0, 13s
+t1 val tv9636301c: exit 0, 30s
+  round 3: M1c[0] + M1d[0] + M2[0]                  d=[0.0, 0.0, 0.0] score=+0.00
+t2 val tvd3531cc5: exit 0, 17s
+t3 val tvd3531cc5: exit 0, 13s
+t1 val tvd3531cc5: exit 0, 30s
+  round 3: M1c[0] + M1d[0] + M2[1]                  d=[0.0, 0.0, 0.0] score=+0.00
+t2 val tv69a376ad: exit 0, 17s
+t3 val tv69a376ad: exit 0, 13s
+t1 val tv69a376ad: exit 0, 30s
+  round 3: M1c[0] + M1d[0] + M2[2]                  d=[-0.4, 0.0, 0.0] score=-0.40
+t2 val tv6c754ce8: exit 0, 16s
+t3 val tv6c754ce8: exit 0, 12s
+t1 val tv6c754ce8: exit 0, 28s
+  round 3: M1c[0] + M1d[0] + M3[0]                  d=[0.12, 0.01, 0.0] score=+0.13
+t2 val tvbd2d7e12: exit 0, 16s
+t1 val tvbd2d7e12: exit 0, 28s
+t3 val tvbd2d7e12: exit 0, 12s
+  round 3: M1c[0] + M1d[0] + M3[1]                  d=[0.12, 0.01, 0.0] score=+0.13
+t2 val tvc7d0e9fe: exit 0, 16s
+t3 val tvc7d0e9fe: exit 0, 12s
+t1 val tvc7d0e9fe: exit 0, 28s
+  round 3: M1c[0] + M1d[0] + M3[2]                  d=[0.11, 0.01, 0.0] score=+0.12
+t2 val tvc4643f40: exit 0, 16s
+t1 val tvc4643f40: exit 0, 28s
+t3 val tvc4643f40: exit 0, 12s
+  round 3: M1c[0] + M1d[0] + M3[3]                  d=[0.11, 0.01, 0.0] score=+0.12
+t2 val tv3218fa61: exit 0, 16s
+t3 val tv3218fa61: exit 0, 12s
+t1 val tv3218fa61: exit 0, 28s
+  round 3: M1c[0] + M1d[0] + M3[4]                  d=[0.11, 0.01, 0.0] score=+0.12
+t2 val tvf4f7c3e8: exit 0, 16s
+t1 val tvf4f7c3e8: exit 0, 28s
+t3 val tvf4f7c3e8: exit 0, 12s
+  round 3: M1c[0] + M1d[0] + M3[5]                  d=[0.11, 0.01, 0.0] score=+0.12
+t2 val tv297902a1: exit 0, 16s
+t3 val tv297902a1: exit 0, 12s
+t1 val tv297902a1: exit 0, 28s
+  round 3: M1c[0] + M1d[0] + M3[6]                  d=[0.0, 0.0, 0.0] score=+0.00
+t2 val tv49763321: exit 0, 17s
+t3 val tv49763321: exit 0, 13s
+t1 val tv49763321: exit 0, 30s
+  round 3: M1c[0] + M1d[0] + M4[0]                  d=[0.0, 0.0, 0.0] score=+0.00
+t2 val tvbe9041c1: exit 0, 17s
+t3 val tvbe9041c1: exit 0, 13s
+t1 val tvbe9041c1: exit 0, 30s
+  round 3: M1c[0] + M1d[0] + M4[1]                  d=[0.0, 0.0, 0.0] score=+0.00
+t2 val tv61f6aa3e: exit 0, 17s
+t3 val tv61f6aa3e: exit 0, 13s
+t1 val tv61f6aa3e: exit 0, 30s
+  round 3: M1c[0] + M1d[0] + M4[2]                  d=[0.0, 0.0, 0.0] score=+0.00
+t2 val tvc67173df: exit 0, 19s
+t1 val tvc67173df: exit 0, 30s
+t3 val tvc67173df: exit 0, 15s
+  round 3: M1c[0] + M1d[0] + M5[0]                  d=[0.0, -1.57, -4.3] score=-5.87
+t2 val tv8dc1862e: exit 0, 19s
+t1 val tv8dc1862e: exit 0, 30s
+t3 val tv8dc1862e: exit 0, 15s
+  round 3: M1c[0] + M1d[0] + M5[1]                  d=[0.01, -0.09, -2.1] score=-2.18
+t2 val tv7198a26c: exit 0, 19s
+t1 val tv7198a26c: exit 0, 30s
+t3 val tv7198a26c: exit 0, 15s
+  round 3: M1c[0] + M1d[0] + M5[2]                  d=[0.02, -0.05, -0.6] score=-0.63
+t2 val tv7d400bb1: exit 0, 16s
+t1 val tv7d400bb1: exit 0, 28s
+t3 val tv7d400bb1: exit 0, 12s
+  round 3: M1c[0] + M1d[0] + M6[0]                  d=[-0.61, -0.67, -1.1] score=-2.38
+t2 val tv0ba56608: exit 0, 16s
+t1 val tv0ba56608: exit 0, 28s
+t3 val tv0ba56608: exit 0, 12s
+  round 3: M1c[0] + M1d[0] + P[0]                   d=[-0.58, 0.1, -0.9] score=-1.38
+FINAL M1c[0] + M1d[0] (70.63, 77.09, 69.4)

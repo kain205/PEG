@@ -916,6 +916,56 @@ function v2table(s, sp, y0, sel) {
     "Chọn lại trên val chưa đủ, vì các tham số bên trong method vẫn là số Thạch đã chỉnh trên test. Nên bọn mình tune lại từ đầu, chỉ trên val, với luật viết trước và đưa lên git trước khi chạy. Điểm xuất phát là PEG: bọn mình chép lại logic đổi ID gốc của PEG vào code của Thạch và kiểm tra là khi tắt hết method thì ra đúng từng số của PEG. Phần đổi ID mà Thạch viết lại cũng thành một thành phần để thử. Mỗi vòng, mỗi thành phần được thử với vài giá trị tham số, vòng đầu tổng cộng " + r1.rows.length + " lượt. Bảng này là giá trị tốt nhất của từng thành phần ở vòng đầu. Chỉ có hai thứ tăng quá ngưỡng: cone của M1, cộng " + fmt(best.M1c.score, 2) + ", và phần hãm vận tốc, cộng " + fmt(best.M1d.score, 2) + ". Nhưng khi bỏ đi một video hoặc một lần chói có lợi nhất, cone còn " + sgn(cc.score_without, 2) + " và hãm vận tốc còn " + sgn(cd.score_without, 2) + ": toàn bộ mức tăng của cone nằm ở hai video, 156 và 147, còn của hãm vận tốc nằm ở một lần chói trong video 332. Phần nở vùng bất định, Re-ID và pool track ngủ không đổi gì khi đứng một mình; neo đèn và tone-map làm giảm. Nên không thành phần nào được nhận, cấu hình cuối cùng chính là PEG, và test một lần cho nó ra đúng số PEG: " + fmt(tt.T1.HOTA, 2) + ", " + fmt(tt.T2.HOTA, 2) + " và " + fmt(tt.T3["Rcv@.5"], 1) + ". Cột cuối là số test của từng thành phần, chạy sau khi đã chốt, chỉ để đối chiếu. Trên test cũng vậy: M6 và phần đổi ID viết lại tăng gần như chỉ nhờ sửa đúng một lần đổi ID ở video 129, lần đó đáng hai mươi ba điểm HOTA ở video ấy; cone tăng chủ yếu nhờ video 204; còn hãm vận tốc giảm tám điểm rưỡi, nên val loại nó là đúng. Lưu ý là số test của M6 và phần đổi ID bị lạc quan, vì Thạch đã chỉnh chúng trên chính tập test.");
 }
 
+// ── full metrics, val and test (results/thach_v2/full_metrics.json, where_gain.json)
+{
+  const FM = JSON.parse(fs.readFileSync("D:/PROJECT/PEG/results/thach_v2/full_metrics.json", "utf8"));
+  const WG = JSON.parse(fs.readFileSync("D:/PROJECT/PEG/results/thach_v2/where_gain.json", "utf8"));
+  const VN = (c) => c.replace("PEG+ (ours)", "PEG+ (của mình)").replace("PEG + his ID-resolver rewrite", "PEG + đổi-ID viết lại").replace("PEG + M1 cone", "PEG + M1 cone")
+    .replace("PEG + M1 damping", "PEG + M1 hãm vận tốc").replace("PEG + M1 adaptive Q", "PEG + M1 nở bất định").replace("PEG + M3 dyn-h/TTL", "PEG + M3")
+    .replace("PEG + M4 dormant", "PEG + M4").replace("PEG + M2 Re-ID", "PEG + M2").replace("PEG + M5 anchor", "PEG + M5").replace("PEG + M6 tone-map", "PEG + M6")
+    .replace("Thach full+M6 (his params, tuned on test)", "Thạch full+M6 (tham số của Thạch)").replace(/ \[[A-Za-z0-9]+\[\d\]\]/, "")
+    .replace("STRONGEST (val, no single-event check): M1c[0] + M1d[0]", "★ Mạnh nhất: cone + hãm vận tốc").replace("STRONGEST with PEG+ by design: M1c[0] + P[0]", "★ PEG+ (nguyên lý) + cone");
+  const WGK = { "PEG+ (ours)": "P", "Thach": null, "STRONGEST (val": "tune_strong", "STRONGEST with": "tune_strong_P" };
+  const wgName = (c) => { for (const [k, v] of Object.entries(WGK)) if (c.startsWith(k)) return v; const m = c.match(/\[([A-Za-z0-9]+)\[/); return m ? m[1] : null; };
+  const short = (sp, c) => {
+    const w = WG[sp + "|" + wgName(c)]; if (!w) return "";
+    const out = [];
+    ["T1", "T2"].forEach((t) => { const x = w[t]; if (x.delta > 0.3 && x.without_top < x.delta / 2) out.push(t + ": video " + x.top[0][0]); });
+    const x = w.T3; if (x.delta > 0.5 && x.without_top < x.delta / 2) out.push("T3: video " + x.top[0]);
+    return out.join(", ");
+  };
+  const COLS = [["T1 HOTA", 2], ["T1 IDF1", 2], ["T1 MOTA", 2], ["T1 IDSW", 0], ["T2 HOTA", 2], ["T2 IDF1", 2], ["T2 MOTA", 2], ["T3 Rcv@.5", 1], ["T3 total", 1], ["T3 ID-off", 1]];
+  const LOWER = { "T1 IDSW": 1, "T3 ID-off": 1 };
+  [["test", "test"], ["val", "val"]].forEach(([sp, lab]) => {
+    const rows = FM[sp], peg = rows[0];
+    const s = base("Full metrics trên " + lab + ": từng thành phần và bản mạnh nhất", "PEG-F v2 · FULL METRICS · " + lab.toUpperCase(), 1);
+    const x0 = 3.5, cw = 0.74, xn = x0 + COLS.length * cw, y0 = 1.45, rh = 0.335;
+    COLS.forEach(([cn], j) => txt(s, cn.replace(" ", "\n"), { x: x0 + j * cw, y: y0, w: cw, h: 0.45, fontSize: 9.5, bold: true, color: C.muted, align: "center", valign: "bottom" }));
+    txt(s, "chủ yếu nhờ", { x: xn + 0.05, y: y0, w: 1.6, h: 0.45, fontSize: 9.5, bold: true, color: C.muted, valign: "bottom" });
+    rows.forEach((r, i) => {
+      const y = y0 + 0.5 + i * rh, star = r.config.startsWith("STRONGEST");
+      if (i % 2 === 0 || star) s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y, w: 12.13, h: rh - 0.02, fill: { color: star ? C.card2 : C.card }, line: { color: star ? C.amber : C.card, width: star ? 1 : 0 } });
+      txt(s, VN(r.config), { x: 0.7, y, w: 2.85, h: rh, fontSize: 10.5, bold: i < 2 || star, color: i === 0 ? C.peg : i === 1 || r.config.includes("PEG+ by") ? C.plus : star ? C.amber : C.text, valign: "middle" });
+      COLS.forEach(([cn, dec], j) => {
+        const v = r[cn], b = peg[cn];
+        if (v === undefined || v === null) return;
+        const d = (v - b) * (LOWER[cn] ? -1 : 1), thr = dec === 0 ? 0.5 : 0.05;
+        const col = i === 0 || Math.abs(d) < thr ? C.text : d > 0 ? C.good : C.red;
+        txt(s, dec ? fmt(v, dec) : fmtI(v), { x: x0 + j * cw, y, w: cw, h: rh, fontSize: 10.5, align: "center", valign: "middle", color: col, bold: star });
+      });
+      txt(s, short(sp, r.config), { x: xn + 0.05, y, w: 12.7 - xn - 0.05, h: rh, fontSize: 8.5, color: C.muted, valign: "middle" });
+    });
+    const yb = y0 + 0.5 + rows.length * rh + 0.05;
+    txt(s, "Xanh/đỏ = tốt/xấu hơn PEG (IDSW, ID-off: ít hơn là tốt). “Chủ yếu nhờ” = bỏ video/lần chói đó thì mất hơn nửa mức tăng. Tham số mỗi dòng = giá trị tốt nhất trên val." + (sp === "test" ? " Các dòng ★ là cấu hình chọn trên val, test chạy 1 lần." : ""),
+      { x: 0.6, y: yb, w: 12.1, h: 6.95 - yb, fontSize: 10.5, color: C.muted, valign: "top" });
+    const st = rows.find((r) => r.config.startsWith("STRONGEST with")), sa = rows.find((r) => r.config.startsWith("STRONGEST (val")), pp = rows[1];
+    done(s, "Full metrics trên " + lab,
+      sp === "test"
+        ? "Đây là bảng đầy đủ trên test: mỗi dòng là PEG cộng một thành phần, với tham số tốt nhất chọn trên val, cộng hai bản mạnh nhất và bản của Thạch. Xanh là tốt hơn PEG, đỏ là kém hơn, cột cuối ghi video quyết định mức tăng. Bản mạnh nhất mà để val chọn hết, gồm cone và hãm vận tốc, chỉ ra Table III " + fmt(sa["T3 Rcv@.5"], 1) + ", kém PEG, vì phần hãm vận tốc. Bản tốt nhất là PEG+ cộng cone: Table I " + fmt(st["T1 HOTA"], 2) + ", Table II HOTA " + fmt(st["T2 HOTA"], 2) + ", Table III " + fmt(st["T3 Rcv@.5"], 1) + ", tốt hơn PEG ở cả ba bảng, và hơn PEG+ một mình " + sgn(st["T2 HOTA"] - pp["T2 HOTA"], 2) + " HOTA ở Table II và " + sgn(st["T3 Rcv@.5"] - pp["T3 Rcv@.5"], 1) + " ở Table III. Phần tăng Table III của nó không phụ thuộc một video: bỏ lần chói có lợi nhất thì vẫn còn khoảng cộng bốn điểm rưỡi. Bản của Thạch có Table I cao nhất, nhưng Table III chỉ " + fmt(rows.find((r) => r.config.startsWith("Thach"))["T3 Rcv@.5"], 1) + "."
+        : "Đây là cùng bảng trên val, tập dùng để chọn. Trên val các mức chênh nhỏ hơn và gần như mức nào cũng nằm ở một hai video: cone nhờ video 156 và 147, hãm vận tốc nhờ một lần chói ở video 332. PEG+ trên val gần như bằng PEG, vì val hầu như không có ca box bị co lại khi coast.");
+  });
+}
+
 // ═════════ 17 ─ Conclusion ═════════
 {
   const s = base("Kết luận và bài học", "TỔNG KẾT", 2);
@@ -926,7 +976,7 @@ function v2table(s, sp, y0, sel) {
     "PEG-F v1: tái hiện được, nhưng cùng cấu hình chỉ " + sgn(CL.HOTA - FP_.HOTA, 2) + " HOTA; 2 lần đổi ID quyết định bảng.",
     "PEG-F v2: Table I đúng 14/14, nhưng Thạch chỉnh và chọn trên test. Chọn lại, rồi tune lại từ đầu trên val: không method nào qua → giữ PEG.",
     "v2: M1 × M5 làm Table III sụt (" + fmt(v2p.T3["Rcv@.5"], 1) + " → " + fmt(v2t.T3["Rcv@.5"], 1) + " test, " + fmt(v2vp.T3["Rcv@.5"], 1) + " → " + fmt(v2v.T3["Rcv@.5"], 1) + " val): box trượt ngang.",
-    "PEG+: Rcv test " + sgn(ES.test.A.delta, 1) + ", val " + sgn(ES.val.A.delta, 1) + ", gộp " + sgn(ES.pooled.A.delta, 1) + ": chỉ giúp khi box co lại lúc coast.",
+    "PEG+: Rcv test " + sgn(ES.test.A.delta, 1) + ", val " + sgn(ES.val.A.delta, 1) + ": giúp khi box co lại lúc coast. Bản tốt nhất = PEG+ + cone (M1): test 68.44 · 63.14 · 83.1, hơn PEG cả 3 bảng.",
     "Table I một mình dễ đánh lừa → luôn đo đủ 3 bảng, chọn trên val, báo test 1 lần.",
   ]), { x: 0.9, y: 2.3, w: 5.45, h: 4.1, fontSize: 15 });
   card(s, 6.78, 1.65, 5.95, 4.9, C.card2);

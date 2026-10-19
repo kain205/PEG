@@ -70,7 +70,7 @@ def load_ledger():
 def evaluate(chosen, split="val"):
     k = key_of(chosen)
     run.CONFIGS[k] = (env_of(chosen), label(chosen))
-    with ThreadPoolExecutor(3) as ex:   # three tables write to three separate result dirs
+    with ThreadPoolExecutor(int(os.environ.get("TUNE_WORKERS", "2"))) as ex:   # tables write to separate result dirs; 2 keeps RAM ~2 GB
         list(ex.map(lambda t: run.run(k, t, split, False), ("t1", "t2", "t3")))
     m = an.metrics(k, split)
     led = load_ledger()
