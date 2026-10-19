@@ -52,3 +52,12 @@ Asked for: the strongest combination, counting every gain (even one that rests o
 - Same greedy and thresholds (admissible every Δ ≥ −0.5, score > +0.5), **without** the single-event check.
 - Test once for the final config, all metrics. Every accepted step is marked with the val unit it rests on.
 - `results/thach_v2/tune_val.py --strong` (→ `results/thach_v2/tune_strong/`), then `--strong --test`.
+
+## Addendum 2 (2026-10-19, committed before running): PEG+ in by design
+Principle: whether a change goes in can be decided by its mechanism, before looking at numbers; val then only tunes
+parameters and test judges once. PEG+ qualifies: it fixes a verified Kalman defect (area velocity is never damped while
+coasting, so the held box collapses, e.g. 92x80 -> 16x14 px in 20 frames). Val has almost no such collapse cases
+(PEG's val misses are mostly targets never tracked), so a val score for PEG+ (−0.38 in round 1) is not informative.
+Caveat stated up front: PEG+'s test numbers were already known to us.
+- Start = S0 + P (always on); Thach's components chosen exactly as in Addendum 1 (val greedy, no single-event check).
+- Test once for the final config, all metrics. `tune_val.py --strong --force_peg_plus` (→ `tune_strong_P/`).

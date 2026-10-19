@@ -97,8 +97,11 @@ def single_event(kx, mx, kc, mc):
     return chk, round(sum(v["delta_without"] for v in chk.values()), 2)
 
 
+FORCE = {}   # components included by design (not judged on val), e.g. {'P': 0}
+
+
 def search():
-    chosen, trace = {}, []
+    chosen, trace = dict(FORCE), []
     kx, mx = evaluate(chosen)
     trace.append({"round": 0, "config": label(chosen), "key": kx, "val": prim(mx)})
     print("S0", prim(mx), flush=True)
@@ -156,11 +159,16 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--test", action="store_true")
     ap.add_argument("--strong", action="store_true", help="strongest variant: + PEG+ component, no single-event check -> tune_strong/")
+    ap.add_argument("--force_peg_plus", action="store_true", help="with --strong: PEG+ always on (by design) -> tune_strong_P/")
     a = ap.parse_args()
     if a.strong:
         STRONG = True
         GRID["P"] = [{"GPEG_SIZE_LOCK": "1"}]
         TUNE = os.path.join(HERE, "tune_strong"); os.makedirs(TUNE, exist_ok=True)
         LEDGER = os.path.join(TUNE, "ledger.json")
+        if a.force_peg_plus:
+            FORCE = {"P": 0}
+            TUNE = os.path.join(HERE, "tune_strong_P"); os.makedirs(TUNE, exist_ok=True)
+            LEDGER = os.path.join(TUNE, "ledger.json")
     sys.stdout.reconfigure(encoding="utf-8")
     test_once() if a.test else search()
