@@ -1,3 +1,4 @@
 - [Delegate easy tasks to Sonnet](delegate-easy-tasks-to-sonnet.md) — user wants mechanical work in Sonnet subagents, main model thinks
 - [Sync memory to repo](sync-memory-to-repo.md) — mirror memory to .claude/memory/ and push to origin after every change
 - [Tune on val from scratch](tune-on-val-from-scratch.md) — evaluate others' methods by re-tuning params on val (pre-registered), not just re-selecting; test once
+- [MoRongMo labeling task](morongmo-labeling-task.md) — frames 35068-56611 for FastLabeler; app timeline != decode order; use COCO yolo11l, not the PEG detector
