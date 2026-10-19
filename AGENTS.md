@@ -117,4 +117,7 @@ $PY scripts/08_failure_analysis.py extract --results_subdir eval --tracker_name 
   greedy on val picked PEG+M1damp (one episode), which loses to PEG on every test table. Test-selected A+M1swap+M3
   ≈ PEG on val. PEG+ T3: test +5.6, val −0.4, pooled 48 ep +3.2 [CI +0.1, +7.3]. Val caches built for real+synth
   (`results/percep_cache/*`, + `.app.npz`); runner `results/val_selection/run_selection.py`. Deck slides 16–21.
+- **Thach v2 (M1-M6, 2026-10-19)**, pre-registered (`docs/THACH_V2_PROTOCOL.md`) → `docs/THACH_V2_RESULTS.md`: his T1
+  reproduces 14/14 but was tuned/chosen on test (0 val runs). Val rule selects base (no method). M1 (adaptive Q) × M5
+  (anchor) collapses T3: full+M6 Rcv 76.2 → 53.6 test, 67.6 → 37.1 val. Runner `results/thach_v2/run.py`. Deck 20-32.
 - Failure analysis, first pass: `results/failure_analysis/REPORT.md` (findings + next experiments).

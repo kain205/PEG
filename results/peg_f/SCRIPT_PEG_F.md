@@ -2,9 +2,9 @@
 
 _File này được sinh tự động từ deck_build.js; số liệu lấy từ numbers.json._
 
-Tổng: Người 1 ≈ 7.5 phút, Người 2 ≈ 10.9 phút (tốc độ ~160 tiếng/phút), Q&A không tính.
+Tổng: Người 1 ≈ 19.0 phút, Người 2 ≈ 10.9 phút (tốc độ ~160 tiếng/phút), Q&A không tính.
 
-# NGƯỜI 1 — PEG-F, kiểm chứng (≈ 7.4 phút)
+# NGƯỜI 1 — PEG-F, kiểm chứng (≈ 18.9 phút)
 
 ## Slide 1 — PEG-F và PEG+ — giữ ID đúng người khi đèn mũ làm chói camera  _(≈ 39 giây)_
 
@@ -54,6 +54,58 @@ Vì sao M2 và M4 không làm gì? Bọn mình đếm bên trong tracker. M2 ch�
 
 Cuối cùng là chi phí, trên cùng GPU GTX 1650, chạy thật cả pipeline: detector, h_psi và tracker. FPS là số frame xử lý mỗi giây. PEG đạt 4.4 FPS, code PEG-F đạt 4.3 FPS, gần như bằng nhau vì detector chiếm gần hết thời gian. Paper ghi 26.4 FPS vì dùng GPU RTX 5070 Ti mạnh hơn. Vậy PEG-F không tốn thêm gì đáng kể, nhưng chỉ hai method đáng giữ. Mình chuyển sang bạn mình, người nói về PEG+.
 
+## Slide 20 — PEG-F v2: tổng quan  _(≈ 57 giây)_
+
+Sau buổi trước, Thạch sửa lại PEG-F và gửi bản mới, gọi là PEG-F v2. Giờ có sáu method. Ba cái mới là M1, M2 và M6: M1 viết lại hoàn toàn thành một vùng bất định nở rộng khi mất người; M2 không chỉ dùng màu áo nữa mà lấy thêm đặc trưng từ chính detector; và M6 là method mới, xử lý ảnh trước khi đưa vào detector. M3, M4, M5 giữ như cũ. Thạch báo trên Table I, tập test, cấu hình đầy đủ cộng M6 đạt HOTA 70.03 và IDF1 87.03. Mình chạy lại cả mười bốn cấu hình trong bảng của Thạch và ra đúng từng con số. Nhưng Thạch chỉ báo Table I trên test, nên mình đo thêm hai bảng còn lại và tập val, đúng như cách mình đã kiểm chứng ở phần trước. Trước hết mình giải thích từng method, mỗi method một slide.
+
+## Slide 21 — M1: Vùng bất định nở rộng khi mất người  _(≈ 82 giây)_
+
+M1 của Thạch giải quyết tình huống này: người bị chói vài chục frame, trong lúc đó họ có thể rẽ, đứng lại hoặc lùi, nên box dự đoán không còn trùng với người khi họ hiện ra lại, và tracker sinh ID mới. Cách làm có hai phần. Phần một: mỗi frame không thấy người, Kalman filter tăng độ bất định về vị trí, mỗi frame cộng thêm khoảng ba phần trăm chiều cao người, tối đa ba mươi frame. Hình bên phải cho thấy vùng này nở rộng theo thời gian, như một cái nón. Phần hai: những detection chưa được ai nhận sẽ được thử với các track đã mất từ hai frame trở lên. Nếu detection nằm trong vùng chín mươi chín phần trăm, theo một trong hai giả thuyết là đi tiếp với vận tốc cũ hoặc đứng lại chỗ cũ, thì gán lại ID cũ. Có thêm vài chặn để tránh gán nhầm: không xa quá sức đi bộ, chiều cao không lệch quá, và không đè lên người đang được track. Ngoài ra M1 vẫn kèm phần hãm vận tốc khi hai người gần nhau, và giờ Thạch chỉ áp cho track đang coast. Trên cả tập test, cone chỉ khớp lại 10 lần. Kết quả bật riêng M1 ở dải dưới.
+
+## Slide 22 — M2: Re-ID: “dấu vân tay” lấy từ detector  _(≈ 62 giây)_
+
+M2 là phần nhận lại người. Bản cũ chỉ so màu áo, mà công nhân mặc đồ bảo hộ giống nhau, nên nó không bao giờ đổi được quyết định nào. Bản mới lấy thêm đặc trưng từ chính detector: feature map ở tầng P4, cắt theo box của người và chia làm nửa trên, nửa dưới, nên không cần thêm mạng nào. Thạch trừ đi trung bình của cả video để bỏ phần giống nhau chung, rồi ghép với màu: độ giống bằng bảy mươi phần trăm feature cộng ba mươi phần trăm màu. Mỗi người giữ tối đa mười mẫu, gọi là gallery, lấy năm frame một lần và chỉ lấy khi người rõ, chưa bị chói và không chen với ai. Khi bị chói thì gallery đóng băng. Dấu vân tay này được dùng ở bốn chỗ: khi hai track giành một detection, khi xét đổi ID của một cặp, để lọc cone của M1, và để hồi sinh ID ở M4.
+
+## Slide 23 — M3: Ngưỡng chói h tăng dần + thời gian giữ box thích nghi  _(≈ 49 giây)_
+
+M3 giữ nguyên như bản cũ. Vấn đề nó nhắm tới là đèn chiếu lên tường: vùng box cũng trắng, nên PEG tưởng người vẫn ở đó và giữ box ma. Cách làm: khi đã mất detection quá ba frame, ngưỡng h tăng sáu phần trăm mỗi frame, từ 0.4 tới tối đa 0.65, như hình bên trái; càng mất lâu càng cần bằng chứng chói mạnh hơn. Thứ hai, thời gian được giữ box sau khi xác nhận chói không còn cố định năm frame mà tỉ lệ với độ chói φ. Nhưng vì box chỉ được giữ khi φ đã vượt ngưỡng, như vùng xám ở hình bên phải, nên thực tế nó chỉ là bốn hoặc năm frame: phần này gần như không đổi gì so với PEG.
+
+## Slide 24 — M4: Pool track “ngủ”: trả lại ID cũ  _(≈ 30 giây)_
+
+M4 giữ như bản cũ. Khi một track bị xóa vì mất quá lâu, thay vì quên luôn, tracker cất nó vào một pool, giữ tối đa bốn mươi lăm frame. Khi có người mới xuất hiện gần chỗ cũ, trong tầm đi bộ, và dấu vân tay giống từ 0.6 trở lên, thì người đó được trả lại ID cũ. Ý tưởng hợp lý, nhưng trên cả tập test với cấu hình đầy đủ, số lần hồi sinh là 0.
+
+## Slide 25 — M5: Neo box vào đèn mũ  _(≈ 41 giây)_
+
+M5 cũng giữ như cũ. Khi người bị chói, box chỉ chạy theo dự đoán của Kalman, nên nếu người đổi tư thế thì box trôi. M5 chỉ chạy khi gate của PEG đã xác nhận là người đang bị chói. Nó tìm tâm của đốm đèn ở dải đầu của box, suy ra tâm người bằng tâm đèn cộng 0.35 lần chiều cao, rồi kéo nhẹ box về đó. Bật một mình thì M5 gần như không đổi gì. Nhưng khi đi cùng M1, cú kéo nhẹ này trở thành kéo mạnh, và đó là nguyên nhân Table III sụt; mình sẽ quay lại ở slide sau.
+
+## Slide 26 — M6: Làm dịu vầng sáng quanh đèn trước khi đưa vào detector  _(≈ 47 giây)_
+
+M6 là method mới và khác các method khác: nó không sửa tracker mà sửa ảnh trước khi đưa vào detector. Quanh đèn có một vầng sáng rộng làm mất chi tiết của người đứng gần. Thạch tách ảnh thành một lớp độ sáng nền, làm mờ nhưng giữ cạnh, và một lớp chi tiết; rồi nén lớp nền ở chỗ quá sáng, chỉ trong vòng quanh đèn, còn lõi đèn thì giữ nguyên. Hình bên phải là ảnh gốc, ảnh sau khi xử lý, và bản đồ chỗ bị đổi. Chỉ ảnh đưa vào detector bị đổi; gate của PEG và màu Re-ID vẫn dùng ảnh gốc. Ngưỡng bật rất thấp, nên M6 được áp lên khoảng 100 phần trăm số frame của tập test.
+
+## Slide 27 — base của Thạch không phải PEG  _(≈ 40 giây)_
+
+Trước khi xem kết quả, có một điểm về cấu hình. Trong bảng của Thạch, mọi chênh lệch đều so với một cấu hình gọi là base, tức là PEG khi tắt hết sáu method. Nhưng base đó không phải PEG: phần logic đổi lại ID mà ở v1 mình gọi là M1-swap giờ luôn bật, không có công tắc. Nó sửa được video 129, HOTA tăng 23.5 điểm, nhưng làm hỏng video 320: số lần đổi ID tăng từ 4 lên 25. Vì vậy chênh lệch so với base không phải chênh lệch so với PEG. Ở các slide sau mình so với cả hai.
+
+## Slide 28 — Bảng của Thạch được chọn trên test  _(≈ 70 giây)_
+
+Trước khi xem kết quả, mình kiểm tra Thạch đã chọn cấu hình trên tập nào. Trong thư mục kết quả Thạch gửi có năm mươi sáu lượt chạy Table I trên tập test, không có lượt nào trên val, và không có lượt nào cho Table II hay Table III. Script của Thạch có ghi đúng quy trình: chọn trên val, báo test một lần, nhưng thực tế không làm. Ví dụ riêng M1 có ba bản thử tên dx, rồi fix1, rồi fix2 là bản cuối, HOTA từ khoảng 66 đến 69.24, và tất cả đều đo trên Table I test. Vì vậy con số cộng 1.69 HOTA là số chọn trên test rồi báo cũng trên test. Bọn mình làm lại theo đúng cách: luật chọn được viết và đưa lên git trước khi có bất kỳ số val nào, chọn trên val, rồi chỉ báo test một lần cho cấu hình được chọn. Có một điều bọn mình không gỡ được: các tham số bên trong method đã được chỉnh trên test; muốn gỡ thì phải tune lại từ đầu trên val.
+
+## Slide 29 — Kết quả v2 trên test  _(≈ 24 giây)_
+
+Đây là kết quả trên tập test, đủ ba bảng, so với PEG cùng cấu hình guard bật. Ở Table I, cấu hình đầy đủ cộng M6 hơn PEG +1.69 HOTA và +4.35 IDF1, số lần đổi ID từ 15 thành 29. Ở Table II, HOTA −0.20 và MOTA −4.00. Ở Table III, phần đo người đang bị chói, Rcv@.5 từ 76.2 thành 53.6.
+
+## Slide 30 — Vì sao Table III sụt  _(≈ 81 giây)_
+
+Vì sao Table III sụt mạnh như vậy? Mình tách từng phần. Bật riêng M1, Rcv trên test từ 76.2 còn 70.1. Bật riêng M5, gần như không đổi. Nhưng bật cả hai thì còn khoảng 55.6 trên test và 37.7 trên val. Lý do: M1 làm độ bất định vị trí của Kalman tăng lên mỗi frame không thấy người. M5 kéo box về phía đèn bằng một phép đo có độ tin cố định, được thiết kế là cú kéo nhẹ. Nhưng Kalman cân giữa dự đoán và phép đo theo độ bất định: dự đoán càng không chắc thì phép đo càng được tin. Nên khi M1 làm độ bất định phình ra, cú kéo nhẹ của M5 thành kéo hẳn. Mình đo trong các frame bị chói: box vẫn còn, vẫn đúng chiều cao, nhưng trượt ngang khỏi người, trung vị khoảng 10 phần trăm bề rộng người trên test và 39 phần trăm trên val. Để chắc chắn, mình dùng công tắc con trong code của Thạch: chỉ M5 cộng riêng phần nở vùng bất định của M1 là đã ra 53.6 trên test; còn tắt riêng phần đó khỏi cấu hình đầy đủ thì hồi lại 69.5. Các lượt này chỉ để chẩn đoán, không dùng để chọn cấu hình.
+
+## Slide 31 — Kết quả v2 trên val  _(≈ 36 giây)_
+
+Giờ đến tập val, phần dữ liệu Thạch chưa dùng tới. Cấu hình đầy đủ cộng M6 so với PEG: Table I −0.39 HOTA, số lần đổi ID từ 15 lên 48; Table II −3.09 HOTA; Table III từ 67.6 xuống 37.1. Tức là mức tăng Table I trên test không lặp lại trên val, còn Table III sụt như trên test và còn nặng hơn. Ngay cả base, tức PEG cộng logic đổi ID cũ, cũng kém PEG ở Table I trên val: 69.98 so với 70.24, và đổi ID 28 lần so với 15.
+
+## Slide 32 — Chọn trên val bằng luật chốt trước  _(≈ 72 giây)_
+
+Đây là bước chọn. Luật được viết và đưa lên git trước khi có số val nào. Ứng viên là mười ba cấu hình của Thạch, so với base. Vòng một: không bảng nào được giảm quá 0.5, và tổng mức tăng phải lớn hơn 0.5. Chỉ có 2 cấu hình qua vòng này: full-M5 và base+M1. Vòng hai là điều kiện mình thêm từ bài học lần trước: bỏ đi một video, hoặc một lần chói, có lợi nhất cho cấu hình đó mà vẫn còn tăng thì mới nhận. Cả hai đều trượt: mức tăng của chúng đến từ đúng một video ở Table II, video 147, và một lần chói ở Table III, video 332. Mọi cấu hình có cả M1 và M5 bị loại ngay ở vòng một vì Table III giảm khoảng ba mươi điểm, và M6 bị loại vì cả ba bảng đều giảm trên val. Kết quả: không method nào được val ủng hộ, nên cấu hình được chọn là base. Báo test đúng một lần cho cấu hình này: Table I 68.84, Table II 62.18, Table III 76.2, so với PEG 68.34, 61.41 và 76.2.
+
 # NGƯỜI 2 — PEG+ và kết hợp (≈ 10.9 phút)
 
 ## Slide 13 — PEG+: khóa kích thước  _(≈ 86 giây)_
@@ -84,11 +136,11 @@ Từ các thí nghiệm, mình thử ghép có chọn lọc: lấy PEG+, thêm M
 
 Vì sao val và test lại ngược nhau? Mình đếm lại theo từng lần chói. M1-damp được chọn trên val nhờ đúng một lần chói, ở video 332: số frame box còn trùng người tăng từ 3 lên 13. Trên val, một frame chỉ đáng 0.18 điểm, nên chỉ một lần chói đó cũng đủ vượt ngưỡng 0.5. Trên test, M1-damp làm 9 lần chói tệ hơn và mất 87 frame. PEG+ thì ngược lại: trên test tăng +5.6, trên val −0.4. Lý do là val có ít trường hợp box co lại khi coast; lỗi của PEG trên val chủ yếu là người chưa bao giờ được track, có 3 lần chói gần như không phủ được frame nào, và khóa kích thước box không cứu được những ca đó. M1-swap trên val không cải thiện Table I mà IDSW còn tăng từ 15 lên 22. Nếu gộp cả bốn mươi tám lần chói của val và test, PEG+ tăng +3.2 với khoảng tin cậy chín mươi lăm phần trăm từ +0.1 đến +7.3, tức là chỉ vừa đủ khác không; còn M1-damp giảm 5.6 điểm và chắc chắn có hại. Bài học là luật của bọn mình đặt ngưỡng quá thấp so với độ nhiễu của một tập nhỏ như vậy. Bọn mình không sửa luật sau khi đã thấy test, vì như thế lại là chọn trên test lần nữa; lần sau mình sẽ chỉ nhận một thành phần khi khoảng tin cậy không chứa không.
 
-## Slide 20 — Kết luận và bài học  _(≈ 95 giây)_
+## Slide 33 — Kết luận và bài học  _(≈ 96 giây)_
 
-Tóm lại bốn điều. Một, claim của PEG-F tái hiện được, nhưng chỉ khi so cùng cấu hình: guard bật, mức tăng thật là +0.49 HOTA. Hai, nhìn một mình Table I rất dễ bị đánh lừa, vì hai lần đổi ID ở hai video quyết định gần hết mức tăng; nên phải đo cả ba bảng. Ba, M1-swap và M3 giúp trên test nhưng không lặp lại trên val; M1-damp làm hại; M2, M4, M5 gần như bằng không. Bốn, PEG+ nâng Rcv@.5 trên test từ 76.6 lên 82.2, nhưng trên val thì không; gộp cả hai tập nó tăng +3.2, vừa đủ khác không. Nó chỉ giúp khi box co lại lúc coast, và val có ít trường hợp như vậy. Năm, khi chọn lại trên val với luật chốt trước, config được chọn là PEG cộng M1-damp, và nó thua PEG trên test; nghĩa là val quá nhỏ để chọn bằng một ngưỡng cứng. Hướng tiếp theo: chọn bằng khoảng tin cậy hoặc cross-validation thay vì ngưỡng cứng; thay màu HSV bằng một Re-ID học được, vì màu không phân biệt được hai công nhân; và sửa M1-damp để chỉ hãm vận tốc của track đang được thấy, không hãm track đang coast. Bài học lớn nhất với mình không phải một con số, mà là cách làm: tái hiện trước, so cùng cấu hình, đo cả ba bảng, tách từng phần ra để xem phần nào thật sự có tác dụng, và nói rõ chỗ nào chưa kiểm chứng.
+Tóm lại năm điều. Một, PEG-F bản đầu tái hiện được, nhưng khi so cùng cấu hình thì mức tăng chỉ +0.49 HOTA, và hai lần đổi ID quyết định gần hết mức tăng đó. Hai, PEG-F bản hai: Table I tái hiện đúng cả mười bốn cấu hình, nhưng Thạch chỉnh và chọn mọi thứ trên test; khi chọn lại trên val bằng luật chốt trước thì không method nào qua. Ba, ở bản hai, M1 đi cùng M5 làm Table III sụt mạnh, từ 76.2 xuống 53.6 trên test và từ 67.6 xuống 37.1 trên val, vì box bị kéo trượt ngang khỏi người. Bốn, PEG+ tăng Rcv trên test +5.6, trên val −0.4, gộp lại +3.2: chỉ giúp khi box co lại lúc coast. Năm, nhìn một mình Table I rất dễ bị đánh lừa, nên lúc nào cũng đo đủ ba bảng, chọn trên val và báo test một lần. Hướng tiếp theo: chọn bằng khoảng tin cậy hoặc cross-validation thay vì ngưỡng cứng; tune tham số của method trên val; nếu giữ M5 thì cú kéo về đèn phải có độ tin cố định, không phụ thuộc độ bất định của Kalman; và M6 đáng thử lại khi có thêm dữ liệu val có người đứng gần đèn. Bài học lớn nhất với mình không phải một con số mà là cách làm: tái hiện trước, so cùng cấu hình, đo cả ba bảng, chọn trên val, và tách từng phần ra để xem phần nào thật sự có tác dụng.
 
-## Slide 21 — Hỏi đáp (cả hai)
+## Slide 34 — Hỏi đáp (cả hai)
 
 Bọn mình xin cảm ơn thầy cô và các bạn đã lắng nghe. Giờ bọn mình xin nhận câu hỏi.
 
@@ -128,7 +180,19 @@ Vì bọn mình chọn M1-swap và M3 sau khi đã nhìn kết quả trên tập
 
 Vì đổi luật sau khi đã thấy test thì lại là chọn trên test lần nữa. Bọn mình báo đúng kết quả của luật đã chốt trước, rồi ghi bài học cho lần sau: chỉ nhận một thành phần khi khoảng tin cậy không chứa không.
 
-**9. Vậy rốt cuộc PEG+ có tốt hơn PEG không?** _(Người 2 trả lời)_
+**9. Sao không lấy thẳng số full+M6 của Thạch (+1.69 HOTA)?** _(Người 1 trả lời)_
+
+Vì số đó được chọn trên test: trong kết quả Thạch gửi có 56 lượt chạy Table I trên test và không lượt nào trên val. Chọn lại trên val bằng luật chốt trước thì không method nào qua. Ngoài ra full+M6 làm Table III giảm từ 76.2 xuống 53.6 trên test.
+
+**10. Có chắc M1 × M5 là nguyên nhân Table III sụt không?** _(Người 1 trả lời)_
+
+Có, vì bọn mình kiểm tra bằng công tắc con trong chính code của Thạch: chỉ M5 cộng riêng phần nở độ bất định của M1 đã đủ gây sụt, và tắt riêng phần đó khỏi cấu hình đầy đủ thì Table III hồi lại. Đo từng frame chói cũng thấy box đúng chiều cao nhưng trượt ngang.
+
+**11. M6 có vẻ tốt trên test, sao không giữ?** _(Người 1 trả lời)_
+
+Trên test M6 tăng cả ba bảng, nhưng trên val cả ba bảng đều giảm nhẹ (T1 −0.10, T2 −0.73, T3 −0.7). Luật chốt trước không cho nhận; M6 đáng thử lại với nhiều dữ liệu hơn.
+
+**12. Vậy rốt cuộc PEG+ có tốt hơn PEG không?** _(Người 2 trả lời)_
 
 Chỉ ở những ca box co lại khi coast. Trên test nó tăng +5.6 Rcv, trên val −0.4. Gộp 48 lần chói thì tăng +3.2 với khoảng tin cậy [+0.1, +7.3]: có dấu hiệu tốt nhưng chưa chắc chắn.
 

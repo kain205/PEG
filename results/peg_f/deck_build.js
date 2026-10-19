@@ -546,24 +546,353 @@ const ES = VS.episodes;
     "Vì sao val và test lại ngược nhau? Mình đếm lại theo từng lần chói. M1-damp được chọn trên val nhờ đúng một lần chói, ở video " + big.seq.split("_")[0] + ": số frame box còn trùng người tăng từ " + big.PEG + " lên " + big.M1damp + ". Trên val, một frame chỉ đáng " + fmt(100 / VAL_FR, 2) + " điểm, nên chỉ một lần chói đó cũng đủ vượt ngưỡng 0.5. Trên test, M1-damp làm " + tWorse + " lần chói tệ hơn và mất " + Math.abs(ES.test.M1damp.frames_gained) + " frame. PEG+ thì ngược lại: trên test tăng " + sgn(ES.test.A.delta, 1) + ", trên val " + sgn(ES.val.A.delta, 1) + ". Lý do là val có ít trường hợp box co lại khi coast; lỗi của PEG trên val chủ yếu là người chưa bao giờ được track, có " + zeroEps.length + " lần chói gần như không phủ được frame nào, và khóa kích thước box không cứu được những ca đó. M1-swap trên val không cải thiện Table I mà IDSW còn tăng từ " + fmtI(vv("v_peg").T1.IDSW) + " lên " + fmtI(vv("v_M1swap").T1.IDSW) + ". Nếu gộp cả bốn mươi tám lần chói của val và test, PEG+ tăng " + sgn(ES.pooled.A.delta, 1) + " với khoảng tin cậy chín mươi lăm phần trăm từ " + sgn(ES.pooled.A.ci95[0], 1) + " đến " + sgn(ES.pooled.A.ci95[1], 1) + ", tức là chỉ vừa đủ khác không; còn M1-damp giảm " + fmt(-ES.pooled.M1damp.delta, 1) + " điểm và chắc chắn có hại. Bài học là luật của bọn mình đặt ngưỡng quá thấp so với độ nhiễu của một tập nhỏ như vậy. Bọn mình không sửa luật sau khi đã thấy test, vì như thế lại là chọn trên test lần nữa; lần sau mình sẽ chỉ nhận một thành phần khi khoảng tin cậy không chứa không.");
 }
 
+// ═════════ PEG-F v2 (Thach, 2026-10-18): 6 methods, one slide each, then the checks ═════════
+// numbers: results/thach_v2/numbers_thach.json (analyze.py), figures: results/thach_v2/figures (make_figures.py)
+const TH = JSON.parse(fs.readFileSync("D:/PROJECT/PEG/results/thach_v2/numbers_thach.json", "utf8"));
+const THF = "D:/PROJECT/PEG/results/thach_v2/figures";
+const TS = JSON.parse(fs.readFileSync("D:/PROJECT/PEG/results/thach_v2/figure_stats.json", "utf8"));
+const tm = (sp, c) => TH.metrics[sp][c];
+const prim = (sp, c) => [tm(sp, c).T1.HOTA, tm(sp, c).T2.HOTA, tm(sp, c).T3["Rcv@.5"]];
+const dprim = (sp, c, ref) => prim(sp, c).map((v, i) => v - prim(sp, ref)[i]);
+const DG = TH.diag["test|full+M6"] || {};
+const V2C = C.f; // v2 slides keep the PEG-F purple
+const seqHota = (sp, tab, c, seq) => TH.per_seq[sp][c][tab][seq].HOTA;
+const seqIdsw = (sp, tab, c, seq) => TH.per_seq[sp][c][tab][seq].IDSW;
+const S129 = "129_sequence_13q", S320 = "320_sequence_116q", S127 = "127_sequence_1";
+
+// effect strip shared by the six method slides: base+Mi vs base, test and val, three tables
+function effectStrip(s, cfg, extra) {
+  const y = 5.35, h = 1.55;
+  card(s, 0.6, y, 12.13, h);
+  txt(s, "Bật riêng " + cfg.replace("base+", "") + " trên base của Thạch:", { x: 0.85, y: y + 0.08, w: 6, h: 0.3, fontSize: 13, bold: true, color: C.muted });
+  const cols = ["Δ T1 HOTA", "Δ T2 HOTA", "Δ T3 Rcv@.5"];
+  const x0 = 2.3, cw = 1.75;
+  cols.forEach((cn, j) => txt(s, cn, { x: x0 + j * cw, y: y + 0.4, w: cw, h: 0.28, fontSize: 12, color: C.muted, align: "center" }));
+  [["test", "test"], ["val", "val"]].forEach(([sp, lab], i) => {
+    const yy = y + 0.68 + i * 0.4;
+    txt(s, lab, { x: 0.85, y: yy, w: 1.3, h: 0.36, fontSize: 15, bold: true, color: C.text, valign: "middle" });
+    dprim(sp, cfg, "base").forEach((d, j) => {
+      const c = Math.abs(d) < 0.05 ? C.muted : d > 0 ? C.good : C.red;
+      txt(s, sgn(d, j === 2 ? 1 : 2), { x: x0 + j * cw, y: yy, w: cw, h: 0.36, fontSize: 17, bold: true, color: c, align: "center", valign: "middle" });
+    });
+  });
+  txt(s, extra, { x: 7.75, y: y + 0.12, w: 4.8, h: h - 0.24, fontSize: 13, color: C.muted, valign: "middle" });
+}
+
+function methodSlide(tag, title, problem, steps, right, cfg, extra, notes) {
+  const s = base(title, "PEG-F v2 · " + tag, 1);
+  card(s, 0.6, 1.6, 5.75, 0.95, C.card2);
+  s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y: 1.6, w: 0.1, h: 0.95, fill: { color: C.amber }, line: { color: C.amber } });
+  txt(s, [{ text: "Vấn đề  ", options: { bold: true, color: C.amber } }, { text: problem }], { x: 0.85, y: 1.6, w: 5.4, h: 0.95, fontSize: 14, valign: "middle" });
+  txt(s, "Cách làm", { x: 0.6, y: 2.65, w: 5.5, h: 0.35, fontSize: 16, bold: true, color: V2C });
+  txt(s, steps.map((t, i, a) => ({ text: t, options: { bullet: { type: "number" }, breakLine: i < a.length - 1, paraSpaceAfter: 5 } })),
+    { x: 0.6, y: 3.0, w: 5.75, h: 2.25, fontSize: 13 });
+  right(s);
+  effectStrip(s, cfg, extra);
+  done(s, tag + ": " + title, notes);
+  return s;
+}
+
+// flow diagram (3 stacked cards with arrows) for methods without a picture
+function flow(s, items, x = 6.65, y = 1.6, w = 6.08, h = 3.6) {
+  const n = items.length, gap = 0.28, ch = (h - gap * (n - 1)) / n;
+  items.forEach(([head, body], i) => {
+    const yy = y + i * (ch + gap);
+    card(s, x, yy, w, ch);
+    s.addShape(pres.shapes.RECTANGLE, { x, y: yy, w: 0.1, h: ch, fill: { color: V2C }, line: { color: V2C } });
+    txt(s, [{ text: head, options: { bold: true, color: C.text, breakLine: true } }, { text: body, options: { color: C.muted, fontSize: 13 } }],
+      { x: x + 0.3, y: yy, w: w - 0.45, h: ch, fontSize: 15, valign: "middle" });
+    if (i < n - 1) s.addShape(pres.shapes.LINE, { x: x + w / 2, y: yy + ch + 0.02, w: 0, h: gap - 0.04, line: { color: C.amber, width: 2, endArrowType: "triangle" } });
+  });
+}
+
+// ── v2 overview
+{
+  const s = base("PEG-F v2: Thạch sửa lại, giờ có 6 method", "PEG-F v2 · TỔNG QUAN", 1);
+  const ms = [
+    ["M1", "Vùng bất định (cone)", "MỚI", "Khi mất người lâu, vùng tìm lại nở rộng dần; khớp lại ID cũ thay vì sinh ID mới."],
+    ["M2", "Re-ID: feature detector + màu", "MỚI", "“Dấu vân tay” lấy từ chính detector (không thêm mạng) + màu HSV, lưu lúc chưa chói."],
+    ["M3", "Ngưỡng h động + TTL", "giữ", "Như v1."],
+    ["M4", "Pool track “ngủ”", "giữ", "Như v1, dùng dấu vân tay của M2."],
+    ["M5", "Neo vào đèn mũ", "giữ", "Như v1."],
+    ["M6", "Tone-mapping quanh đèn", "MỚI", "Làm dịu vầng sáng quanh đèn trong ảnh đưa vào detector."],
+  ];
+  const rh = 0.66, gap = 0.08, y0 = 1.6;
+  ms.forEach(([tg, nm, st, ds], i) => {
+    const y = y0 + i * (rh + gap);
+    card(s, 0.6, y, 12.13, rh);
+    s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y, w: 0.1, h: rh, fill: { color: V2C }, line: { color: V2C } });
+    txt(s, tg, { x: 0.9, y, w: 0.8, h: rh, fontSize: 22, bold: true, color: V2C, valign: "middle" });
+    txt(s, nm, { x: 1.75, y, w: 3.6, h: rh, fontSize: 16, bold: true, valign: "middle" });
+    txt(s, st, { x: 5.35, y, w: 0.9, h: rh, fontSize: 12, bold: true, color: st === "MỚI" ? C.amber : C.muted, valign: "middle" });
+    txt(s, ds, { x: 6.25, y, w: 6.3, h: rh, fontSize: 13, color: C.muted, valign: "middle" });
+  });
+  const fm = tm("test", "full+M6").T1;
+  txt(s, [{ text: "Thạch báo (Table I, test): full+M6 HOTA " + fmt(fm.HOTA, 2) + ", IDF1 " + fmt(fm.IDF1, 2) + ".  ", options: { bold: true } },
+    { text: "Mình chạy lại 14/14 cấu hình: ra đúng từng số.", options: { color: C.good, bold: true } }],
+    { x: 0.6, y: 6.15, w: 12.1, h: 0.45, fontSize: 16 });
+  txt(s, "Thạch chỉ báo Table I trên test. Mình đo thêm Table II/III và tập val, như các phần trước.", { x: 0.6, y: 6.6, w: 12.1, h: 0.35, fontSize: 13, color: C.muted });
+  done(s, "PEG-F v2: tổng quan",
+    "Sau buổi trước, Thạch sửa lại PEG-F và gửi bản mới, gọi là PEG-F v2. Giờ có sáu method. Ba cái mới là M1, M2 và M6: M1 viết lại hoàn toàn thành một vùng bất định nở rộng khi mất người; M2 không chỉ dùng màu áo nữa mà lấy thêm đặc trưng từ chính detector; và M6 là method mới, xử lý ảnh trước khi đưa vào detector. M3, M4, M5 giữ như cũ. Thạch báo trên Table I, tập test, cấu hình đầy đủ cộng M6 đạt HOTA " + fmt(fm.HOTA, 2) + " và IDF1 " + fmt(fm.IDF1, 2) + ". Mình chạy lại cả mười bốn cấu hình trong bảng của Thạch và ra đúng từng con số. Nhưng Thạch chỉ báo Table I trên test, nên mình đo thêm hai bảng còn lại và tập val, đúng như cách mình đã kiểm chứng ở phần trước. Trước hết mình giải thích từng method, mỗi method một slide.");
+}
+
+// ── M1
+methodSlide("M1", "Vùng bất định nở rộng khi mất người",
+  "Người bị chói vài chục frame có thể rẽ, đứng lại hay lùi. Box dự đoán không còn trùng (IoU = 0) → sinh ID mới.",
+  ["Mỗi frame không thấy người, Kalman tăng độ bất định: vị trí cộng thêm (0.03·h)² mỗi frame (h = chiều cao box), tối đa 30 frame.",
+   "Detection chưa ai nhận được thử với track đã mất ≥ 2 frame: khoảng cách Mahalanobis ≤ 9.21 (vùng 99%), so với 2 giả thuyết: đi tiếp vận tốc cũ, hoặc đứng lại chỗ cũ.",
+   "Chặn thêm: không xa quá sức đi bộ, chiều cao lệch < 1.5×, không đè lên người đang được track.",
+   "Kèm theo: hãm vận tốc ×0.88 khi hai người gần nhau, giờ chỉ áp cho track đang coast."],
+  (s) => fig(s, path.join(THF, "m1_cone.png"), 6.65, 1.6, 6.08, 3.6),
+  "base+M1",
+  "Cone khớp lại được " + fmtI(DG["cone_matches(M1)"]) + " lần trên cả tập test (full+M6). Đi cùng M5 thì Table III sụt mạnh: xem slide “Vì sao Table III sụt”.",
+  "M1 của Thạch giải quyết tình huống này: người bị chói vài chục frame, trong lúc đó họ có thể rẽ, đứng lại hoặc lùi, nên box dự đoán không còn trùng với người khi họ hiện ra lại, và tracker sinh ID mới. Cách làm có hai phần. Phần một: mỗi frame không thấy người, Kalman filter tăng độ bất định về vị trí, mỗi frame cộng thêm khoảng ba phần trăm chiều cao người, tối đa ba mươi frame. Hình bên phải cho thấy vùng này nở rộng theo thời gian, như một cái nón. Phần hai: những detection chưa được ai nhận sẽ được thử với các track đã mất từ hai frame trở lên. Nếu detection nằm trong vùng chín mươi chín phần trăm, theo một trong hai giả thuyết là đi tiếp với vận tốc cũ hoặc đứng lại chỗ cũ, thì gán lại ID cũ. Có thêm vài chặn để tránh gán nhầm: không xa quá sức đi bộ, chiều cao không lệch quá, và không đè lên người đang được track. Ngoài ra M1 vẫn kèm phần hãm vận tốc khi hai người gần nhau, và giờ Thạch chỉ áp cho track đang coast. Trên cả tập test, cone chỉ khớp lại " + fmtI(DG["cone_matches(M1)"]) + " lần. Kết quả bật riêng M1 ở dải dưới.");
+
+// ── M2
+methodSlide("M2", "Re-ID: “dấu vân tay” lấy từ detector",
+  "Công nhân mặc đồ bảo hộ giống nhau, nên màu áo (HSV) gần như không phân biệt được ai với ai. Đó là lý do M2 cũ không bao giờ kích hoạt.",
+  ["Lấy feature map tầng P4 của detector, cắt theo box, chia nửa trên / nửa dưới người (không thêm mạng nào).",
+   "Trừ trung bình của cả video để bỏ phần “giống nhau” chung, rồi ghép với màu HSV: độ giống = 70% feature + 30% màu.",
+   "Mỗi người giữ tối đa 10 dấu vân tay, 5 frame lấy 1 lần, chỉ khi người rõ, chưa chói và không chen với người khác.",
+   "So detection mới với cả 10 mẫu, lấy mẫu giống nhất."],
+  (s) => flow(s, [["Lúc chưa chói: lưu dấu vân tay", "chỉ lấy khi người rõ, không có đốm cháy, không chen"],
+    ["Lúc chói: đóng băng", "không cập nhật bằng ảnh cháy trắng"],
+    ["Dùng ở 4 chỗ", "giành detection (+0.25) · đổi cặp ID (+0.15) · lọc cone M1 (≥ 0.35) · hồi sinh M4 (≥ 0.60)"]]),
+  "base+M2",
+  "Không có bộ đếm số lần M2 quyết định. Ở test, FP giảm chủ yếu trên video 320.",
+  "M2 là phần nhận lại người. Bản cũ chỉ so màu áo, mà công nhân mặc đồ bảo hộ giống nhau, nên nó không bao giờ đổi được quyết định nào. Bản mới lấy thêm đặc trưng từ chính detector: feature map ở tầng P4, cắt theo box của người và chia làm nửa trên, nửa dưới, nên không cần thêm mạng nào. Thạch trừ đi trung bình của cả video để bỏ phần giống nhau chung, rồi ghép với màu: độ giống bằng bảy mươi phần trăm feature cộng ba mươi phần trăm màu. Mỗi người giữ tối đa mười mẫu, gọi là gallery, lấy năm frame một lần và chỉ lấy khi người rõ, chưa bị chói và không chen với ai. Khi bị chói thì gallery đóng băng. Dấu vân tay này được dùng ở bốn chỗ: khi hai track giành một detection, khi xét đổi ID của một cặp, để lọc cone của M1, và để hồi sinh ID ở M4.");
+
+// ── M3
+methodSlide("M3", "Ngưỡng chói h tăng dần + thời gian giữ box thích nghi",
+  "Đèn chiếu lên tường cũng làm vùng box trắng → PEG giữ box “ma” mãi. Và mọi lần chói đều được giữ 5 frame như nhau.",
+  ["Mất detection quá 3 frame: ngưỡng h tăng 6% mỗi frame, từ 0.40 tới tối đa 0.65 → càng lâu càng cần bằng chứng mạnh.",
+   "Thời gian được giữ box sau khi xác nhận chói = 5 frame × φ / 0.5. Vì chỉ xét khi φ ≥ h, thực tế là 4 hoặc 5 frame (PEG: luôn 5).",
+   "Giữ nguyên như v1."],
+  (s) => fig(s, path.join(THF, "m3_dynamic_h.png"), 6.65, 1.6, 6.08, 3.6),
+  "base+M3",
+  "Chỉ đổi lúc người đã mất detection; không có bộ đếm trong code của Thạch.",
+  "M3 giữ nguyên như bản cũ. Vấn đề nó nhắm tới là đèn chiếu lên tường: vùng box cũng trắng, nên PEG tưởng người vẫn ở đó và giữ box ma. Cách làm: khi đã mất detection quá ba frame, ngưỡng h tăng sáu phần trăm mỗi frame, từ 0.4 tới tối đa 0.65, như hình bên trái; càng mất lâu càng cần bằng chứng chói mạnh hơn. Thứ hai, thời gian được giữ box sau khi xác nhận chói không còn cố định năm frame mà tỉ lệ với độ chói φ. Nhưng vì box chỉ được giữ khi φ đã vượt ngưỡng, như vùng xám ở hình bên phải, nên thực tế nó chỉ là bốn hoặc năm frame: phần này gần như không đổi gì so với PEG.");
+
+// ── M4
+methodSlide("M4", "Pool track “ngủ”: trả lại ID cũ",
+  "Track bị xóa sau khi mất quá lâu. Nếu người quay lại, họ nhận một ID mới → đổi ID.",
+  ["Track đã xác nhận bị xóa → cất vào pool, giữ tối đa 45 frame.",
+   "Có người mới xuất hiện: xét các track trong pool ở gần đó (khoảng cách ≤ 2 lần đường chéo box + 15% mỗi frame).",
+   "Dấu vân tay (M2) giống ≥ 0.60 → trả lại ID cũ, gộp gallery.",
+   "Giữ như v1, nhưng giờ dùng dấu vân tay mới của M2."],
+  (s) => flow(s, [["Track mất quá lâu", "cất vào pool “ngủ” (≤ 45 frame)"], ["Người mới xuất hiện gần chỗ cũ", "trong tầm đi bộ"], ["Giống ≥ 0.60?", "có → trả lại ID cũ thay vì ID mới"]]),
+  "base+M4",
+  "Trong bảng của Thạch, base+M4 bật kèm M2. Số lần hồi sinh trên test (full+M6): " + fmtI(DG["dormant_revivals(M4)"]) + ".",
+  "M4 giữ như bản cũ. Khi một track bị xóa vì mất quá lâu, thay vì quên luôn, tracker cất nó vào một pool, giữ tối đa bốn mươi lăm frame. Khi có người mới xuất hiện gần chỗ cũ, trong tầm đi bộ, và dấu vân tay giống từ 0.6 trở lên, thì người đó được trả lại ID cũ. Ý tưởng hợp lý, nhưng trên cả tập test với cấu hình đầy đủ, số lần hồi sinh là " + fmtI(DG["dormant_revivals(M4)"]) + ".");
+
+// ── M5
+methodSlide("M5", "Neo box vào đèn mũ",
+  "Khi chói, box chỉ chạy theo dự đoán Kalman; người đổi tư thế hay quay người thì box trôi.",
+  ["Chỉ chạy khi gate PEG đã xác nhận người đang bị chói.",
+   "Tìm tâm đốm đèn trong dải đầu của box (45% phía trên).",
+   "Tâm người ≈ tâm đèn + 0.35 × chiều cao box.",
+   "Kéo nhẹ tâm box Kalman về đó (cập nhật yếu), nếu không quá xa box hiện tại. Giữ như v1."],
+  (s) => flow(s, [["Gate PEG: người đang bị chói", "chỉ lúc này M5 mới chạy"], ["Tìm đốm đèn ở dải đầu box", "tâm người ≈ đèn + 0.35 h"], ["Kéo nhẹ box về đó", "cập nhật Kalman với độ tin thấp"]]),
+  "base+M5",
+  "Một mình M5 gần như vô hại. Đi cùng M1 thì cú “kéo nhẹ” thành kéo mạnh: xem slide “Vì sao Table III sụt”.",
+  "M5 cũng giữ như cũ. Khi người bị chói, box chỉ chạy theo dự đoán của Kalman, nên nếu người đổi tư thế thì box trôi. M5 chỉ chạy khi gate của PEG đã xác nhận là người đang bị chói. Nó tìm tâm của đốm đèn ở dải đầu của box, suy ra tâm người bằng tâm đèn cộng 0.35 lần chiều cao, rồi kéo nhẹ box về đó. Bật một mình thì M5 gần như không đổi gì. Nhưng khi đi cùng M1, cú kéo nhẹ này trở thành kéo mạnh, và đó là nguyên nhân Table III sụt; mình sẽ quay lại ở slide sau.");
+
+// ── M6
+methodSlide("M6", "Làm dịu vầng sáng quanh đèn trước khi đưa vào detector",
+  "Quanh đèn có một vầng sáng rộng làm mất chi tiết của người đứng gần → detector bỏ sót.",
+  ["Tìm vùng cháy trắng (lõi đèn) trong ảnh.",
+   "Tách ảnh thành lớp “độ sáng nền” (mờ, giữ cạnh) và lớp chi tiết.",
+   "Nén lớp nền chỗ quá sáng (trên 0.55, nén còn 35%), chỉ trong vòng quanh đèn; lõi đèn giữ nguyên.",
+   "Chỉ ảnh đưa vào detector bị đổi. Gate PEG và màu Re-ID vẫn dùng ảnh gốc."],
+  (s) => fig(s, path.join(THF, "m6_tonemap.png"), 6.65, 1.6, 6.08, 3.6),
+  "base+M6",
+  "Áp lên " + fmt(100 * TS.m6_frac_applied, 0) + "% số frame test (ngưỡng bật rất thấp). Cần chạy lại detector: phải build cache riêng.",
+  "M6 là method mới và khác các method khác: nó không sửa tracker mà sửa ảnh trước khi đưa vào detector. Quanh đèn có một vầng sáng rộng làm mất chi tiết của người đứng gần. Thạch tách ảnh thành một lớp độ sáng nền, làm mờ nhưng giữ cạnh, và một lớp chi tiết; rồi nén lớp nền ở chỗ quá sáng, chỉ trong vòng quanh đèn, còn lõi đèn thì giữ nguyên. Hình bên phải là ảnh gốc, ảnh sau khi xử lý, và bản đồ chỗ bị đổi. Chỉ ảnh đưa vào detector bị đổi; gate của PEG và màu Re-ID vẫn dùng ảnh gốc. Ngưỡng bật rất thấp, nên M6 được áp lên khoảng " + fmt(100 * TS.m6_frac_applied, 0) + " phần trăm số frame của tập test.");
+
+// ── base is not PEG
+{
+  const s = base("“base” của Thạch không phải PEG", "SO CÙNG CẤU HÌNH", 1);
+  const rows = [["PEG (guard bật)", "PEG", C.peg], ["base của Thạch", "base", C.f]];
+  const cols = [["T1 HOTA", (c) => tm("test", c).T1.HOTA, 2], ["T1 IDSW", (c) => tm("test", c).T1.IDSW, 0], ["video 129 HOTA", (c) => seqHota("test", "T1", c, S129), 1],
+    ["video 320 HOTA", (c) => seqHota("test", "T1", c, S320), 1], ["video 320 IDSW", (c) => seqIdsw("test", "T1", c, S320), 0]];
+  const x0 = 3.6, cw = 1.83, y0 = 1.7, rh = 0.8;
+  cols.forEach(([cn], j) => txt(s, cn, { x: x0 + j * cw, y: y0, w: cw, h: 0.35, fontSize: 13, bold: true, color: C.muted, align: "center" }));
+  rows.forEach(([nm, key, col], i) => {
+    const y = y0 + 0.45 + i * (rh + 0.1);
+    card(s, 0.6, y, 12.13, rh);
+    s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y, w: 0.1, h: rh, fill: { color: col }, line: { color: col } });
+    txt(s, nm, { x: 0.9, y, w: 2.7, h: rh, fontSize: 17, bold: true, color: col, valign: "middle" });
+    cols.forEach(([cn, f, dec], j) => txt(s, dec ? fmt(f(key), dec) : fmtI(f(key)), { x: x0 + j * cw, y, w: cw, h: rh, fontSize: 24, bold: true, align: "center", valign: "middle" }));
+  });
+  card(s, 0.6, 4.4, 12.13, 2.2, C.card2);
+  s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y: 4.4, w: 0.1, h: 2.2, fill: { color: C.amber }, line: { color: C.amber } });
+  txt(s, bullets([
+    "Logic đổi-ID cũ (M1-swap của v1) giờ luôn bật, không có công tắc → nằm sẵn trong base.",
+    "Nó sửa video 129 (+" + fmt(seqHota("test", "T1", "base", S129) - seqHota("test", "T1", "PEG", S129), 1) + " HOTA) nhưng làm hỏng video 320 (IDSW " + fmtI(seqIdsw("test", "T1", "PEG", S320)) + " → " + fmtI(seqIdsw("test", "T1", "base", S320)) + ").",
+    "Nên “Δ so với base” trong bảng của Thạch không phải “Δ so với PEG”. Các slide sau so với cả hai.",
+  ]), { x: 0.9, y: 4.5, w: 11.6, h: 2.0, fontSize: 16, valign: "middle" });
+  done(s, "base của Thạch không phải PEG",
+    "Trước khi xem kết quả, có một điểm về cấu hình. Trong bảng của Thạch, mọi chênh lệch đều so với một cấu hình gọi là base, tức là PEG khi tắt hết sáu method. Nhưng base đó không phải PEG: phần logic đổi lại ID mà ở v1 mình gọi là M1-swap giờ luôn bật, không có công tắc. Nó sửa được video 129, HOTA tăng " + fmt(seqHota("test", "T1", "base", S129) - seqHota("test", "T1", "PEG", S129), 1) + " điểm, nhưng làm hỏng video 320: số lần đổi ID tăng từ " + fmtI(seqIdsw("test", "T1", "PEG", S320)) + " lên " + fmtI(seqIdsw("test", "T1", "base", S320)) + ". Vì vậy chênh lệch so với base không phải chênh lệch so với PEG. Ở các slide sau mình so với cả hai.");
+}
+
+// ── his table was chosen on test (counted in dataset/thach_v2/PEG-main/results/eval of his zip)
+{
+  const s = base("Bảng của Thạch được chỉnh và chọn trên test", "PEG-F v2 · KIỂM TRA CÁCH CHỌN", 1);
+  const stats = [["56", "lượt chạy Table I trên test", C.red], ["0", "lượt chạy trên val", C.red], ["0", "lượt chạy Table II / III", C.amber]];
+  stats.forEach(([n, l, c], k) => {
+    const x = 0.6 + k * 4.12, w = 3.9;
+    card(s, x, 1.65, w, 1.9);
+    s.addShape(pres.shapes.RECTANGLE, { x, y: 1.65, w: 0.1, h: 1.9, fill: { color: c }, line: { color: c } });
+    txt(s, n, { x: x + 0.3, y: 1.7, w: w - 0.5, h: 1.1, fontSize: 54, bold: true, color: c, valign: "middle" });
+    txt(s, l, { x: x + 0.3, y: 2.8, w: w - 0.5, h: 0.6, fontSize: 16, color: C.muted });
+  });
+  card(s, 0.6, 3.75, 12.13, 2.85, C.card2);
+  txt(s, bullets([
+    "Script của Thạch ghi: “choose / calibrate on VAL, report TEST once”, nhưng thư mục kết quả không có file val nào.",
+    "Riêng M1 có các bản thử dx_qonly / dx_qcone / dx_damp (HOTA 66.44–68.84), fix1 (69.09), fix2 = bản cuối (69.24): tất cả đo trên Table I test.",
+    "Nên +1.69 HOTA là số “chọn trên test, báo trên test”. Mình làm lại đúng cách: chọn trên val bằng luật chốt trước (commit trước khi có số val), báo test một lần.",
+  ]), { x: 0.9, y: 3.85, w: 11.6, h: 2.65, fontSize: 16, valign: "middle" });
+  done(s, "Bảng của Thạch được chọn trên test",
+    "Trước khi xem kết quả, mình kiểm tra Thạch đã chọn cấu hình trên tập nào. Trong thư mục kết quả Thạch gửi có năm mươi sáu lượt chạy Table I trên tập test, không có lượt nào trên val, và không có lượt nào cho Table II hay Table III. Script của Thạch có ghi đúng quy trình: chọn trên val, báo test một lần, nhưng thực tế không làm. Ví dụ riêng M1 có ba bản thử tên dx, rồi fix1, rồi fix2 là bản cuối, HOTA từ khoảng 66 đến 69.24, và tất cả đều đo trên Table I test. Vì vậy con số cộng 1.69 HOTA là số chọn trên test rồi báo cũng trên test. Bọn mình làm lại theo đúng cách: luật chọn được viết và đưa lên git trước khi có bất kỳ số val nào, chọn trên val, rồi chỉ báo test một lần cho cấu hình được chọn. Có một điều bọn mình không gỡ được: các tham số bên trong method đã được chỉnh trên test; muốn gỡ thì phải tune lại từ đầu trên val.");
+}
+
+// ── results on test, three tables
+const V2ROWS = [["PEG", "PEG", C.peg], ["base", "base", C.muted], ["full (M1–M5)", "full", C.f], ["full + M6", "full+M6", C.fa]];
+function v2table(s, sp, y0, sel) {
+  const rows = V2ROWS.concat(sel && !V2ROWS.some((r) => r[1] === sel) ? [["chọn trên val: " + sel, sel, C.amber]] : []);
+  const cols = [["T1 HOTA", (m) => m.T1.HOTA, 2], ["T1 IDF1", (m) => m.T1.IDF1, 2], ["T1 IDSW", (m) => m.T1.IDSW, 0], ["T2 HOTA", (m) => m.T2.HOTA, 2], ["T2 MOTA", (m) => m.T2.MOTA, 2], ["T3 Rcv@.5", (m) => m.T3["Rcv@.5"], 1]];
+  const x0 = 3.3, cw = 1.57, rh = 0.62;
+  cols.forEach(([cn], j) => txt(s, cn, { x: x0 + j * cw, y: y0, w: cw, h: 0.35, fontSize: 13, bold: true, color: C.muted, align: "center" }));
+  rows.forEach(([nm, key, col], i) => {
+    const y = y0 + 0.42 + i * (rh + 0.07);
+    card(s, 0.6, y, 12.13, rh);
+    s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y, w: 0.1, h: rh, fill: { color: col }, line: { color: col } });
+    txt(s, nm, { x: 0.9, y, w: 2.4, h: rh, fontSize: 15, bold: true, color: col, valign: "middle" });
+    cols.forEach(([cn, f, dec], j) => {
+      const v = f(tm(sp, key)), b = f(tm(sp, "PEG")), d = (v - b) * (cn === "T1 IDSW" ? -1 : 1);
+      const c = key === "PEG" || Math.abs(d) < 0.05 ? C.text : d > 0 ? C.good : C.red;
+      txt(s, dec ? fmt(v, dec) : fmtI(v), { x: x0 + j * cw, y, w: cw, h: rh, fontSize: 19, bold: true, align: "center", valign: "middle", color: c });
+    });
+  });
+  return y0 + 0.42 + rows.length * (rh + 0.07);
+}
+{
+  const s = base("Trên test, đủ 3 bảng", "PEG-F v2 · KẾT QUẢ TEST", 1);
+  const yb = v2table(s, "test", 1.6, null);
+  const f = tm("test", "full+M6"), p = tm("test", "PEG");
+  txt(s, "Xanh/đỏ = tốt/xấu hơn PEG (IDSW: ít hơn là tốt).", { x: 0.6, y: yb + 0.05, w: 12, h: 0.3, fontSize: 12, color: C.muted });
+  card(s, 0.6, yb + 0.45, 12.13, 6.85 - yb - 0.45, C.card2);
+  txt(s, bullets([
+    "Table I: full+M6 hơn PEG " + sgn(f.T1.HOTA - p.T1.HOTA, 2) + " HOTA, " + sgn(f.T1.IDF1 - p.T1.IDF1, 2) + " IDF1. IDSW " + fmtI(p.T1.IDSW) + " → " + fmtI(f.T1.IDSW) + ".",
+    "Table II: " + sgn(f.T2.HOTA - p.T2.HOTA, 2) + " HOTA, " + sgn(f.T2.MOTA - p.T2.MOTA, 2) + " MOTA.   Table III: Rcv@.5 " + fmt(p.T3["Rcv@.5"], 1) + " → " + fmt(f.T3["Rcv@.5"], 1) + ".",
+  ]), { x: 0.9, y: yb + 0.5, w: 11.6, h: 6.85 - yb - 0.55, fontSize: 16, valign: "middle" });
+  done(s, "Kết quả v2 trên test",
+    "Đây là kết quả trên tập test, đủ ba bảng, so với PEG cùng cấu hình guard bật. Ở Table I, cấu hình đầy đủ cộng M6 hơn PEG " + sgn(f.T1.HOTA - p.T1.HOTA, 2) + " HOTA và " + sgn(f.T1.IDF1 - p.T1.IDF1, 2) + " IDF1, số lần đổi ID từ " + fmtI(p.T1.IDSW) + " thành " + fmtI(f.T1.IDSW) + ". Ở Table II, HOTA " + sgn(f.T2.HOTA - p.T2.HOTA, 2) + " và MOTA " + sgn(f.T2.MOTA - p.T2.MOTA, 2) + ". Ở Table III, phần đo người đang bị chói, Rcv@.5 từ " + fmt(p.T3["Rcv@.5"], 1) + " thành " + fmt(f.T3["Rcv@.5"], 1) + ".");
+}
+
+// ── why Table III collapses: M1's growing uncertainty x M5's "weak" pull (results/thach_v2/burn_drift.py, diag_m1m5.py)
+{
+  const DR = JSON.parse(fs.readFileSync("D:/PROJECT/PEG/results/thach_v2/drift.json", "utf8"));
+  const d = (sp, c) => DR[sp + "|" + c];
+  const s = base("Vì sao Table III sụt: M1 làm cú “kéo nhẹ” của M5 thành kéo mạnh", "VÌ SAO · TỪNG FRAME BỊ CHÓI", 1);
+  const rows = [["base", "base", C.muted], ["chỉ M1", "base+M1", C.f], ["chỉ M5", "base+M5", C.f],
+    ["M5 + chỉ phần nở vùng bất định của M1", "dxbase+M5+Q", C.red], ["full (M1–M5)", "full", C.red], ["full, tắt phần nở vùng bất định", "dxfull-Q", C.good]];
+  const cols = [["Rcv@.5 test", (c) => fmt(d("test", c).rcv, 1)], ["Rcv@.5 val", (c) => fmt(d("val", c).rcv, 1)],
+    ["box lệch ngang test", (c) => sgn(100 * d("test", c).dx_w, 0) + "%"], ["box lệch ngang val", (c) => sgn(100 * d("val", c).dx_w, 0) + "%"]];
+  const x0 = 5.3, cw = 1.86, y0 = 1.55, rh = 0.5;
+  cols.forEach(([cn], j) => txt(s, cn, { x: x0 + j * cw, y: y0, w: cw, h: 0.35, fontSize: 12, bold: true, color: C.muted, align: "center" }));
+  rows.forEach(([nm, key, col], i) => {
+    const y = y0 + 0.4 + i * (rh + 0.06);
+    card(s, 0.6, y, 12.13, rh);
+    s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y, w: 0.1, h: rh, fill: { color: col }, line: { color: col } });
+    txt(s, nm, { x: 0.9, y, w: 4.4, h: rh, fontSize: 14, bold: true, color: col, valign: "middle" });
+    cols.forEach(([cn, f], j) => txt(s, f(key), { x: x0 + j * cw, y, w: cw, h: rh, fontSize: 17, bold: true, align: "center", valign: "middle" }));
+  });
+  const yb = y0 + 0.4 + rows.length * (rh + 0.06) + 0.1;
+  card(s, 0.6, yb, 12.13, 6.85 - yb, C.card2);
+  s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y: yb, w: 0.1, h: 6.85 - yb, fill: { color: C.amber }, line: { color: C.amber } });
+  txt(s, bullets([
+    "M1 làm độ bất định vị trí của Kalman tăng mỗi frame mất người. M5 kéo box về đèn với độ tin cố định. Độ bất định càng lớn thì Kalman càng tin phép đo → kéo nhẹ thành kéo hẳn.",
+    "Box vẫn còn và vẫn đúng chiều cao, nhưng trượt ngang theo đốm sáng (lệch trung vị = % bề rộng người, trong các frame chói).",
+    "Kiểm tra bằng công tắc con của M1: chỉ cần phần nở vùng bất định + M5 là đủ gây sụt; tắt riêng phần đó thì T3 hồi lại.",
+  ]), { x: 0.9, y: yb + 0.05, w: 11.6, h: 6.85 - yb - 0.1, fontSize: 14, valign: "middle" });
+  done(s, "Vì sao Table III sụt",
+    "Vì sao Table III sụt mạnh như vậy? Mình tách từng phần. Bật riêng M1, Rcv trên test từ " + fmt(d("test", "base").rcv, 1) + " còn " + fmt(d("test", "base+M1").rcv, 1) + ". Bật riêng M5, gần như không đổi. Nhưng bật cả hai thì còn khoảng " + fmt(d("test", "full").rcv, 1) + " trên test và " + fmt(d("val", "full").rcv, 1) + " trên val. Lý do: M1 làm độ bất định vị trí của Kalman tăng lên mỗi frame không thấy người. M5 kéo box về phía đèn bằng một phép đo có độ tin cố định, được thiết kế là cú kéo nhẹ. Nhưng Kalman cân giữa dự đoán và phép đo theo độ bất định: dự đoán càng không chắc thì phép đo càng được tin. Nên khi M1 làm độ bất định phình ra, cú kéo nhẹ của M5 thành kéo hẳn. Mình đo trong các frame bị chói: box vẫn còn, vẫn đúng chiều cao, nhưng trượt ngang khỏi người, trung vị khoảng " + fmt(Math.abs(100 * d("test", "full").dx_w), 0) + " phần trăm bề rộng người trên test và " + fmt(Math.abs(100 * d("val", "full").dx_w), 0) + " phần trăm trên val. Để chắc chắn, mình dùng công tắc con trong code của Thạch: chỉ M5 cộng riêng phần nở vùng bất định của M1 là đã ra " + fmt(d("test", "dxbase+M5+Q").rcv, 1) + " trên test; còn tắt riêng phần đó khỏi cấu hình đầy đủ thì hồi lại " + fmt(d("test", "dxfull-Q").rcv, 1) + ". Các lượt này chỉ để chẩn đoán, không dùng để chọn cấu hình.");
+}
+
+// ── val, three tables
+{
+  const s = base("Trên val, đủ 3 bảng", "PEG-F v2 · TẬP VAL", 1);
+  const yb = v2table(s, "val", 1.6, null);
+  const f = tm("val", "full+M6"), p = tm("val", "PEG"), b = tm("val", "base");
+  txt(s, "Xanh/đỏ = tốt/xấu hơn PEG (IDSW: ít hơn là tốt).", { x: 0.6, y: yb + 0.05, w: 12, h: 0.3, fontSize: 12, color: C.muted });
+  card(s, 0.6, yb + 0.45, 12.13, 6.85 - yb - 0.45, C.card2);
+  txt(s, bullets([
+    "full+M6 so với PEG: T1 " + sgn(f.T1.HOTA - p.T1.HOTA, 2) + " HOTA (IDSW " + fmtI(p.T1.IDSW) + " → " + fmtI(f.T1.IDSW) + "), T2 " + sgn(f.T2.HOTA - p.T2.HOTA, 2) + " HOTA, T3 Rcv " + fmt(p.T3["Rcv@.5"], 1) + " → " + fmt(f.T3["Rcv@.5"], 1) + ".",
+    "Mức tăng Table I trên test không lặp lại. Table III sụt như trên test, còn nặng hơn.",
+    "Ngay cả base (có logic đổi-ID cũ) cũng kém PEG ở T1: " + fmt(b.T1.HOTA, 2) + " so với " + fmt(p.T1.HOTA, 2) + ", IDSW " + fmtI(b.T1.IDSW) + " so với " + fmtI(p.T1.IDSW) + ".",
+  ]), { x: 0.9, y: yb + 0.5, w: 11.6, h: 6.85 - yb - 0.55, fontSize: 15, valign: "middle" });
+  done(s, "Kết quả v2 trên val",
+    "Giờ đến tập val, phần dữ liệu Thạch chưa dùng tới. Cấu hình đầy đủ cộng M6 so với PEG: Table I " + sgn(f.T1.HOTA - p.T1.HOTA, 2) + " HOTA, số lần đổi ID từ " + fmtI(p.T1.IDSW) + " lên " + fmtI(f.T1.IDSW) + "; Table II " + sgn(f.T2.HOTA - p.T2.HOTA, 2) + " HOTA; Table III từ " + fmt(p.T3["Rcv@.5"], 1) + " xuống " + fmt(f.T3["Rcv@.5"], 1) + ". Tức là mức tăng Table I trên test không lặp lại trên val, còn Table III sụt như trên test và còn nặng hơn. Ngay cả base, tức PEG cộng logic đổi ID cũ, cũng kém PEG ở Table I trên val: " + fmt(b.T1.HOTA, 2) + " so với " + fmt(p.T1.HOTA, 2) + ", và đổi ID " + fmtI(b.T1.IDSW) + " lần so với " + fmtI(p.T1.IDSW) + ".");
+}
+
+// ── the pre-registered rule on val, then test once
+{
+  const VR = TH.val_rule, sel = VR.selected;
+  const s = base("Luật chốt trước, chọn trên val: " + (sel === "base" ? "không method nào qua" : "chọn " + sel), "PEG-F v2 · CHỌN TRÊN VAL", 1);
+  txt(s, "Ứng viên = 13 cấu hình của Thạch so với base. Qua vòng 1 nếu không bảng nào giảm quá 0.5 và tổng tăng > 0.5:", { x: 0.6, y: 1.5, w: 12.1, h: 0.35, fontSize: 14, color: C.muted });
+  const cand = VR.rows.filter((r) => r.admissible && r.score > 0.5).sort((a, b) => b.score - a.score);
+  const chk = (c) => VR.checks.find((k) => k.config === c);
+  const cols = ["ΔT1 HOTA", "ΔT2 HOTA", "ΔT3 Rcv", "tổng", "bỏ 1 video / 1 lần chói có lợi nhất", ""];
+  const cx = [3.2, 4.65, 6.1, 7.4, 8.6, 11.3], cwid = [1.4, 1.4, 1.3, 1.1, 2.7, 1.4];
+  cols.forEach((cn, j) => txt(s, cn, { x: cx[j], y: 1.9, w: cwid[j], h: 0.35, fontSize: 12, bold: true, color: C.muted, align: "center" }));
+  cand.forEach((r, i) => {
+    const y = 2.3 + i * 0.68, k = chk(r.config);
+    card(s, 0.6, y, 12.13, 0.6);
+    txt(s, r.config, { x: 0.85, y, w: 2.3, h: 0.6, fontSize: 17, bold: true, color: C.f, valign: "middle" });
+    const v = [sgn(r.delta[0], 2), sgn(r.delta[1], 2), sgn(r.delta[2], 1), sgn(r.score, 2), k ? "còn " + sgn(k.score_without, 2) : "…", k && k.pass ? "QUA" : "TRƯỢT"];
+    v.forEach((t, j) => txt(s, t, { x: cx[j], y, w: cwid[j], h: 0.6, fontSize: 16, bold: true, align: "center", valign: "middle", color: j === 5 ? (k && k.pass ? C.good : C.red) : C.text }));
+  });
+  const ex = cand.length ? chk(cand[0].config) : null;
+  const y2 = 2.3 + cand.length * 0.68 + 0.1;
+  card(s, 0.6, y2, 5.95, 6.85 - y2, C.card2);
+  txt(s, bullets([
+    ex ? "Mức tăng của cả hai đến từ 1 video T2 (" + ex.checks.t2.dropped.split("_")[0] + ") và 1 lần chói T3 (video " + ex.checks.t3.dropped.split("_")[0] + ")." : "",
+    "Cấu hình có cả M1 và M5 bị loại ngay: T3 giảm ~30 điểm.",
+    "M6 bị loại: cả 3 bảng đều giảm trên val.",
+  ]), { x: 0.85, y: y2 + 0.05, w: 5.55, h: 6.85 - y2 - 0.1, fontSize: 14, valign: "middle" });
+  const t = tm("test", sel), p = tm("test", "PEG");
+  card(s, 6.78, y2, 5.95, 6.85 - y2);
+  s.addShape(pres.shapes.RECTANGLE, { x: 6.78, y: y2, w: 0.1, h: 6.85 - y2, fill: { color: C.amber }, line: { color: C.amber } });
+  txt(s, [{ text: "Báo test một lần: " + sel, options: { bold: true, color: C.amber, fontSize: 17, breakLine: true } },
+    { text: "T1 HOTA " + fmt(t.T1.HOTA, 2) + " · T2 HOTA " + fmt(t.T2.HOTA, 2) + " · T3 " + fmt(t.T3["Rcv@.5"], 1), options: { bold: true, fontSize: 16, breakLine: true } },
+    { text: "PEG: " + fmt(p.T1.HOTA, 2) + " · " + fmt(p.T2.HOTA, 2) + " · " + fmt(p.T3["Rcv@.5"], 1), options: { fontSize: 15, color: C.muted, breakLine: true } },
+    { text: "Thạch báo (chọn trên test): full+M6 T1 " + fmt(tm("test", "full+M6").T1.HOTA, 2), options: { fontSize: 13, color: C.muted, breakLine: true } },
+    { text: "base trên val: T1 " + sgn(tm("val", "base").T1.HOTA - tm("val", "PEG").T1.HOTA, 2) + " so với PEG, T2/T3 bằng → thực chất là giữ PEG.", options: { fontSize: 13, color: C.amber } }],
+    { x: 7.05, y: y2 + 0.05, w: 5.5, h: 6.85 - y2 - 0.1, valign: "middle" });
+  done(s, "Chọn trên val bằng luật chốt trước",
+    "Đây là bước chọn. Luật được viết và đưa lên git trước khi có số val nào. Ứng viên là mười ba cấu hình của Thạch, so với base. Vòng một: không bảng nào được giảm quá 0.5, và tổng mức tăng phải lớn hơn 0.5. Chỉ có " + cand.length + " cấu hình qua vòng này: " + cand.map((r) => r.config).join(" và ") + ". Vòng hai là điều kiện mình thêm từ bài học lần trước: bỏ đi một video, hoặc một lần chói, có lợi nhất cho cấu hình đó mà vẫn còn tăng thì mới nhận. " + (ex ? "Cả hai đều trượt: mức tăng của chúng đến từ đúng một video ở Table II, video " + ex.checks.t2.dropped.split("_")[0] + ", và một lần chói ở Table III, video " + ex.checks.t3.dropped.split("_")[0] + ". " : "") + "Mọi cấu hình có cả M1 và M5 bị loại ngay ở vòng một vì Table III giảm khoảng ba mươi điểm, và M6 bị loại vì cả ba bảng đều giảm trên val. Kết quả: " + (sel === "base" ? "không method nào được val ủng hộ, nên cấu hình được chọn là base. " : "chọn " + sel + ". ") + "Báo test đúng một lần cho cấu hình này: Table I " + fmt(t.T1.HOTA, 2) + ", Table II " + fmt(t.T2.HOTA, 2) + ", Table III " + fmt(t.T3["Rcv@.5"], 1) + ", so với PEG " + fmt(p.T1.HOTA, 2) + ", " + fmt(p.T2.HOTA, 2) + " và " + fmt(p.T3["Rcv@.5"], 1) + ".");
+}
+
 // ═════════ 17 ─ Conclusion ═════════
 {
   const s = base("Kết luận và bài học", "TỔNG KẾT", 2);
+  const v2t = tm("test", "full+M6"), v2p = tm("test", "PEG"), v2v = tm("val", "full+M6"), v2vp = tm("val", "PEG");
   card(s, 0.6, 1.65, 6.0, 4.9);
   txt(s, "Kết quả", { x: 0.9, y: 1.75, w: 5.4, h: 0.4, fontSize: 20, bold: true, color: C.amber });
   txt(s, bullets([
-    "Claim của PEG-F tái hiện được, nhưng phải so cùng cấu hình (guard bật): chỉ " + sgn(CL.HOTA - FP_.HOTA, 2) + " HOTA.",
-    "Table I một mình dễ đánh lừa: 2 lần đổi ID quyết định cả bảng → phải đo cả 3 bảng.",
-    "M1-swap, M3 giúp trên test nhưng không lặp lại trên val. M1-damp gây hại. M2, M4, M5 ≈ 0.",
+    "PEG-F v1: tái hiện được, nhưng cùng cấu hình chỉ " + sgn(CL.HOTA - FP_.HOTA, 2) + " HOTA; 2 lần đổi ID quyết định bảng.",
+    "PEG-F v2: Table I đúng 14/14 cấu hình, nhưng Thạch chỉnh và chọn trên test. Trên val không method nào qua luật.",
+    "v2: M1 × M5 làm Table III sụt (" + fmt(v2p.T3["Rcv@.5"], 1) + " → " + fmt(v2t.T3["Rcv@.5"], 1) + " test, " + fmt(v2vp.T3["Rcv@.5"], 1) + " → " + fmt(v2v.T3["Rcv@.5"], 1) + " val): box trượt ngang.",
     "PEG+: Rcv test " + sgn(ES.test.A.delta, 1) + ", val " + sgn(ES.val.A.delta, 1) + ", gộp " + sgn(ES.pooled.A.delta, 1) + ": chỉ giúp khi box co lại lúc coast.",
-    "Chọn trên val (luật chốt trước) ra PEG + M1-damp, thua PEG trên test: val quá nhỏ.",
-  ]), { x: 0.9, y: 2.3, w: 5.45, h: 4.1, fontSize: 16 });
+    "Table I một mình dễ đánh lừa → luôn đo đủ 3 bảng, chọn trên val, báo test 1 lần.",
+  ]), { x: 0.9, y: 2.3, w: 5.45, h: 4.1, fontSize: 15 });
   card(s, 6.78, 1.65, 5.95, 4.9, C.card2);
   txt(s, "Hướng tiếp theo", { x: 7.08, y: 1.75, w: 5.4, h: 0.4, fontSize: 20, bold: true, color: C.plus });
-  txt(s, ["Chọn bằng khoảng tin cậy hoặc cross-validation, không bằng ngưỡng cứng", "Re-ID học được thay cho màu HSV", "Damping chỉ áp cho track đang được thấy, không áp cho track đang coast"].map((t, i, a) => ({ text: t, options: { bullet: { type: "number" }, breakLine: i < a.length - 1, paraSpaceAfter: 26 } })),
-    { x: 7.08, y: 2.3, w: 5.4, h: 4.1, fontSize: 22 });
+  txt(s, ["Chọn bằng khoảng tin cậy hoặc cross-validation, không bằng ngưỡng cứng", "Tune tham số của method trên val, không trên test", "Neo đèn (M5) với độ tin không phụ thuộc độ bất định Kalman", "M6 (tone-map): thử lại khi val có nhiều ca chói quanh người hơn"].map((t, i, a) => ({ text: t, options: { bullet: { type: "number" }, breakLine: i < a.length - 1, paraSpaceAfter: 18 } })),
+    { x: 7.08, y: 2.3, w: 5.4, h: 4.1, fontSize: 19 });
   done(s, "Kết luận và bài học",
-    "Tóm lại bốn điều. Một, claim của PEG-F tái hiện được, nhưng chỉ khi so cùng cấu hình: guard bật, mức tăng thật là " + sgn(CL.HOTA - FP_.HOTA, 2) + " HOTA. Hai, nhìn một mình Table I rất dễ bị đánh lừa, vì hai lần đổi ID ở hai video quyết định gần hết mức tăng; nên phải đo cả ba bảng. Ba, M1-swap và M3 giúp trên test nhưng không lặp lại trên val; M1-damp làm hại; M2, M4, M5 gần như bằng không. Bốn, PEG+ nâng Rcv@.5 trên test từ " + fmt(g3("peg"), 1) + " lên " + fmt(g3("A"), 1) + ", nhưng trên val thì không; gộp cả hai tập nó tăng " + sgn(ES.pooled.A.delta, 1) + ", vừa đủ khác không. Nó chỉ giúp khi box co lại lúc coast, và val có ít trường hợp như vậy. Năm, khi chọn lại trên val với luật chốt trước, config được chọn là PEG cộng M1-damp, và nó thua PEG trên test; nghĩa là val quá nhỏ để chọn bằng một ngưỡng cứng. Hướng tiếp theo: chọn bằng khoảng tin cậy hoặc cross-validation thay vì ngưỡng cứng; thay màu HSV bằng một Re-ID học được, vì màu không phân biệt được hai công nhân; và sửa M1-damp để chỉ hãm vận tốc của track đang được thấy, không hãm track đang coast. Bài học lớn nhất với mình không phải một con số, mà là cách làm: tái hiện trước, so cùng cấu hình, đo cả ba bảng, tách từng phần ra để xem phần nào thật sự có tác dụng, và nói rõ chỗ nào chưa kiểm chứng.");
+    "Tóm lại năm điều. Một, PEG-F bản đầu tái hiện được, nhưng khi so cùng cấu hình thì mức tăng chỉ " + sgn(CL.HOTA - FP_.HOTA, 2) + " HOTA, và hai lần đổi ID quyết định gần hết mức tăng đó. Hai, PEG-F bản hai: Table I tái hiện đúng cả mười bốn cấu hình, nhưng Thạch chỉnh và chọn mọi thứ trên test; khi chọn lại trên val bằng luật chốt trước thì không method nào qua. Ba, ở bản hai, M1 đi cùng M5 làm Table III sụt mạnh, từ " + fmt(v2p.T3["Rcv@.5"], 1) + " xuống " + fmt(v2t.T3["Rcv@.5"], 1) + " trên test và từ " + fmt(v2vp.T3["Rcv@.5"], 1) + " xuống " + fmt(v2v.T3["Rcv@.5"], 1) + " trên val, vì box bị kéo trượt ngang khỏi người. Bốn, PEG+ tăng Rcv trên test " + sgn(ES.test.A.delta, 1) + ", trên val " + sgn(ES.val.A.delta, 1) + ", gộp lại " + sgn(ES.pooled.A.delta, 1) + ": chỉ giúp khi box co lại lúc coast. Năm, nhìn một mình Table I rất dễ bị đánh lừa, nên lúc nào cũng đo đủ ba bảng, chọn trên val và báo test một lần. Hướng tiếp theo: chọn bằng khoảng tin cậy hoặc cross-validation thay vì ngưỡng cứng; tune tham số của method trên val; nếu giữ M5 thì cú kéo về đèn phải có độ tin cố định, không phụ thuộc độ bất định của Kalman; và M6 đáng thử lại khi có thêm dữ liệu val có người đứng gần đèn. Bài học lớn nhất với mình không phải một con số mà là cách làm: tái hiện trước, so cùng cấu hình, đo cả ba bảng, chọn trên val, và tách từng phần ra để xem phần nào thật sự có tác dụng.");
 }
 
 // ═════════ 18 ─ Q&A ═════════
@@ -598,6 +927,12 @@ const QA = [
     "Vì bọn mình chọn M1-swap và M3 sau khi đã nhìn kết quả trên tập test. Bọn mình đã kiểm tra lại: trên val tổ hợp này gần bằng PEG (Table III " + fmt(vv("v_A+M1swap+M3").T3.all_burn["Rcv@.5"], 1) + " so với " + fmt(vv("v_peg").T3.all_burn["Rcv@.5"], 1) + "), nên phần tăng trên test là do chọn trên test."],
   [2, "Sao không đổi luật rồi chọn lại sau khi thấy M1-damp thua trên test?",
     "Vì đổi luật sau khi đã thấy test thì lại là chọn trên test lần nữa. Bọn mình báo đúng kết quả của luật đã chốt trước, rồi ghi bài học cho lần sau: chỉ nhận một thành phần khi khoảng tin cậy không chứa không."],
+  [1, "Sao không lấy thẳng số full+M6 của Thạch (+1.69 HOTA)?",
+    "Vì số đó được chọn trên test: trong kết quả Thạch gửi có " + "56 lượt chạy Table I trên test và không lượt nào trên val. Chọn lại trên val bằng luật chốt trước thì không method nào qua. Ngoài ra full+M6 làm Table III giảm từ " + fmt(tm("test", "PEG").T3["Rcv@.5"], 1) + " xuống " + fmt(tm("test", "full+M6").T3["Rcv@.5"], 1) + " trên test."],
+  [1, "Có chắc M1 × M5 là nguyên nhân Table III sụt không?",
+    "Có, vì bọn mình kiểm tra bằng công tắc con trong chính code của Thạch: chỉ M5 cộng riêng phần nở độ bất định của M1 đã đủ gây sụt, và tắt riêng phần đó khỏi cấu hình đầy đủ thì Table III hồi lại. Đo từng frame chói cũng thấy box đúng chiều cao nhưng trượt ngang."],
+  [1, "M6 có vẻ tốt trên test, sao không giữ?",
+    "Trên test M6 tăng cả ba bảng, nhưng trên val cả ba bảng đều giảm nhẹ (T1 " + sgn(dprim("val", "base+M6", "base")[0], 2) + ", T2 " + sgn(dprim("val", "base+M6", "base")[1], 2) + ", T3 " + sgn(dprim("val", "base+M6", "base")[2], 1) + "). Luật chốt trước không cho nhận; M6 đáng thử lại với nhiều dữ liệu hơn."],
   [2, "Vậy rốt cuộc PEG+ có tốt hơn PEG không?",
     "Chỉ ở những ca box co lại khi coast. Trên test nó tăng " + sgn(ES.test.A.delta, 1) + " Rcv, trên val " + sgn(ES.val.A.delta, 1) + ". Gộp " + ES.pooled.n_episodes + " lần chói thì tăng " + sgn(ES.pooled.A.delta, 1) + " với khoảng tin cậy [" + sgn(ES.pooled.A.ci95[0], 1) + ", " + sgn(ES.pooled.A.ci95[1], 1) + "]: có dấu hiệu tốt nhưng chưa chắc chắn."],
 ];

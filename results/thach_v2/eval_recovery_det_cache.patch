@@ -1,0 +1,41 @@
+diff --git a/glaremot/eval/eval_recovery.py.orig b/glaremot/eval/eval_recovery.py
+index e169b3e..8356e28 100644
+--- a/glaremot/eval/eval_recovery.py.orig
++++ b/glaremot/eval/eval_recovery.py
+@@ -362,6 +362,8 @@ def main():
+                     help="reuse existing MOT txt, only score")
+     ap.add_argument("--resume", action="store_true",
+                     help="skip sequences whose MOT txt already exists")
++    ap.add_argument("--det_cache", action="store_true",
++                    help="(added for our runs) replay perception from cache/dets, same key as eval_mot")
+     ap.add_argument("--per_seq", action="store_true",
+                     help="also print a per-sequence table")
+     args = ap.parse_args()
+@@ -394,17 +396,23 @@ def main():
+ 
+     if not args.skip_track:
+         import torch
+-        from .eval_mot import track_sequence  # triggers tracker import (env set above)
++        from .eval_mot import track_sequence, cache_file  # triggers tracker import (env set above)
+         from ..tracking.tracker import Perception
++        from ..config import cache_dir
+         device = "cuda" if torch.cuda.is_available() else "cpu"
+-        percep = Perception(weight_path(cfg, "detector"), weight_path(cfg, "hpsi"),
+-                            device, args.conf)
++        croot = cache_dir(cfg, "dets") if args.det_cache else None
++        cpaths = {s: cache_file(croot, s, args.conf, 0) if croot else None for s in seqs}
++        percep = None
++        if not args.det_cache or any(not os.path.exists(p) for p in cpaths.values()):
++            percep = Perception(weight_path(cfg, "detector"), weight_path(cfg, "hpsi"),
++                                device, args.conf, want_app=True if args.det_cache else None)
+         for i, seq in enumerate(seqs, 1):
+             out_txt = os.path.join(data_dir, f"{seq}.txt")
+             if args.resume and os.path.exists(out_txt):
+                 print(f"[{i}/{len(seqs)}] {seq}: resume, skip", flush=True)
+                 continue
+-            n, fps = track_sequence(os.path.join(glare_root, seq), percep, out_txt)
++            n, fps = track_sequence(os.path.join(glare_root, seq), percep, out_txt,
++                                    cache_path=cpaths[seq])
+             print(f"[{i}/{len(seqs)}] {seq}: {n} frames @ {fps:.1f} FPS", flush=True)
+ 
+     print("\nscoring recovery ...", flush=True)

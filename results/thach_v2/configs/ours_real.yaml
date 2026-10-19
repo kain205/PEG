@@ -1,0 +1,14 @@
+# our machine: datasets from D:/PROJECT/PEG, separate det cache per image source (real)
+data:
+  detector:  D:/PROJECT/PEG/datasets/det
+  tracking:  D:/PROJECT/PEG/datasets/real
+  glare:     D:/PROJECT/PEG/datasets/synth
+  occlusion: D:/PROJECT/PEG/datasets/real
+  videos:    D:/PROJECT/PEG/datasets/video
+imgsz: 1536
+weights:
+  pretrained_yolo: weights/pretrained/yolo11m.pt
+  detector:        D:/PROJECT/PEG/weights/detector/best.pt
+  hpsi:            D:/PROJECT/PEG/weights/hpsi/h_psi_head.pt
+cache_dir:   D:/PROJECT/PEG/results/thach_v2/cache_real
+results_dir: D:/PROJECT/PEG/results/thach_v2/out

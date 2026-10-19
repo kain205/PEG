@@ -1,0 +1,20 @@
+{
+  "m6_frac_applied": 1.0,
+  "m6_frac_note": "every frame",
+  "m6_frames_total": 16709,
+  "m6_threshold": 0.0003,
+  "m6_sat_mean_min": 0.00040435791015625,
+  "m6_sat_mean_median": 0.002513885498046875,
+  "m6_frac_stricter_thresholds": {
+    "frac_sat_mean_gt_0.001": 0.8354778861691304,
+    "frac_sat_mean_gt_0.002": 0.6544975761565623,
+    "frac_sat_mean_gt_0.005": 0.2740439284218086
+  },
+  "m6_frame": {
+    "seq": "320_sequence_116q_new",
+    "frame": 2070
+  },
+  "m6_changed_frac_full_frame": 0.07674196031358507,
+  "m6_halo_max_lum_change": 45.0,
+  "m6_halo_mean_lum_change": 13.227784156799316
+}
