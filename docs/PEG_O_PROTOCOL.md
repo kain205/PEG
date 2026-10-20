@@ -57,3 +57,21 @@ such, not re-tested).
 - Reported regardless of outcome: val+test table next to PEG, PEG+, each Thach component, Thach full+M6 and the
   two existing "strongest" finals; per-episode T3 change vs PEG+ with bootstrap 95% CI over episodes (test, val,
   pooled); what PEG-O fixed per episode and what it did not. No re-selection after seeing test.
+
+## Addendum (2026-10-20, committed before any val run): fusion changed after the 135 smoke (test)
+Disclosed: this change was triggered by the one-sequence recovery smoke on test `135_sequence_19q_new` (the same
+episode the idea came from). One re-run of the smoke, no parameter iteration on test.
+- Finding: with the plan's absolute noise R = γ(0.08h)²·τ/k (≈ 850 px²) and OC-SORT's position covariance P of only
+  9–14 px² right after the loss, the Kalman gain is ≈ 0.01: the update does nothing (g53 409–451 coverage 0.09 = PEG+,
+  centre error 70.5 → 65.1 px). The feasibility script, by contrast, replaced the estimate outright.
+- Change (`PEG._odometry_update`): **relative R** = γ·(τ/k)·P per axis (P = Kalman position variance before the update),
+  so the centre gain is 1/(1 + γτ/k), set by the peak sharpness alone; velocity follows through the covariance.
+  The χ² NIS gate is replaced by the feasibility script's jump gate (skip if ‖z − ĉ‖ > 0.5 · box diagonal), because with
+  R ∝ P the NIS no longer measures anything calibrated. Estimator and anchor rule unchanged.
+- Smoke after the change (τ 0.06, γ 1): g53 409–451 coverage 41/43 = 0.95 (= the oracle bound: PEG+'s own box
+  re-centred on GT), centre error 31.6 px mean / 52.1 max; g53 815–834 stays 20/20. Flags off: still byte-identical.
+- **New O grid**: τ ∈ {0.04, 0.06, 0.08} × γ ∈ {0.25, 1, 4} (centre gain at k = τ: 0.8 / 0.5 / 0.2). Everything else in
+  this protocol is unchanged.
+- Estimator pin (`scripts/19_peg_o_check.py`, τ 0.05, plan's keep-trying anchor rule): 135 30.4, 320 6.8, 176 28.9
+  (= plan), 204 25.8 (plan 21.5), 325 83.7 (plan 82.5: 325 anchors at f268 with k = 0.075, so it does not fall back
+  at τ ≤ 0.075).

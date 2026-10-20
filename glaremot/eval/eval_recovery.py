@@ -366,6 +366,8 @@ def main():
                     help="skip sequences whose MOT txt already exists")
     ap.add_argument("--per_seq", action="store_true",
                     help="also print a per-sequence table")
+    ap.add_argument("--seqs", nargs="+", default=None,
+                    help="restrict to these sequence names (default: all of the split)")
     args = ap.parse_args()
 
     # tracker.py reads these at IMPORT time, so set them before importing it.
@@ -385,6 +387,8 @@ def main():
     seqs = [s for s in seqs
             if os.path.isdir(os.path.join(glare_root, s, "images"))
             and glare_m_map(s, glare_root=glare_root)]
+    if args.seqs:
+        seqs = [s for s in seqs if s in set(args.seqs)]
     print(f"{args.split} split: {len(seqs)} glare sequences with events | "
           f"max_gap={args.max_gap}", flush=True)
     if not seqs:

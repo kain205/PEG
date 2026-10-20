@@ -169,6 +169,16 @@ VEL_DAMP = 0.95          # per-frame Kalman velocity decay while unobserved past
 # velocity x[6] on every missed frame (VEL_DAMP only damps x/y). Without it the coast box
 # can collapse (92x80 -> 16x14 px in 20 frames) and leave the person. Default off = paper.
 SIZE_LOCK = os.environ.get("GPEG_SIZE_LOCK", "0") not in ("0", "off", "false", "")
+# PEG-O "S" (evidence-gated survival): a confirmed track whose photometric gate is armed on
+# this frame (frame_idx <= _lamp_emit_until, set by PEG._try_beacon) is not deleted by the
+# allowed_gap() age budget (the hard MAX_AGE cap stays). Default off = paper.
+ARMED_SURVIVE = os.environ.get("GPEG_ARMED_SURVIVE", "0") not in ("0", "off", "false", "")
+
+
+def armed_survives(t, frame_idx, gap):
+    """True if track t is kept alive / emitted past allowed_gap because its gate is armed."""
+    return bool(ARMED_SURVIVE and t.is_confirmed
+                and frame_idx <= getattr(t, "_lamp_emit_until", -1) and gap <= MAX_AGE)
 
 # --- exit gate (a person who walked OUT of the frame must die fast) ---
 # The detector loses a leaving person BEFORE the box touches the edge (half a
@@ -1276,7 +1286,7 @@ class GlareAwareTracker:
             gap = int(t.kf.time_since_update)
             if not t.is_confirmed and t.age_frames > TENTATIVE_MAX_AGE:
                 continue  # never proved to be a person
-            if gap > t.allowed_gap():
+            if gap > t.allowed_gap() and not armed_survives(t, frame_idx, gap):
                 if ENABLE_DORMANT and t.is_confirmed and not t.exiting:
                     if FS.on:
                         FS.inc("m4_inserts")

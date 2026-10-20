@@ -41,6 +41,15 @@ still there; these keep the held box ON the worker.
   GPEG_LAMP_FOLLOW=1          while the gate is armed, nudge the box centre to the lamp
                               (the backbone's weak lamp pseudo-measurement)
 
+PEG-O (our extension, default off): while the gate is armed, the saturated "burn disc" is
+tracked with a disc matched filter; its displacement from an anchor is a centre-only Kalman
+pseudo-measurement (odometry), trusted only when the matched-filter peak is sharp.
+  GPEG_ODO=1                  enable photometric odometry (use with GPEG_SIZE_LOCK=1)
+  GPEG_ODO_TAU                min peak sharpness k to anchor / update (default 0.06)
+  GPEG_ODO_GAMMA              trust ratio: centre gain = 1/(1 + gamma*tau/k) (default 1)
+  GPEG_ARMED_SURVIVE=1        "S": a confirmed track with the gate armed is not deleted by the
+                              allowed_gap() age budget (hard MAX_AGE cap stays; tracker.py)
+
 PEG-F (friend's methods; default off, GPEG_F=1 turns on all; an individual var overrides):
   GBEACON_DYNAMIC_H           M3: gate threshold h grows with the loss gap (wall-flare FPs)
   GBEACON_ADAPTIVE_TTL        M3: emit grace window scaled by the burn-evidence strength
@@ -55,7 +64,7 @@ import numpy as np
 from ..photometric import core_centroid_in_box, mask_area_inside
 from .tracker import (BEACON_EXPAND_UP, BEACON_GATE_FRAC, BEACON_HEAD_BAND,
                       BEACON_MIN_PX, FS, OUTPUT_MAX_GAP, GlareAwareTracker,
-                      peg_f_flag, smooth_box, xyxy_to_norm_box)
+                      armed_survives, peg_f_flag, smooth_box, xyxy_to_norm_box)
 
 
 def _flag(name, default="1"):
@@ -73,6 +82,63 @@ MF_ENABLE = _flag("GBEACON_MF")                  # matched filter vs plain centr
 CUSUM_ENABLE = _flag("GBEACON_CUSUM", "0")       # sequential test vs instantaneous phi
 NIS_ENABLE = _flag("GBEACON_NIS", "0")           # spatial innovation gate on the lamp
 LAMP_FOLLOW = _flag("GPEG_LAMP_FOLLOW", "0")     # PEG+: armed gate -> box follows the lamp
+
+# --- PEG-O: photometric odometry (default off) ---
+ODO_ENABLE = _flag("GPEG_ODO", "0")
+ODO_TAU = float(os.environ.get("GPEG_ODO_TAU", "0.06"))      # min matched-filter peak sharpness
+ODO_GAMMA = float(os.environ.get("GPEG_ODO_GAMMA", "1.0"))   # trust ratio (R = gamma*tau/k * P)
+ODO_KAPPA = 2.0        # search window = predicted box dilated x kappa
+ODO_RHO_MIN = 0.3      # disc radius clip, x min(w,h) of the box (PHOTO_S px)
+ODO_RHO_MAX = 1.5      # disc radius clip, x max(w,h)
+ODO_JUMP = 0.5         # reject a measurement farther than ODO_JUMP * box diagonal from the box centre
+
+
+def odo_disc_kernel(r):
+    """Normalised filled-disc kernel of radius r (px)."""
+    r = max(1, int(round(r)))
+    k = np.zeros((2 * r + 1, 2 * r + 1), np.float32)
+    cv2.circle(k, (r, r), r, 1, -1)
+    return k / k.sum()
+
+
+def odo_measure(lab, stats, c, w, h, sx, sy, S=512, kappa=ODO_KAPPA):
+    """PEG-O estimator (shared by the tracker and scripts/19_peg_o_check.py).
+
+    lab, stats: ``cv2.connectedComponentsWithStats(sat_uint8, 8)`` labels / stats on the SxS
+    grid. c = predicted burn centre (full-res px), (w, h) = predicted box size (full-res px),
+    sx, sy = grid scale. Returns None or (b_px [x, y] full-res px, rho, peak, kx, ky); the
+    sharpness of the peak is min(kx, ky)."""
+    cx, cy = int(np.clip(c[0] * sx, 0, S - 1)), int(np.clip(c[1] * sy, 0, S - 1))
+    k = lab[cy, cx]
+    if k == 0:   # label with the most pixels inside the predicted box
+        bx = lab[int((c[1] - h / 2) * sy):int((c[1] + h / 2) * sy),
+                 int((c[0] - w / 2) * sx):int((c[0] + w / 2) * sx)]
+        ids, cnt = np.unique(bx[bx > 0], return_counts=True)
+        if len(ids) == 0:
+            return None
+        k = ids[np.argmax(cnt)]
+    rho = np.sqrt(stats[k, 4] / np.pi)
+    rho = float(np.clip(rho, ODO_RHO_MIN * min(w * sx, h * sy), ODO_RHO_MAX * max(w * sx, h * sy)))
+    comp = (lab == k).astype(np.float32)
+    sc = cv2.filter2D(comp, -1, odo_disc_kernel(rho), borderType=cv2.BORDER_CONSTANT)
+    x0, y0 = int((c[0] - kappa * w / 2) * sx), int((c[1] - kappa * h / 2) * sy)
+    x1, y1 = int((c[0] + kappa * w / 2) * sx), int((c[1] + kappa * h / 2) * sy)
+    x0, y0 = max(0, x0), max(0, y0)
+    x1, y1 = min(S, x1), min(S, y1)
+    win = sc[y0:y1, x0:x1]
+    if win.size == 0:
+        return None
+    iy, ix = np.unravel_index(int(np.argmax(win)), win.shape)
+    px, py = ix + x0, iy + y0
+    dlt = max(2, int(rho / 4))
+    pk = sc[py, px]
+
+    def at(xx, yy):
+        return sc[int(np.clip(yy, 0, S - 1)), int(np.clip(xx, 0, S - 1))]
+
+    kx = pk - 0.5 * (at(px + dlt, py) + at(px - dlt, py))
+    ky = pk - 0.5 * (at(px, py + dlt) + at(px, py - dlt))
+    return np.array([px / sx, py / sy]), rho, pk, kx, ky
 
 MF_SIGMA_FRAC = float(os.environ.get("GBEACON_MF_SIGMA", "0.25"))  # of head-band height
 MF_MIN_RESP = float(os.environ.get("GBEACON_MF_MINRESP", "0.05"))  # min matched-filter peak
@@ -189,7 +255,8 @@ class PEG(GlareAwareTracker):
         for t in self.tracks:
             if id(t) in emitted or not t.is_confirmed:
                 continue
-            if int(t.kf.time_since_update) > t.allowed_gap():
+            gap = int(t.kf.time_since_update)
+            if gap > t.allowed_gap() and not armed_survives(t, frame_idx, gap):
                 continue
             if frame_idx <= getattr(t, "_lamp_emit_until", -1):
                 extra.append(t)
@@ -237,6 +304,65 @@ class PEG(GlareAwareTracker):
         except np.linalg.LinAlgError:
             return float("inf")
 
+    def _odo_cc(self):
+        """Connected components (lab, stats) of the current frame's saturation mask, computed
+        once per frame. None if there is no saturation map."""
+        cache = getattr(self, "_odo_cc_cache", None)
+        if cache is not None and cache[0] == self._cur_frame:
+            return cache[1], cache[2]
+        sat_fn = getattr(self, "_sat_fn", None)
+        if sat_fn is None:
+            return None
+        sat, S = sat_fn()
+        if sat is None:
+            return None
+        _, lab, stats, _ = cv2.connectedComponentsWithStats(np.asarray(sat).astype(np.uint8), 8)
+        self._odo_cc_cache = (self._cur_frame, lab, stats)
+        return lab, stats
+
+    def _odometry_update(self, mt, W, H):
+        """PEG-O: while the gate is armed, measure the displacement of the saturated burn disc
+        (disc matched filter, odo_measure) from an anchor and fuse it as a centre-only Kalman
+        pseudo-measurement with covariance scaled by the peak sharpness. Size is not touched."""
+        cc = self._odo_cc()
+        if cc is None:
+            return
+        lab, stats = cc
+        S = lab.shape[0]
+        x1, y1, x2, y2 = [float(v) for v in mt.kf.get_state()[0][:4]]
+        w, h = x2 - x1, y2 - y1
+        c = np.array([(x1 + x2) * 0.5, (y1 + y2) * 0.5], np.float64)
+        sx, sy = S / float(W), S / float(H)
+        anc = getattr(mt, "_odo_anchor", None)          # (c_anchor, b_anchor) or None
+        p = c + (anc[1] - anc[0]) if anc is not None else c   # predicted burn centre
+        r = odo_measure(lab, stats, p, w, h, sx, sy, S)
+        if r is None:
+            return
+        b, rho, pk, kx, ky = r
+        k = min(kx, ky)
+        mt._odo_k = float(k)
+        if k < ODO_TAU:
+            if FS.on:
+                FS.inc("odo_flat")
+            return
+        if anc is None:
+            anc = mt._odo_anchor = (c.copy(), b.copy())
+            if FS.on:
+                FS.inc("odo_anchors")
+        z = anc[0] + (b - anc[1])
+        if float(np.hypot(*(z - c))) > ODO_JUMP * float(np.hypot(w, h)):
+            return
+        P = mt.kf.kf.P
+        r_x = max(1e-6, ODO_GAMMA * (ODO_TAU / kx) * float(P[0, 0]))   # relative R: gain = 1/(1+gamma*tau/k)
+        r_y = max(1e-6, ODO_GAMMA * (ODO_TAU / ky) * float(P[1, 1]))
+        self._weak_center_update(mt.kf.kf, z[0], z[1], r_x, r_y)
+        mt._odo_z = (float(z[0]), float(z[1]))
+        if FS.on:
+            FS.inc("odo_updates")
+        mt.box = xyxy_to_norm_box(mt.kf.get_state()[0], W, H)
+        mt.smooth = smooth_box(mt.smooth, mt.box)
+        mt.beacon = (b[0] * sx, b[1] * sy)             # PHOTO_S coords, like M5
+
     def _try_beacon(self, mt, core_fn, W, H):
         """Burnt-vs-departed detection gate (overrides the backbone's weak beacon).
 
@@ -267,6 +393,7 @@ class PEG(GlareAwareTracker):
         if gap <= 1:                       # first missing frame of a new loss episode
             mt._cusum_g = 0.0
             mt._burn = False
+            mt._odo_anchor = None
         g = getattr(mt, "_cusum_g", 0.0) + (phi - CUSUM_K)
         mt._cusum_g = float(max(0.0, g))
         eff_h = CUSUM_H
@@ -340,6 +467,10 @@ class PEG(GlareAwareTracker):
         # backbone's weak lamp-centre update so the held box follows a moving worker.
         if LAMP_FOLLOW and core_fn is not None:
             GlareAwareTracker._try_beacon(self, mt, core_fn, W, H)
+
+        # PEG-O: photometric odometry -- the burn disc's displacement moves the held box.
+        if ODO_ENABLE:
+            self._odometry_update(mt, W, H)
 
         # A confirmed burn licenses emitting the coasting box past the ordinary
         # output cap (see step()): arm the grace window.

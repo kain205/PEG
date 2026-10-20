@@ -1,0 +1,30 @@
+tau 0.04
+204 g300: 47 fr, box 44x146 | frozen mean 28.3 ok@.25diag 0.72 | MF-odo mean 62.8 max 94.8 ok@.25diag 0.17 used 6/47 | anchor frame 340 sharp 0.049 rho 34
+135 g53: 43 fr, box 264x274 | frozen mean 76.2 ok@.25diag 0.72 | MF-odo mean 38.8 max 139.7 ok@.25diag 0.93 used 15/43 | anchor frame 409 sharp 0.056 rho 64
+325 g3: 35 fr, box 186x336 | frozen mean 82.5 ok@.25diag 0.57 | MF-odo mean 86.1 max 153.6 ok@.25diag 0.57 used 12/35 | anchor frame 268 sharp 0.075 rho 85
+176 g204: 25 fr, box 39x164 | frozen mean 16.5 ok@.25diag 1.00 | MF-odo mean 53.0 max 85.8 ok@.25diag 0.40 used 13/25 | anchor frame 331 sharp 0.068 rho 44
+320 g1: 30 fr, box 98x92 | frozen mean 9.0 ok@.25diag 1.00 | MF-odo mean 13.1 max 34.2 ok@.25diag 0.97 used 9/30 | anchor frame 227 sharp 0.103 rho 33
+tau 0.05
+204 g300: 47 fr, box 44x146 | frozen mean 28.3 ok@.25diag 0.72 | MF-odo mean 25.8 max 47.5 ok@.25diag 0.91 used 11/47 | anchor frame 341 sharp 0.075 rho 41
+135 g53: 43 fr, box 264x274 | frozen mean 76.2 ok@.25diag 0.72 | MF-odo mean 30.4 max 63.7 ok@.25diag 1.00 used 12/43 | anchor frame 409 sharp 0.056 rho 64
+325 g3: 35 fr, box 186x336 | frozen mean 82.5 ok@.25diag 0.57 | MF-odo mean 83.7 max 153.6 ok@.25diag 0.60 used 11/35 | anchor frame 268 sharp 0.075 rho 85
+176 g204: 25 fr, box 39x164 | frozen mean 16.5 ok@.25diag 1.00 | MF-odo mean 28.9 max 47.2 ok@.25diag 0.92 used 11/25 | anchor frame 331 sharp 0.068 rho 44
+320 g1: 30 fr, box 98x92 | frozen mean 9.0 ok@.25diag 1.00 | MF-odo mean 6.8 max 15.0 ok@.25diag 1.00 used 7/30 | anchor frame 227 sharp 0.103 rho 33
+tau 0.06
+204 g300: 47 fr, box 44x146 | frozen mean 28.3 ok@.25diag 0.72 | MF-odo mean 25.8 max 47.5 ok@.25diag 0.91 used 11/47 | anchor frame 341 sharp 0.075 rho 41
+135 g53: 43 fr, box 264x274 | frozen mean 76.2 ok@.25diag 0.72 | MF-odo mean 26.9 max 51.5 ok@.25diag 1.00 used 10/43 | anchor frame 410 sharp 0.094 rho 86
+325 g3: 35 fr, box 186x336 | frozen mean 82.5 ok@.25diag 0.57 | MF-odo mean 54.5 max 142.8 ok@.25diag 0.77 used 6/35 | anchor frame 268 sharp 0.075 rho 85
+176 g204: 25 fr, box 39x164 | frozen mean 16.5 ok@.25diag 1.00 | MF-odo mean 28.8 max 44.3 ok@.25diag 0.92 used 9/25 | anchor frame 331 sharp 0.068 rho 44
+320 g1: 30 fr, box 98x92 | frozen mean 9.0 ok@.25diag 1.00 | MF-odo mean 6.8 max 15.0 ok@.25diag 1.00 used 7/30 | anchor frame 227 sharp 0.103 rho 33
+tau 0.08
+204 g300: 47 fr, box 44x146 | frozen mean 28.3 ok@.25diag 0.72 | MF-odo mean 14.5 max 31.4 ok@.25diag 1.00 used 5/47 | anchor frame 342 sharp 0.082 rho 53
+135 g53: 43 fr, box 264x274 | frozen mean 76.2 ok@.25diag 0.72 | MF-odo mean 26.9 max 51.5 ok@.25diag 1.00 used 10/43 | anchor frame 410 sharp 0.094 rho 86
+325 g3: 35 fr, box 186x336 | frozen mean 82.5 ok@.25diag 0.57 | MF-odo mean 79.4 max 175.7 ok@.25diag 0.57 used 3/35 | anchor frame 296 sharp 0.091 rho 161
+176 g204: 25 fr, box 39x164 | frozen mean 16.5 ok@.25diag 1.00 | MF-odo mean 20.0 max 33.2 ok@.25diag 1.00 used 6/25 | anchor frame 332 sharp 0.103 rho 62
+320 g1: 30 fr, box 98x92 | frozen mean 9.0 ok@.25diag 1.00 | MF-odo mean 7.0 max 15.8 ok@.25diag 1.00 used 5/30 | anchor frame 227 sharp 0.103 rho 33
+tau 0.1
+204 g300: 47 fr, box 44x146 | frozen mean 28.3 ok@.25diag 0.72 | MF-odo mean 28.3 max 55.5 ok@.25diag 0.72 used 0/47 | anchor frame None sharp nan rho nan
+135 g53: 43 fr, box 264x274 | frozen mean 76.2 ok@.25diag 0.72 | MF-odo mean 80.0 max 144.3 ok@.25diag 0.72 used 4/43 | anchor frame 446 sharp 0.105 rho 137
+325 g3: 35 fr, box 186x336 | frozen mean 82.5 ok@.25diag 0.57 | MF-odo mean 82.5 max 191.9 ok@.25diag 0.57 used 0/35 | anchor frame None sharp nan rho nan
+176 g204: 25 fr, box 39x164 | frozen mean 16.5 ok@.25diag 1.00 | MF-odo mean 20.9 max 33.2 ok@.25diag 1.00 used 5/25 | anchor frame 332 sharp 0.103 rho 62
+320 g1: 30 fr, box 98x92 | frozen mean 9.0 ok@.25diag 1.00 | MF-odo mean 7.0 max 15.8 ok@.25diag 1.00 used 5/30 | anchor frame 227 sharp 0.103 rho 33
