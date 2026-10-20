@@ -110,3 +110,20 @@ re-run) and T3 (burn episode), the summed Δ must stay > 0. Every evaluation is 
   all-burn lines were printed in its terminal before it was told not to look. Those runs were deleted, the numbers
   were not reported to the orchestrator, and no design or grid was changed afterwards. The selection below is a
   mechanical greedy rule, unchanged.
+
+## Addendum 2 (2026-10-20, committed before any run of it): Stage 2b — B on PEG+ without V
+Reason: the staged protocol only tried B after V. With V on, the gate already emits a box on nearly every gap frame,
+so B "hidden" had nothing to fill and B "all" overwrote V's coast: B could not be judged on its own mechanism. The
+literature check (`results/research/LITERATURE_IDEAS.md` idea 1) measured burn-gated backfill on PEG+ outputs on
+both splits (T3 +4.3 test / +3.8 val, FP flat), so it is tested here on its own. Disclosed: that check looked at test.
+B interpolates between the track's own two detection boxes and is gated by the existence gate only (an armed frame in
+the gap); it reads no disc geometry. Definitions of B and BB are unchanged (§ Exact definitions).
+- **Stage 2b** (`tune_val.py --peg_c --lag_base` → `results/thach_v2/tune_C_lagP/`): start S0 = P only (PEG+, no V,
+  no S; val 70.11 / 76.30 / 67.3). Greedy over B (4 points: L ∈ {45, 90} × mode ∈ {hidden, all}) and BB (1 point),
+  strict rule as before (admissible every Δ ≥ −0.5, score > +0.5, single-event check). The strongest variant (no
+  single-event check) is also recorded (`--peg_c --lag_base --strong` → `tune_C_lagP_strong/`).
+- Test once (Thach harness) only if a point is accepted: the strict final (`tune_C_lagP/test.json`); the strongest
+  final only if it differs from the strict one and accepted a point. If neither rule accepts a point, no test run.
+- Our repo, guard off, test once for the accepted config (strict, else strongest; labelled "fixed-lag L"):
+  `pegcbl_test`, `pegcbl_fs`, `pegcbl_rcv`, plus val T3 `v_pegcbl_rcv`; per-episode CI vs PEG+ via
+  `results/peg_c/episodes.py` (test, val, pooled). Rows labelled "PEG-C fixed-lag L (B on PEG+)", separate from online.
