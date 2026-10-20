@@ -1,0 +1,22 @@
+187_sequence_66q_new thach cache == percep_cache sat: True (485, 32768)
+ event start 133 dur 47: burn frames 141-173
+   row f-1: phi>=.4 on 33/33 burn frames; phi>=.4 outside burn 2/27; mean phi burn 0.99 outside 0.25
+   row f-2: phi>=.4 on 33/33 burn frames; phi>=.4 outside burn 2/27; mean phi burn 0.99 outside 0.26
+   row f: phi>=.4 on 33/33 burn frames; phi>=.4 outside burn 2/27; mean phi burn 0.99 outside 0.25
+ event start 192 dur 49: burn frames 201-235
+   row f-1: phi>=.4 on 35/35 burn frames; phi>=.4 outside burn 3/27; mean phi burn 1.00 outside 0.26
+   row f-2: phi>=.4 on 35/35 burn frames; phi>=.4 outside burn 3/27; mean phi burn 1.00 outside 0.27
+   row f: phi>=.4 on 35/35 burn frames; phi>=.4 outside burn 3/27; mean phi burn 1.00 outside 0.27
+203_sequence_80q_new thach cache == percep_cache sat: True (397, 32768)
+ event start 49 dur 38: burn frames 55-81
+   row f-1: phi>=.4 on 27/27 burn frames; phi>=.4 outside burn 2/24; mean phi burn 1.00 outside 0.29
+   row f-2: phi>=.4 on 27/27 burn frames; phi>=.4 outside burn 3/24; mean phi burn 0.98 outside 0.31
+   row f: phi>=.4 on 27/27 burn frames; phi>=.4 outside burn 2/24; mean phi burn 1.00 outside 0.29
+ event start 95 dur 57: burn frames 104-146
+   row f-1: phi>=.4 on 43/43 burn frames; phi>=.4 outside burn 2/27; mean phi burn 1.00 outside 0.31
+   row f-2: phi>=.4 on 43/43 burn frames; phi>=.4 outside burn 2/27; mean phi burn 1.00 outside 0.30
+   row f: phi>=.4 on 43/43 burn frames; phi>=.4 outside burn 2/27; mean phi burn 0.99 outside 0.33
+ event start 298 dur 49: burn frames 306-340
+   row f-1: phi>=.4 on 35/35 burn frames; phi>=.4 outside burn 2/27; mean phi burn 1.00 outside 0.17
+   row f-2: phi>=.4 on 35/35 burn frames; phi>=.4 outside burn 2/27; mean phi burn 1.00 outside 0.17
+   row f: phi>=.4 on 34/35 burn frames; phi>=.4 outside burn 2/27; mean phi burn 0.98 outside 0.20

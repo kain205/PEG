@@ -1,0 +1,1248 @@
+{
+ "commits": {
+  "4b13dc3": "PEG-O: pre-registered val protocol (before any run)",
+  "bab4795": "PEG-O: implementation + protocol addendum (relative-R fusion), before any val run"
+ },
+ "commands": {
+  "estimator_pin": ".venv/Scripts/python.exe scripts/19_peg_o_check.py > results/peg_o/check_19.txt",
+  "byte_identity (flags unset, guard off, cached)": "GMOT_TRACKER=beacon GMOT_BIRTH_SIZE_GUARD=0 [GPEG_SIZE_LOCK=1] scripts/06_eval_mot.py / 07_eval_recovery.py --percep_cache results/percep_cache/{real,synth} --tracker_name bi_*",
+  "smoke 135 (relative-R)": "GMOT_TRACKER=beacon GMOT_BIRTH_SIZE_GUARD=0 GPEG_SIZE_LOCK=1 GPEG_ODO=1 GPEG_ODO_TAU=0.06 GPEG_ODO_GAMMA=1 .venv/Scripts/python.exe scripts/07_eval_recovery.py --split test --percep_cache results/percep_cache/synth --tracker_name smoke_pego2_135 --seqs 135_sequence_19q_new",
+  "val search (Thach harness, guard on)": ".venv/Scripts/python.exe results/thach_v2/tune_val.py --peg_o ; --peg_o --strong ; --peg_o --test",
+  "test T1": "GMOT_TRACKER=beacon GMOT_BIRTH_SIZE_GUARD=0 GPEG_SIZE_LOCK=1 GPEG_ODO=1 GPEG_ODO_TAU=0.08 GPEG_ODO_GAMMA=4 .venv/Scripts/python.exe scripts/06_eval_mot.py --split test --percep_cache results/percep_cache/real --tracker_name pego_test",
+  "test T2": "GMOT_TRACKER=beacon GMOT_BIRTH_SIZE_GUARD=0 GPEG_SIZE_LOCK=1 GPEG_ODO=1 GPEG_ODO_TAU=0.08 GPEG_ODO_GAMMA=4 .venv/Scripts/python.exe scripts/06_eval_mot.py --split test --data_root datasets/synth --results_subdir eval_synthfs --percep_cache results/percep_cache/synth --tracker_name pego_fs",
+  "test T3": "GMOT_TRACKER=beacon GMOT_BIRTH_SIZE_GUARD=0 GPEG_SIZE_LOCK=1 GPEG_ODO=1 GPEG_ODO_TAU=0.08 GPEG_ODO_GAMMA=4 .venv/Scripts/python.exe scripts/07_eval_recovery.py --split test --percep_cache results/percep_cache/synth --tracker_name pego_rcv",
+  "val T3 (ours, guard off)": "GMOT_TRACKER=beacon GMOT_BIRTH_SIZE_GUARD=0 GPEG_SIZE_LOCK=1 GPEG_ODO=1 GPEG_ODO_TAU=0.08 GPEG_ODO_GAMMA=4 .venv/Scripts/python.exe scripts/07_eval_recovery.py --split val --percep_cache results/percep_cache/synth --tracker_name v_pego_rcv",
+  "episodes": ".venv/Scripts/python.exe results/peg_o/episodes.py"
+ },
+ "env_note": "T-b env: GMOT_TRACKER=beacon GMOT_BIRTH_SIZE_GUARD=0 GPEG_SIZE_LOCK=1 GPEG_ODO=1 GPEG_ODO_TAU=0.08 GPEG_ODO_GAMMA=4; Thach harness runs use guard ON (his setting)",
+ "paper_setting_test": {
+  "paper PEG": {
+   "T1": {
+    "HOTA": 68.2,
+    "IDF1": 82.3,
+    "MOTA": 80.62,
+    "IDSW": 17,
+    "FP": 1425,
+    "FN": 2611
+   },
+   "T2": {
+    "MOTA": 73.24,
+    "FP": 2024,
+    "Rcll": 85.61,
+    "IDF1": 75.29
+   },
+   "T3": {
+    "clear": 93,
+    "Rcv@.5": 76.5,
+    "heavy": 74.1,
+    "total": 77.6,
+    "ID_off_pct": 18.5
+   }
+  },
+  "PEG (ours reproduction)": {
+   "T1": {
+    "HOTA": 68.19,
+    "DetA": 65.88,
+    "AssA": 71.62,
+    "IDF1": 82.3,
+    "MOTA": 80.62,
+    "IDSW": 17,
+    "Rcll": 87.52,
+    "Prcn": 92.78,
+    "FP": 1425,
+    "FN": 2611
+   },
+   "T2": {
+    "HOTA": 61.7,
+    "DetA": 61.16,
+    "AssA": 63.17,
+    "IDF1": 75.3,
+    "MOTA": 73.26,
+    "IDSW": 19,
+    "Rcll": 85.62,
+    "Prcn": 87.49,
+    "FP": 2022,
+    "FN": 2374
+   },
+   "T3": {
+    "clear": 93.0,
+    "Rcv@.5": 76.6,
+    "partial": 75.8,
+    "heavy": 74.1,
+    "total": 77.8,
+    "ID_off_pct": 18.5,
+    "ID_off_frames": 157,
+    "survived": "19/30",
+    "IDSW": 4,
+    "Frag": 13
+   }
+  },
+  "PEG+": {
+   "T1": {
+    "HOTA": 68.23,
+    "DetA": 65.96,
+    "AssA": 71.62,
+    "IDF1": 82.24,
+    "MOTA": 80.52,
+    "IDSW": 17,
+    "Rcll": 87.48,
+    "Prcn": 92.7,
+    "FP": 1440,
+    "FN": 2618
+   },
+   "T2": {
+    "HOTA": 62.54,
+    "DetA": 61.14,
+    "AssA": 64.86,
+    "IDF1": 77.95,
+    "MOTA": 73.37,
+    "IDSW": 16,
+    "Rcll": 86.26,
+    "Prcn": 87.08,
+    "FP": 2113,
+    "FN": 2268
+   },
+   "T3": {
+    "clear": 93.3,
+    "Rcv@.5": 82.2,
+    "partial": 79.0,
+    "heavy": 78.9,
+    "total": 85.1,
+    "ID_off_pct": 15.5,
+    "ID_off_frames": 132,
+    "survived": "21/30",
+    "IDSW": 3,
+    "Frag": 12
+   }
+  },
+  "PEG-O O[8] tau .08 gamma 4 (not selected by val)": {
+   "T1": {
+    "HOTA": 68.15,
+    "DetA": 65.79,
+    "AssA": 71.62,
+    "IDF1": 82.15,
+    "MOTA": 80.36,
+    "IDSW": 17,
+    "Rcll": 87.51,
+    "Prcn": 92.52,
+    "FP": 1479,
+    "FN": 2612
+   },
+   "T2": {
+    "HOTA": 61.73,
+    "DetA": 61.04,
+    "AssA": 63.24,
+    "IDF1": 77.26,
+    "MOTA": 73.06,
+    "IDSW": 16,
+    "Rcll": 85.88,
+    "Prcn": 87.1,
+    "FP": 2100,
+    "FN": 2332
+   },
+   "T3": {
+    "clear": 93.3,
+    "Rcv@.5": 73.6,
+    "partial": 73.0,
+    "heavy": 72.1,
+    "total": 74.5,
+    "ID_off_pct": 9.5,
+    "ID_off_frames": 81,
+    "survived": "19/30",
+    "IDSW": 1,
+    "Frag": 17
+   }
+  }
+ },
+ "val_T3": {
+  "PEG": {
+   "clear": 94.8,
+   "Rcv@.5": 67.6,
+   "partial": 65.3,
+   "heavy": 71.7,
+   "total": 67.4,
+   "ID_off_pct": 10.0,
+   "ID_off_frames": 57,
+   "survived": "7/18",
+   "IDSW": 0,
+   "Frag": 16
+  },
+  "PEG+": {
+   "clear": 94.8,
+   "Rcv@.5": 67.3,
+   "partial": 66.5,
+   "heavy": 70.8,
+   "total": 66.3,
+   "ID_off_pct": 10.0,
+   "ID_off_frames": 57,
+   "survived": "7/18",
+   "IDSW": 0,
+   "Frag": 18
+  },
+  "PEG-O O[8]": {
+   "clear": 94.8,
+   "Rcv@.5": 53.8,
+   "partial": 63.1,
+   "heavy": 57.5,
+   "total": 46.5,
+   "ID_off_pct": 34.2,
+   "ID_off_frames": 195,
+   "survived": "6/18",
+   "IDSW": 4,
+   "Frag": 16
+  }
+ },
+ "val_search": {
+  "start_S0P_val": {
+   "T1_HOTA": 70.11,
+   "T2_HOTA": 76.3,
+   "T3_Rcv": 67.3
+  },
+  "rows": [
+   {
+    "add": "O[0]",
+    "tau": 0.04,
+    "gamma": 0.25,
+    "key": "tva989a677",
+    "delta": [
+     -0.01,
+     -4.8,
+     -41.2
+    ],
+    "score": -46.01,
+    "admissible": false
+   },
+   {
+    "add": "O[1]",
+    "tau": 0.04,
+    "gamma": 1,
+    "key": "tvd4646d11",
+    "delta": [
+     -0.01,
+     -1.75,
+     -34.6
+    ],
+    "score": -36.36,
+    "admissible": false
+   },
+   {
+    "add": "O[2]",
+    "tau": 0.04,
+    "gamma": 4,
+    "key": "tvab960132",
+    "delta": [
+     -0.01,
+     -1.22,
+     -22.8
+    ],
+    "score": -24.03,
+    "admissible": false
+   },
+   {
+    "add": "O[3]",
+    "tau": 0.06,
+    "gamma": 0.25,
+    "key": "tvebd77659",
+    "delta": [
+     0.0,
+     -1.76,
+     -29.3
+    ],
+    "score": -31.06,
+    "admissible": false
+   },
+   {
+    "add": "O[4]",
+    "tau": 0.06,
+    "gamma": 1,
+    "key": "tv59efd7b6",
+    "delta": [
+     0.0,
+     -1.55,
+     -24.9
+    ],
+    "score": -26.45,
+    "admissible": false
+   },
+   {
+    "add": "O[5]",
+    "tau": 0.06,
+    "gamma": 4,
+    "key": "tve64cd95a",
+    "delta": [
+     0.0,
+     -2.2,
+     -23.3
+    ],
+    "score": -25.5,
+    "admissible": false
+   },
+   {
+    "add": "O[6]",
+    "tau": 0.08,
+    "gamma": 0.25,
+    "key": "tv37833bd8",
+    "delta": [
+     0.0,
+     -0.98,
+     -27.5
+    ],
+    "score": -28.48,
+    "admissible": false
+   },
+   {
+    "add": "O[7]",
+    "tau": 0.08,
+    "gamma": 1,
+    "key": "tv908c8bf2",
+    "delta": [
+     0.0,
+     -1.71,
+     -22.1
+    ],
+    "score": -23.81,
+    "admissible": false
+   },
+   {
+    "add": "O[8]",
+    "tau": 0.08,
+    "gamma": 4,
+    "key": "tv6fa5af52",
+    "delta": [
+     0.0,
+     -1.55,
+     -13.5
+    ],
+    "score": -15.05,
+    "admissible": false
+   },
+   {
+    "add": "S[0]",
+    "tau": null,
+    "gamma": null,
+    "key": "tv6107cdf9",
+    "delta": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "score": 0.0,
+    "admissible": true
+   }
+  ],
+  "final": "P[0]",
+  "final_val": [
+   70.11,
+   76.3,
+   67.3
+  ],
+  "accepted": null,
+  "tune_O_test": {
+   "T1": {
+    "HOTA": 68.41,
+    "DetA": 66.08,
+    "AssA": 71.88,
+    "IDF1": 82.68,
+    "MOTA": 80.77,
+    "IDSW": 15.0,
+    "Rcll": 87.38,
+    "Prcn": 93.04,
+    "FP": 1368.0,
+    "FN": 2639.0
+   },
+   "T2": {
+    "HOTA": 62.33,
+    "DetA": 61.4,
+    "AssA": 64.18,
+    "IDF1": 77.52,
+    "MOTA": 73.99,
+    "IDSW": 15.0,
+    "Rcll": 86.31,
+    "Prcn": 87.59,
+    "FP": 2018.0,
+    "FN": 2261.0
+   },
+   "T3": {
+    "Rcv@.5": 82.2,
+    "total": 85.1,
+    "clear": 93.1,
+    "ID_off": 15.5,
+    "survived": 21,
+    "episodes": 30
+   }
+  },
+  "tune_O_test_label": "P[0]"
+ },
+ "episodes_summary": {
+  "test": {
+   "n_episodes": 30,
+   "burn_frames": 850,
+   "PEG": 76.6,
+   "PEG+": 82.2,
+   "PEG-O": 73.6,
+   "PEG-O_vs_PEG+": {
+    "delta": -8.6,
+    "ci95": [
+     -19.8,
+     1.0
+    ],
+    "better": 6,
+    "worse": 5,
+    "same": 19,
+    "frames_gained": 26,
+    "frames_lost": 99
+   },
+   "PEG-O_vs_PEG": {
+    "delta": -2.9,
+    "ci95": [
+     -16.1,
+     9.1
+    ],
+    "better": 8,
+    "worse": 6,
+    "same": 16,
+    "frames_gained": 73,
+    "frames_lost": 98
+   }
+  },
+  "val": {
+   "n_episodes": 18,
+   "burn_frames": 571,
+   "PEG": 67.6,
+   "PEG+": 67.3,
+   "PEG-O": 53.8,
+   "PEG-O_vs_PEG+": {
+    "delta": -13.5,
+    "ci95": [
+     -29.0,
+     -0.8
+    ],
+    "better": 3,
+    "worse": 5,
+    "same": 10,
+    "frames_gained": 10,
+    "frames_lost": 87
+   },
+   "PEG-O_vs_PEG": {
+    "delta": -13.8,
+    "ci95": [
+     -30.2,
+     -0.2
+    ],
+    "better": 4,
+    "worse": 5,
+    "same": 9,
+    "frames_gained": 14,
+    "frames_lost": 93
+   }
+  },
+  "pooled": {
+   "n_episodes": 48,
+   "burn_frames": 1421,
+   "PEG": 73.0,
+   "PEG+": 76.2,
+   "PEG-O": 65.7,
+   "PEG-O_vs_PEG+": {
+    "delta": -10.6,
+    "ci95": [
+     -19.5,
+     -2.7
+    ],
+    "better": 9,
+    "worse": 10,
+    "same": 29,
+    "frames_gained": 36,
+    "frames_lost": 186
+   },
+   "PEG-O_vs_PEG": {
+    "delta": -7.3,
+    "ci95": [
+     -17.3,
+     2.0
+    ],
+    "better": 12,
+    "worse": 11,
+    "same": 25,
+    "frames_gained": 87,
+    "frames_lost": 191
+   }
+  }
+ },
+ "episodes_changed": {
+  "test": [
+   {
+    "split": "test",
+    "seq": "135_sequence_19q_new",
+    "tid": 53,
+    "start": 409,
+    "end": 451,
+    "n": 43,
+    "PEG": 4,
+    "PEG+": 4,
+    "PEG-O": 11,
+    "cerr_PEG+": 70.5,
+    "nbox_PEG+": 43,
+    "cerr_PEG-O": 48.2,
+    "nbox_PEG-O": 43
+   },
+   {
+    "split": "test",
+    "seq": "145_sequence_28q_new",
+    "tid": 84,
+    "start": 1094,
+    "end": 1130,
+    "n": 37,
+    "PEG": 28,
+    "PEG+": 31,
+    "PEG-O": 36,
+    "cerr_PEG+": 6.7,
+    "nbox_PEG+": 37,
+    "cerr_PEG-O": 7.7,
+    "nbox_PEG-O": 37
+   },
+   {
+    "split": "test",
+    "seq": "176_sequence_56q_new",
+    "tid": 204,
+    "start": 331,
+    "end": 355,
+    "n": 25,
+    "PEG": 22,
+    "PEG+": 25,
+    "PEG-O": 11,
+    "cerr_PEG+": 11.9,
+    "nbox_PEG+": 25,
+    "cerr_PEG-O": 15.4,
+    "nbox_PEG-O": 25
+   },
+   {
+    "split": "test",
+    "seq": "183_sequence_62q_new",
+    "tid": 240,
+    "start": 448,
+    "end": 482,
+    "n": 35,
+    "PEG": 35,
+    "PEG+": 35,
+    "PEG-O": 12,
+    "cerr_PEG+": 9.6,
+    "nbox_PEG+": 35,
+    "cerr_PEG-O": 18.3,
+    "nbox_PEG-O": 35
+   },
+   {
+    "split": "test",
+    "seq": "192_sequence_70q_complete",
+    "tid": 265,
+    "start": 673,
+    "end": 711,
+    "n": 39,
+    "PEG": 39,
+    "PEG+": 39,
+    "PEG-O": 22,
+    "cerr_PEG+": 5.0,
+    "nbox_PEG+": 39,
+    "cerr_PEG-O": 8.4,
+    "nbox_PEG-O": 39
+   },
+   {
+    "split": "test",
+    "seq": "204_sequence_81q_complete",
+    "tid": 300,
+    "start": 102,
+    "end": 141,
+    "n": 40,
+    "PEG": 40,
+    "PEG+": 38,
+    "PEG-O": 39,
+    "cerr_PEG+": 2.6,
+    "nbox_PEG+": 40,
+    "cerr_PEG-O": 2.7,
+    "nbox_PEG-O": 40
+   },
+   {
+    "split": "test",
+    "seq": "204_sequence_81q_complete",
+    "tid": 300,
+    "start": 342,
+    "end": 383,
+    "n": 42,
+    "PEG": 25,
+    "PEG+": 25,
+    "PEG-O": 28,
+    "cerr_PEG+": 13.6,
+    "nbox_PEG+": 42,
+    "cerr_PEG-O": 11.3,
+    "nbox_PEG-O": 42
+   },
+   {
+    "split": "test",
+    "seq": "204_sequence_81q_complete",
+    "tid": 300,
+    "start": 400,
+    "end": 432,
+    "n": 33,
+    "PEG": 23,
+    "PEG+": 26,
+    "PEG-O": 30,
+    "cerr_PEG+": 20.5,
+    "nbox_PEG+": 33,
+    "cerr_PEG-O": 12.7,
+    "nbox_PEG-O": 33
+   },
+   {
+    "split": "test",
+    "seq": "211_sequence_88q_new",
+    "tid": 319,
+    "start": 376,
+    "end": 411,
+    "n": 36,
+    "PEG": 36,
+    "PEG+": 35,
+    "PEG-O": 6,
+    "cerr_PEG+": 16.6,
+    "nbox_PEG+": 36,
+    "cerr_PEG-O": 36.4,
+    "nbox_PEG-O": 36
+   },
+   {
+    "split": "test",
+    "seq": "211_sequence_88q_new",
+    "tid": 320,
+    "start": 436,
+    "end": 460,
+    "n": 25,
+    "PEG": 25,
+    "PEG+": 25,
+    "PEG-O": 9,
+    "cerr_PEG+": 20.3,
+    "nbox_PEG+": 25,
+    "cerr_PEG-O": 31.9,
+    "nbox_PEG-O": 25
+   },
+   {
+    "split": "test",
+    "seq": "316_sequence_112q_new",
+    "tid": 6,
+    "start": 2000,
+    "end": 2034,
+    "n": 35,
+    "PEG": 22,
+    "PEG+": 22,
+    "PEG-O": 28,
+    "cerr_PEG+": 31.6,
+    "nbox_PEG+": 35,
+    "cerr_PEG-O": 28.6,
+    "nbox_PEG-O": 35
+   }
+  ],
+  "val": [
+   {
+    "split": "val",
+    "seq": "133_sequence_17q_new",
+    "tid": 117,
+    "start": 3239,
+    "end": 3275,
+    "n": 37,
+    "PEG": 17,
+    "PEG+": 17,
+    "PEG-O": 12,
+    "cerr_PEG+": 20.3,
+    "nbox_PEG+": 37,
+    "cerr_PEG-O": 19.5,
+    "nbox_PEG-O": 37
+   },
+   {
+    "split": "val",
+    "seq": "141_sequence_24q_new",
+    "tid": 71,
+    "start": 161,
+    "end": 184,
+    "n": 24,
+    "PEG": 12,
+    "PEG+": 12,
+    "PEG-O": 13,
+    "cerr_PEG+": 12.8,
+    "nbox_PEG+": 24,
+    "cerr_PEG-O": 12.2,
+    "nbox_PEG-O": 24
+   },
+   {
+    "split": "val",
+    "seq": "147_sequence_3q_new",
+    "tid": 79,
+    "start": 497,
+    "end": 541,
+    "n": 45,
+    "PEG": 38,
+    "PEG+": 38,
+    "PEG-O": 45,
+    "cerr_PEG+": 7.6,
+    "nbox_PEG+": 45,
+    "cerr_PEG-O": 8.7,
+    "nbox_PEG-O": 45
+   },
+   {
+    "split": "val",
+    "seq": "187_sequence_66q_new",
+    "tid": 247,
+    "start": 141,
+    "end": 173,
+    "n": 33,
+    "PEG": 33,
+    "PEG+": 33,
+    "PEG-O": 16,
+    "cerr_PEG+": 5.4,
+    "nbox_PEG+": 33,
+    "cerr_PEG-O": 10.1,
+    "nbox_PEG-O": 33
+   },
+   {
+    "split": "val",
+    "seq": "187_sequence_66q_new",
+    "tid": 247,
+    "start": 201,
+    "end": 235,
+    "n": 35,
+    "PEG": 25,
+    "PEG+": 19,
+    "PEG-O": 3,
+    "cerr_PEG+": 9.1,
+    "nbox_PEG+": 35,
+    "cerr_PEG-O": 28.9,
+    "nbox_PEG-O": 35
+   },
+   {
+    "split": "val",
+    "seq": "203_sequence_80q_new",
+    "tid": 299,
+    "start": 104,
+    "end": 146,
+    "n": 43,
+    "PEG": 42,
+    "PEG+": 42,
+    "PEG-O": 7,
+    "cerr_PEG+": 5.9,
+    "nbox_PEG+": 43,
+    "cerr_PEG-O": 23.0,
+    "nbox_PEG-O": 43
+   },
+   {
+    "split": "val",
+    "seq": "203_sequence_80q_new",
+    "tid": 299,
+    "start": 306,
+    "end": 340,
+    "n": 35,
+    "PEG": 35,
+    "PEG+": 33,
+    "PEG-O": 35,
+    "cerr_PEG+": 11.1,
+    "nbox_PEG+": 35,
+    "cerr_PEG-O": 8.7,
+    "nbox_PEG-O": 35
+   },
+   {
+    "split": "val",
+    "seq": "210_sequence_87q_complete",
+    "tid": 317,
+    "start": 192,
+    "end": 209,
+    "n": 18,
+    "PEG": 16,
+    "PEG+": 16,
+    "PEG-O": 2,
+    "cerr_PEG+": 5.8,
+    "nbox_PEG+": 18,
+    "cerr_PEG-O": 17.5,
+    "nbox_PEG-O": 18
+   }
+  ]
+ },
+ "estimator_pin": {
+  "plan_19_tau_0.05": {
+   "135 g53": 30.4,
+   "204 g300": 21.5,
+   "320 g1": 6.8,
+   "176 g204": 28.9,
+   "325 g3": 82.5
+  },
+  "plan_19_source": "plan-mode feasibility (NOT re-measured here)",
+  "ours": {
+   "0.04": {
+    "204 g300": {
+     "frames": 47,
+     "box": "44x146",
+     "frozen": 28.3,
+     "odo": 62.8,
+     "odo_max": 94.8,
+     "used": 6,
+     "anchor_frame": "340",
+     "anchor_k": "0.049"
+    },
+    "135 g53": {
+     "frames": 43,
+     "box": "264x274",
+     "frozen": 76.2,
+     "odo": 38.8,
+     "odo_max": 139.7,
+     "used": 15,
+     "anchor_frame": "409",
+     "anchor_k": "0.056"
+    },
+    "325 g3": {
+     "frames": 35,
+     "box": "186x336",
+     "frozen": 82.5,
+     "odo": 86.1,
+     "odo_max": 153.6,
+     "used": 12,
+     "anchor_frame": "268",
+     "anchor_k": "0.075"
+    },
+    "176 g204": {
+     "frames": 25,
+     "box": "39x164",
+     "frozen": 16.5,
+     "odo": 53.0,
+     "odo_max": 85.8,
+     "used": 13,
+     "anchor_frame": "331",
+     "anchor_k": "0.068"
+    },
+    "320 g1": {
+     "frames": 30,
+     "box": "98x92",
+     "frozen": 9.0,
+     "odo": 13.1,
+     "odo_max": 34.2,
+     "used": 9,
+     "anchor_frame": "227",
+     "anchor_k": "0.103"
+    }
+   },
+   "0.05": {
+    "204 g300": {
+     "frames": 47,
+     "box": "44x146",
+     "frozen": 28.3,
+     "odo": 25.8,
+     "odo_max": 47.5,
+     "used": 11,
+     "anchor_frame": "341",
+     "anchor_k": "0.075"
+    },
+    "135 g53": {
+     "frames": 43,
+     "box": "264x274",
+     "frozen": 76.2,
+     "odo": 30.4,
+     "odo_max": 63.7,
+     "used": 12,
+     "anchor_frame": "409",
+     "anchor_k": "0.056"
+    },
+    "325 g3": {
+     "frames": 35,
+     "box": "186x336",
+     "frozen": 82.5,
+     "odo": 83.7,
+     "odo_max": 153.6,
+     "used": 11,
+     "anchor_frame": "268",
+     "anchor_k": "0.075"
+    },
+    "176 g204": {
+     "frames": 25,
+     "box": "39x164",
+     "frozen": 16.5,
+     "odo": 28.9,
+     "odo_max": 47.2,
+     "used": 11,
+     "anchor_frame": "331",
+     "anchor_k": "0.068"
+    },
+    "320 g1": {
+     "frames": 30,
+     "box": "98x92",
+     "frozen": 9.0,
+     "odo": 6.8,
+     "odo_max": 15.0,
+     "used": 7,
+     "anchor_frame": "227",
+     "anchor_k": "0.103"
+    }
+   },
+   "0.06": {
+    "204 g300": {
+     "frames": 47,
+     "box": "44x146",
+     "frozen": 28.3,
+     "odo": 25.8,
+     "odo_max": 47.5,
+     "used": 11,
+     "anchor_frame": "341",
+     "anchor_k": "0.075"
+    },
+    "135 g53": {
+     "frames": 43,
+     "box": "264x274",
+     "frozen": 76.2,
+     "odo": 26.9,
+     "odo_max": 51.5,
+     "used": 10,
+     "anchor_frame": "410",
+     "anchor_k": "0.094"
+    },
+    "325 g3": {
+     "frames": 35,
+     "box": "186x336",
+     "frozen": 82.5,
+     "odo": 54.5,
+     "odo_max": 142.8,
+     "used": 6,
+     "anchor_frame": "268",
+     "anchor_k": "0.075"
+    },
+    "176 g204": {
+     "frames": 25,
+     "box": "39x164",
+     "frozen": 16.5,
+     "odo": 28.8,
+     "odo_max": 44.3,
+     "used": 9,
+     "anchor_frame": "331",
+     "anchor_k": "0.068"
+    },
+    "320 g1": {
+     "frames": 30,
+     "box": "98x92",
+     "frozen": 9.0,
+     "odo": 6.8,
+     "odo_max": 15.0,
+     "used": 7,
+     "anchor_frame": "227",
+     "anchor_k": "0.103"
+    }
+   },
+   "0.08": {
+    "204 g300": {
+     "frames": 47,
+     "box": "44x146",
+     "frozen": 28.3,
+     "odo": 14.5,
+     "odo_max": 31.4,
+     "used": 5,
+     "anchor_frame": "342",
+     "anchor_k": "0.082"
+    },
+    "135 g53": {
+     "frames": 43,
+     "box": "264x274",
+     "frozen": 76.2,
+     "odo": 26.9,
+     "odo_max": 51.5,
+     "used": 10,
+     "anchor_frame": "410",
+     "anchor_k": "0.094"
+    },
+    "325 g3": {
+     "frames": 35,
+     "box": "186x336",
+     "frozen": 82.5,
+     "odo": 79.4,
+     "odo_max": 175.7,
+     "used": 3,
+     "anchor_frame": "296",
+     "anchor_k": "0.091"
+    },
+    "176 g204": {
+     "frames": 25,
+     "box": "39x164",
+     "frozen": 16.5,
+     "odo": 20.0,
+     "odo_max": 33.2,
+     "used": 6,
+     "anchor_frame": "332",
+     "anchor_k": "0.103"
+    },
+    "320 g1": {
+     "frames": 30,
+     "box": "98x92",
+     "frozen": 9.0,
+     "odo": 7.0,
+     "odo_max": 15.8,
+     "used": 5,
+     "anchor_frame": "227",
+     "anchor_k": "0.103"
+    }
+   },
+   "0.1": {
+    "204 g300": {
+     "frames": 47,
+     "box": "44x146",
+     "frozen": 28.3,
+     "odo": 28.3,
+     "odo_max": 55.5,
+     "used": 0,
+     "anchor_frame": "None",
+     "anchor_k": "nan"
+    },
+    "135 g53": {
+     "frames": 43,
+     "box": "264x274",
+     "frozen": 76.2,
+     "odo": 80.0,
+     "odo_max": 144.3,
+     "used": 4,
+     "anchor_frame": "446",
+     "anchor_k": "0.105"
+    },
+    "325 g3": {
+     "frames": 35,
+     "box": "186x336",
+     "frozen": 82.5,
+     "odo": 82.5,
+     "odo_max": 191.9,
+     "used": 0,
+     "anchor_frame": "None",
+     "anchor_k": "nan"
+    },
+    "176 g204": {
+     "frames": 25,
+     "box": "39x164",
+     "frozen": 16.5,
+     "odo": 20.9,
+     "odo_max": 33.2,
+     "used": 5,
+     "anchor_frame": "332",
+     "anchor_k": "0.103"
+    },
+    "320 g1": {
+     "frames": 30,
+     "box": "98x92",
+     "frozen": 9.0,
+     "odo": 7.0,
+     "odo_max": 15.8,
+     "used": 5,
+     "anchor_frame": "227",
+     "anchor_k": "0.103"
+    }
+   }
+  }
+ },
+ "smoke_135": {
+  "old_fusion_tau.06_gamma4_absoluteR": {
+   "n": 43,
+   "PEG": 4,
+   "plus": 4,
+   "peg_o": 4,
+   "oracle": 41,
+   "cerr_plus": [
+    70.5,
+    101.2
+   ],
+   "cerr_peg_o": [
+    65.1,
+    99.3
+   ],
+   "ep815": {
+    "n": 20,
+    "PEG": 20,
+    "plus": 20,
+    "peg_o": 20
+   }
+  },
+  "relative_R_tau.06_gamma1": {
+   "n": 43,
+   "PEG": 4,
+   "plus": 4,
+   "peg_o": 41,
+   "oracle": 41,
+   "cerr_plus": [
+    70.5,
+    101.2
+   ],
+   "cerr_peg_o": [
+    31.6,
+    52.1
+   ],
+   "ep815": {
+    "n": 20,
+    "PEG": 20,
+    "plus": 20,
+    "peg_o": 20
+   }
+  }
+ },
+ "val_diagnosis": {
+  "D1_offline_estimator_on_val": [
+   {
+    "episode": "133_sequence_17q|117|3239",
+    "tau": 0.06,
+    "frames": 37,
+    "box": "32x113",
+    "frozen": 12.8,
+    "odo": 14.8,
+    "odo_max": 34.2,
+    "used": 9,
+    "anchor_frame": "3240",
+    "anchor_k": "0.062"
+   },
+   {
+    "episode": "133_sequence_17q|117|3239",
+    "tau": 0.08,
+    "frames": 37,
+    "box": "32x113",
+    "frozen": 12.8,
+    "odo": 16.3,
+    "odo_max": 37.0,
+    "used": 7,
+    "anchor_frame": "3241",
+    "anchor_k": "0.087"
+   },
+   {
+    "episode": "187_sequence_66q|247|141",
+    "tau": 0.06,
+    "frames": 33,
+    "box": "30x102",
+    "frozen": 10.0,
+    "odo": 18.8,
+    "odo_max": 27.5,
+    "used": 11,
+    "anchor_frame": "142",
+    "anchor_k": "0.076"
+   },
+   {
+    "episode": "187_sequence_66q|247|141",
+    "tau": 0.08,
+    "frames": 33,
+    "box": "30x102",
+    "frozen": 10.0,
+    "odo": 12.8,
+    "odo_max": 21.1,
+    "used": 8,
+    "anchor_frame": "143",
+    "anchor_k": "0.085"
+   },
+   {
+    "episode": "187_sequence_66q|247|201",
+    "tau": 0.06,
+    "frames": 35,
+    "box": "34x121",
+    "frozen": 11.3,
+    "odo": 11.4,
+    "odo_max": 20.2,
+    "used": 10,
+    "anchor_frame": "201",
+    "anchor_k": "0.076"
+   },
+   {
+    "episode": "187_sequence_66q|247|201",
+    "tau": 0.08,
+    "frames": 35,
+    "box": "34x121",
+    "frozen": 11.3,
+    "odo": 14.6,
+    "odo_max": 25.3,
+    "used": 7,
+    "anchor_frame": "202",
+    "anchor_k": "0.091"
+   },
+   {
+    "episode": "203_sequence_80q|299|104",
+    "tau": 0.06,
+    "frames": 43,
+    "box": "28x92",
+    "frozen": 6.9,
+    "odo": 15.2,
+    "odo_max": 21.3,
+    "used": 9,
+    "anchor_frame": "105",
+    "anchor_k": "0.081"
+   },
+   {
+    "episode": "203_sequence_80q|299|104",
+    "tau": 0.08,
+    "frames": 43,
+    "box": "28x92",
+    "frozen": 6.9,
+    "odo": 18.2,
+    "odo_max": 24.9,
+    "used": 6,
+    "anchor_frame": "105",
+    "anchor_k": "0.081"
+   },
+   {
+    "episode": "210_sequence_87q|317|192",
+    "tau": 0.06,
+    "frames": 18,
+    "box": "32x112",
+    "frozen": 5.8,
+    "odo": 8.7,
+    "odo_max": 20.8,
+    "used": 4,
+    "anchor_frame": "192",
+    "anchor_k": "0.097"
+   },
+   {
+    "episode": "210_sequence_87q|317|192",
+    "tau": 0.08,
+    "frames": 18,
+    "box": "32x112",
+    "frozen": 5.8,
+    "odo": 9.4,
+    "odo_max": 20.8,
+    "used": 3,
+    "anchor_frame": "192",
+    "anchor_k": "0.097"
+   }
+  ],
+  "D2": {
+   "odometry_calls": 587,
+   "updates": 216,
+   "tracks_with_updates": 10,
+   "stale_anchor_updates": 0,
+   "updates_off_gt_burn": 73,
+   "zc_median_px": 9.7,
+   "zc_max_px": 57.9,
+   "gain_x_min": 0.5,
+   "gain_x_max": 0.71,
+   "gain_x_median": 0.61,
+   "median_box_wh": [
+    41.0,
+    147.0
+   ]
+  }
+ },
+ "episode_facts": {
+  "135_19q_g53": {
+   "walk_px": 111.0,
+   "box_w_start": 264.0,
+   "box_h_start": 274.0,
+   "box_w_median": 150.0,
+   "frames": [
+    409,
+    451
+   ]
+  },
+  "187_66q_g247_141": {
+   "walk_px": 17.0,
+   "box_w_start": 30.0,
+   "box_h_start": 102.0,
+   "box_w_median": 32.0,
+   "frames": [
+    141,
+    173
+   ]
+  }
+ },
+ "vn": {
+  "title": "PEG-O: odometry từ vùng cháy sáng",
+  "idea": "Dùng chính vùng bão hòa để đo box đã dời bao xa, không giả định đèn ở đâu trên người.",
+  "result": "Val từ chối: không điểm O nào được chấp nhận (T3 Rcv −13.5 đến −41.2). Test (không được chọn bởi val): T3 Rcv@.5 82.2 → 73.6.",
+  "mechanism": "Đĩa bão hòa đổi hình khi cháy tăng/giảm nên đỉnh lọc dịch 10–20 px dù người đứng yên; với box rộng 30–40 px là mất IoU.",
+  "fixed": "Cải thiện 135_19q g53 (4 → 11/43 frame), 204_81q g300, 316_112q g6.",
+  "not_fixed": "Làm tệ 211_88q, 183_62q, 192_70q, 176_56q; trên val tệ ở 187_66q, 203_80q, 210_87q."
+ }
+}

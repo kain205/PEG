@@ -32,11 +32,13 @@ from glaremot.tracking.beacon_tracker import odo_measure  # noqa: E402
 S = 512
 
 
-def run(seq, gid, f0, f1, tag, tau=0.05):
+def run(seq, gid, f0, f1, tag, tau=0.05, frames=None, cache=None):
+    """frames: explicit burn frames (default: GT frames in f0..f1 whose GT box has phi >= 0.4);
+    cache: path of the .npz holding 'sat' (default results/percep_cache/synth/<seq>.npz)."""
     d = f'datasets/synth/{seq}'
     img = glob.glob(d + '/images/*.jpg')[0]
     H, W = cv2.imread(img).shape[:2]
-    z = np.load(f'results/percep_cache/synth/{seq}.npz')
+    z = np.load(cache or f'results/percep_cache/synth/{seq}.npz')
     sat = z['sat']
     gt = np.loadtxt(d + '/mot/gt/gt.txt', delimiter=',')
     g = {int(r[0]): r[2:6] for r in gt if int(r[1]) == gid}
@@ -54,8 +56,9 @@ def run(seq, gid, f0, f1, tag, tau=0.05):
         _, lab, st, _ = cv2.connectedComponentsWithStats(m, 8)
         return odo_measure(lab, st, c, w, h, sx, sy, S)
 
+    burn_override = frames
     frames = [f for f in range(f0, f1 + 1) if f in g]
-    burn = [f for f in frames if phi_of(mask(f), g[f]) >= 0.4]
+    burn = [f for f in frames if phi_of(mask(f), g[f]) >= 0.4] if burn_override is None else [f for f in burn_override if f in g]
     if not burn:
         print(tag, 'no burn')
         return
@@ -88,6 +91,7 @@ def run(seq, gid, f0, f1, tag, tau=0.05):
     print(f"{tag}: {len(burn)} fr, box {w:.0f}x{h:.0f} | frozen mean {fr.mean():.1f} ok@.25diag {(fr < 0.25 * diag).mean():.2f} | "
           f"MF-odo mean {e.mean():.1f} max {e.max():.1f} ok@.25diag {(e < 0.25 * diag).mean():.2f} used {used}/{len(burn)} | "
           f"anchor frame {anchor_frame} sharp {anc_k:.3f} rho {anc_rho:.0f}")
+    return dict(n=len(burn), frozen=float(fr.mean()), odo=float(e.mean()), used=used, anchor=anchor_frame, k=anc_k, w=w, h=h)
 
 
 if __name__ == '__main__':

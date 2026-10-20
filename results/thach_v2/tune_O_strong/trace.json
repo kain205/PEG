@@ -1,0 +1,149 @@
+[
+ {
+  "round": 0,
+  "config": "P[0]",
+  "key": "tv51d09158",
+  "val": [
+   70.11,
+   76.3,
+   67.3
+  ]
+ },
+ {
+  "round": 1,
+  "rows": [
+   {
+    "add": "O[0]",
+    "comp": "O",
+    "idx": 0,
+    "key": "tva989a677",
+    "delta": [
+     -0.01,
+     -4.8,
+     -41.2
+    ],
+    "score": -46.01,
+    "admissible": false
+   },
+   {
+    "add": "O[1]",
+    "comp": "O",
+    "idx": 1,
+    "key": "tvd4646d11",
+    "delta": [
+     -0.01,
+     -1.75,
+     -34.6
+    ],
+    "score": -36.36,
+    "admissible": false
+   },
+   {
+    "add": "O[2]",
+    "comp": "O",
+    "idx": 2,
+    "key": "tvab960132",
+    "delta": [
+     -0.01,
+     -1.22,
+     -22.8
+    ],
+    "score": -24.03,
+    "admissible": false
+   },
+   {
+    "add": "O[3]",
+    "comp": "O",
+    "idx": 3,
+    "key": "tvebd77659",
+    "delta": [
+     0.0,
+     -1.76,
+     -29.3
+    ],
+    "score": -31.06,
+    "admissible": false
+   },
+   {
+    "add": "O[4]",
+    "comp": "O",
+    "idx": 4,
+    "key": "tv59efd7b6",
+    "delta": [
+     0.0,
+     -1.55,
+     -24.9
+    ],
+    "score": -26.45,
+    "admissible": false
+   },
+   {
+    "add": "O[5]",
+    "comp": "O",
+    "idx": 5,
+    "key": "tve64cd95a",
+    "delta": [
+     0.0,
+     -2.2,
+     -23.3
+    ],
+    "score": -25.5,
+    "admissible": false
+   },
+   {
+    "add": "O[6]",
+    "comp": "O",
+    "idx": 6,
+    "key": "tv37833bd8",
+    "delta": [
+     0.0,
+     -0.98,
+     -27.5
+    ],
+    "score": -28.48,
+    "admissible": false
+   },
+   {
+    "add": "O[7]",
+    "comp": "O",
+    "idx": 7,
+    "key": "tv908c8bf2",
+    "delta": [
+     0.0,
+     -1.71,
+     -22.1
+    ],
+    "score": -23.81,
+    "admissible": false
+   },
+   {
+    "add": "O[8]",
+    "comp": "O",
+    "idx": 8,
+    "key": "tv6fa5af52",
+    "delta": [
+     0.0,
+     -1.55,
+     -13.5
+    ],
+    "score": -15.05,
+    "admissible": false
+   },
+   {
+    "add": "S[0]",
+    "comp": "S",
+    "idx": 0,
+    "key": "tv6107cdf9",
+    "delta": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "score": 0.0,
+    "admissible": true
+   }
+  ],
+  "checks": [],
+  "accepted": null
+ }
+]

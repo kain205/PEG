@@ -3,7 +3,7 @@ two "strongest" finals. Notes = where the gain sits (where_gain.json). -> full_m
 import json, os
 HERE = os.path.dirname(os.path.abspath(__file__))
 L = {}
-for d, f in (("tune", "ledger.json"), ("tune", "ledger_extra.json"), ("tune_strong", "ledger.json"), ("tune_strong_P", "ledger.json")):
+for d, f in (("tune", "ledger.json"), ("tune", "ledger_extra.json"), ("tune_strong", "ledger.json"), ("tune_strong_P", "ledger.json"), ("tune_O", "ledger.json")):
     p = os.path.join(HERE, d, f)
     if os.path.exists(p):
         L.update(json.load(open(p)))
@@ -58,12 +58,45 @@ for s in ("val", "test"):
     for d, lab in (("tune_strong", "STRONGEST (val, no single-event check)"), ("tune_strong_P", "STRONGEST with PEG+ by design")):
         f = json.load(open(os.path.join(HERE, d, "final.json")))
         out[s].append({"config": f"{lab}: {f['label']}", **by_key(s, f["key"]), "note": note(s, d)})
+    # PEG-O row (best val point of the pre-registered O grid, rejected by val); test was not run in this harness by protocol
+    tO = json.load(open(os.path.join(HERE, "tune_O", "trace.json")))
+    kO = next(r["key"] for r in tO[1]["rows"] if r["add"].startswith("O[8]"))
+    out[s].append({"config": "PEG-O (P+O, best val point τ .08 γ 4; rejected by val)", **(by_key(s, kO) if s == "val" else {}),
+                   "note": note(s, "O") if s == "val" else "not run on test: rejected on val"})
+LOWER = ("T1 IDSW", "T3 ID-off")      # lower is better; everything else higher is better
+for s in ("val", "test"):
+    for c in COLS:
+        vals = [r[c] for r in out[s] if r.get(c) is not None]
+        b = (min if c in LOWER else max)(vals)
+        for r in out[s]:
+            if r.get(c) is not None and r[c] == b:
+                r.setdefault("best", []).append(c)
+# best overall: chosen on val by sum of deltas vs PEG (T1 HOTA + T2 HOTA + T3 Rcv@.5) over rows with complete val numbers
+KEYC = ("T1 HOTA", "T2 HOTA", "T3 Rcv@.5")
+peg_val = out["val"][0]
+cand = [i for i, r in enumerate(out["val"]) if i and all(r.get(c) is not None for c in COLS)]
+sd = {i: sum(out["val"][i][c] - peg_val[c] for c in KEYC) for i in cand}
+bi = max(sd, key=sd.get)
+def best_line(s):
+    r = out["test"][bi]
+    tv = ", ".join(f"{c.split()[0]} {c.split()[1]} {r[c]:.2f}" if r.get(c) is not None else f"{c} –" for c in KEYC)
+    return (f"Best overall (chosen on val by ΣΔ T1 HOTA + T2 HOTA + T3 Rcv@.5 vs PEG): {out['val'][bi]['config']} — val ΣΔ {sd[bi]:+.2f}; "
+            f"test: {tv}")
+FOOT = ("S (armed survival): byte-identical to PEG+ on val, never fires. ALL (Stage B: PEG-O's Stage-A final + Thach greedy) = Stage-A final is PEG+, "
+        "so ALL = 'STRONGEST with PEG+ by design' above.")
+out["best_overall"] = {"config": out["val"][bi]["config"], "val_sum_delta": round(sd[bi], 2), "val": {c: out["val"][bi][c] for c in KEYC},
+                       "test": {c: out["test"][bi].get(c) for c in KEYC}, "line": {s: best_line(s) for s in ("val", "test")}, "footnote": FOOT}
 json.dump(out, open(os.path.join(HERE, "full_metrics.json"), "w"), indent=1)
 md = []
 for s in ("val", "test"):
     md += [f"### {s}", "", "| config | " + " | ".join(COLS) + " | where the change vs PEG sits |", "|---" * (len(COLS) + 2) + "|"]
     for r in out[s]:
-        md.append(f"| {r['config']} | " + " | ".join(("%.0f" if "IDSW" in c else "%.1f" if "T3" in c else "%.2f") % r[c] if r.get(c) is not None else "–" for c in COLS) + f" | {r['note']} |")
-    md.append("")
+        def cell(c):
+            if r.get(c) is None:
+                return "–"
+            t = ("%.0f" if "IDSW" in c else "%.1f" if "T3" in c else "%.2f") % r[c]
+            return f"**{t}**" if c in r.get("best", []) else t
+        md.append(f"| {r['config']} | " + " | ".join(cell(c) for c in COLS) + f" | {r['note']} |")
+    md += ["", FOOT, "", best_line(s), ""]
 open(os.path.join(HERE, "full_metrics.md"), "w", encoding="utf-8").write("\n".join(md))
 print("\n".join(md))

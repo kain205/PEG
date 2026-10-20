@@ -55,6 +55,7 @@ glaremot/
   config.py, data/            path config, datasets, splits
   analysis/                   failure-analysis harness (events, sheets, casebook); skill: .claude/skills/failure-analysis
 scripts/  01-04 optional retraining | 05 run tracker | 06 eval MOT | 07 eval recovery | 08 failure analysis | 09 presentation figures | 10 Table II vs I glare delta | 11 PEG vs PEG+ figures | 12 appearance sidecar for percep cache | 13 PEG-F figures
+          | 19 PEG-O estimator check | 20 PEG-O figures
 weights/  detector/best.pt, hpsi/h_psi_head.pt (shipped)
 results/  outputs (gitignored), except results/paper_logs/ (reference logs, tracked)
 ```
@@ -92,6 +93,8 @@ $PY scripts/08_failure_analysis.py extract --results_subdir eval --tracker_name 
 - `GMOT_BIRTH_SIZE_GUARD` anti glare-bloom phantom-birth guard (runtime default on)
 - `GPEG_SIZE_LOCK=1` **PEG+** (ours): zero Kalman area velocity while coasting · `GPEG_LAMP_FOLLOW=1` lamp-follow
   (tried, hurts every table — keep off). Both default off = paper PEG.
+- `GPEG_ODO=1` **PEG-O** (ours, failed — keep off): burn-disc odometry moves the held box; `GPEG_ODO_TAU` (0.06),
+  `GPEG_ODO_GAMMA` (1) · `GPEG_ARMED_SURVIVE=1` armed track not deleted by allowed_gap (never fires on val). Default off = PEG/PEG+.
 - `GPEG_F=1` **PEG-F** (friend's fork, default off): master switch for M1 `GMOT_ADAPTIVE_MOTION` (= `GMOT_AM_DAMP` +
   `GMOT_AM_SWAP`), M2 `GMOT_REID`, M3 `GBEACON_DYNAMIC_H`/`GBEACON_ADAPTIVE_TTL`, M4 `GMOT_DORMANT`, M5 `GBEACON_ANCHOR`;
   each env var overrides the master. `GPEG_F_STATS=1` prints per-seq firing counters.
@@ -122,4 +125,7 @@ $PY scripts/08_failure_analysis.py extract --results_subdir eval --tracker_name 
   (anchor) collapses T3: full+M6 Rcv 76.2 → 53.6 test, 67.6 → 37.1 val. Tuning from scratch on val
   (`docs/THACH_V2_TUNE_PROTOCOL.md`, `results/thach_v2/tune_val.py`) also ends at PEG. Best overall (test once):
   PEG+ by design + M1 cone (val-chosen) T1 68.44 · T2 63.14 · T3 83.1. Full metrics: `results/thach_v2/full_metrics.md`. Deck 20-35.
+- **PEG-O (photometric odometry, 2026-10-20)**, pre-registered (`docs/PEG_O_PROTOCOL.md`) → `docs/PEG_O_RESULTS.md`: val rejects
+  every (τ, γ) (T3 −13.5…−41 vs PEG+) → keep PEG+. Test once at the best val point (τ .08 γ 4, guard off): T1 68.15 ·
+  T2 MOTA 73.06 · T3 Rcv 73.6 (PEG+ 82.2); pooled 48 ep. −10.6 [−19.5, −2.7]. The burn disc is not rigid. `results/peg_o/`, deck 36-38.
 - Failure analysis, first pass: `results/failure_analysis/REPORT.md` (findings + next experiments).

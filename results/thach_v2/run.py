@@ -14,7 +14,8 @@ abl = importlib.util.module_from_spec(spec); spec.loader.exec_module(abl)
 CONFIGS = dict(abl.CONFIGS)
 CLEAR = ["GMOT_TRACKER", "GMOT_BIRTH_SIZE_GUARD", "GLAREMOT_CONFIG", "GMOT_OUTPUT_MAX_GAP", "GMOT_EMIT_CAP",
          "GPEG_F", "GPEG_SIZE_LOCK", "GPEG_LAMP_FOLLOW", "GMOT_AM_DAMP", "GMOT_AM_SWAP", "GBEACON_H_DECAY",
-         "GMOT_ADAPTIVE_Q", "GMOT_CONE", "GMOT_REID_DEEP"] + sorted({k for c in CONFIGS.values() for k in c[0]})
+         "GMOT_ADAPTIVE_Q", "GMOT_CONE", "GMOT_REID_DEEP",
+         "GPEG_ODO", "GPEG_ODO_TAU", "GPEG_ODO_GAMMA", "GPEG_ARMED_SURVIVE"] + sorted({k for c in CONFIGS.values() for k in c[0]})
 
 
 def name(cfg, table, split, guard_off):

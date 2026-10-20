@@ -98,6 +98,7 @@ def single_event(kx, mx, kc, mc):
 
 
 FORCE = {}   # components included by design (not judged on val), e.g. {'P': 0}
+CANDIDATES = None   # None = every component of GRID; else the set the greedy search may add (--peg_o --all)
 
 
 def search():
@@ -105,10 +106,11 @@ def search():
     kx, mx = evaluate(chosen)
     trace.append({"round": 0, "config": label(chosen), "key": kx, "val": prim(mx)})
     print("S0", prim(mx), flush=True)
-    while len(chosen) < len(GRID):  # noqa: E501
+    cands = set(GRID) if CANDIDATES is None else set(CANDIDATES)
+    while any(c not in chosen for c in cands):
         rows = []
         for c in GRID:
-            if c in chosen:
+            if c in chosen or c not in cands:
                 continue
             for i in range(len(GRID[c])):
                 cand = {**chosen, c: i}
@@ -160,8 +162,29 @@ if __name__ == "__main__":
     ap.add_argument("--test", action="store_true")
     ap.add_argument("--strong", action="store_true", help="strongest variant: + PEG+ component, no single-event check -> tune_strong/")
     ap.add_argument("--force_peg_plus", action="store_true", help="with --strong: PEG+ always on (by design) -> tune_strong_P/")
+    ap.add_argument("--peg_o", action="store_true", help="PEG-O search on top of S0+P (docs/PEG_O_PROTOCOL.md) -> tune_O/ "
+                    "(+ --strong -> tune_O_strong/, + --all -> tune_O_all/)")
+    ap.add_argument("--all", action="store_true", help="with --peg_o: start from tune_O/final.json, add Thach components (strongest rule)")
     a = ap.parse_args()
-    if a.strong:
+    if a.peg_o:
+        P_GRID = [{"GPEG_SIZE_LOCK": "1"}]
+        O_GRID = [{"GPEG_ODO": "1", "GPEG_ODO_TAU": t, "GPEG_ODO_GAMMA": g}
+                  for t in ("0.04", "0.06", "0.08") for g in ("0.25", "1", "4")]
+        S_GRID = [{"GPEG_ARMED_SURVIVE": "1"}]
+        if a.all:
+            STRONG = True
+            CANDIDATES = {"R", "M1q", "M1c", "M1d", "M2", "M3", "M4", "M5", "M6"}
+            GRID.update(P=P_GRID, O=O_GRID, S=S_GRID)
+            FORCE = dict(json.load(open(os.path.join(HERE, "tune_O", "final.json")))["chosen"])
+            sub = "tune_O_all"
+        else:
+            STRONG = a.strong
+            GRID.clear(); GRID.update(P=P_GRID, O=O_GRID, S=S_GRID)
+            FORCE = {"P": 0}
+            sub = "tune_O_strong" if a.strong else "tune_O"
+        TUNE = os.path.join(HERE, sub); os.makedirs(TUNE, exist_ok=True)
+        LEDGER = os.path.join(TUNE, "ledger.json")
+    elif a.strong:
         STRONG = True
         GRID["P"] = [{"GPEG_SIZE_LOCK": "1"}]
         TUNE = os.path.join(HERE, "tune_strong"); os.makedirs(TUNE, exist_ok=True)

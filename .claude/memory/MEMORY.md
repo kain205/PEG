@@ -2,3 +2,4 @@
 - [Sync memory to repo](sync-memory-to-repo.md) — mirror memory to .claude/memory/ and push to origin after every change
 - [Tune on val from scratch](tune-on-val-from-scratch.md) — evaluate others' methods by re-tuning params on val (pre-registered), not just re-selecting; test once
 - [MoRongMo labeling task](morongmo-labeling-task.md) — frames 35068-56611 for FastLabeler; app timeline != decode order; use COCO yolo11l, not the PEG detector
+- [PEG-O photometric odometry](peg-o-photometric-odometry.md) — 2026-10-20: burn-disc odometry for the held box FAILED on val+test (disc not rigid); PEG+ stays best

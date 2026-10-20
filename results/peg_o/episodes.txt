@@ -1,0 +1,32 @@
+== test: 30 episodes, 850 burn frames | Rcv@.5 PEG 76.6 PEG+ 82.2 PEG-O 73.6
+   PEG-O vs PEG+: d -8.6 CI95 [-19.8, +1.0] better 6 worse 5 same 19 frames +26 -99
+   PEG-O vs PEG: d -2.9 CI95 [-16.1, +9.1] better 8 worse 6 same 16 frames +73 -98
+== val: 18 episodes, 571 burn frames | Rcv@.5 PEG 67.6 PEG+ 67.3 PEG-O 53.8
+   PEG-O vs PEG+: d -13.5 CI95 [-29.0, -0.8] better 3 worse 5 same 10 frames +10 -87
+   PEG-O vs PEG: d -13.8 CI95 [-30.2, -0.2] better 4 worse 5 same 9 frames +14 -93
+== pooled: 48 episodes, 1421 burn frames | Rcv@.5 PEG 73.0 PEG+ 76.2 PEG-O 65.7
+   PEG-O vs PEG+: d -10.6 CI95 [-19.5, -2.7] better 9 worse 10 same 29 frames +36 -186
+   PEG-O vs PEG: d -7.3 CI95 [-17.3, +2.0] better 12 worse 11 same 25 frames +87 -191
+
+test episodes where PEG-O != PEG+ (seq tid frames: covered PEG+ -> PEG-O of n | centre err px PEG+ -> PEG-O | PEG):
+  135_sequence_19q_new g53 409-451: 4 -> 11 of 43 | 70.5 -> 48.2 | PEG 4
+  145_sequence_28q_new g84 1094-1130: 31 -> 36 of 37 | 6.7 -> 7.7 | PEG 28
+  176_sequence_56q_new g204 331-355: 25 -> 11 of 25 | 11.9 -> 15.4 | PEG 22
+  183_sequence_62q_new g240 448-482: 35 -> 12 of 35 | 9.6 -> 18.3 | PEG 35
+  192_sequence_70q_complete g265 673-711: 39 -> 22 of 39 | 5.0 -> 8.4 | PEG 39
+  204_sequence_81q_complete g300 102-141: 38 -> 39 of 40 | 2.6 -> 2.7 | PEG 40
+  204_sequence_81q_complete g300 342-383: 25 -> 28 of 42 | 13.6 -> 11.3 | PEG 25
+  204_sequence_81q_complete g300 400-432: 26 -> 30 of 33 | 20.5 -> 12.7 | PEG 23
+  211_sequence_88q_new g319 376-411: 35 -> 6 of 36 | 16.6 -> 36.4 | PEG 36
+  211_sequence_88q_new g320 436-460: 25 -> 9 of 25 | 20.3 -> 31.9 | PEG 25
+  316_sequence_112q_new g6 2000-2034: 22 -> 28 of 35 | 31.6 -> 28.6 | PEG 22
+
+val episodes where PEG-O != PEG+:
+  133_sequence_17q_new g117 3239-3275: 17 -> 12 of 37 | 20.3 -> 19.5 | PEG 17
+  141_sequence_24q_new g71 161-184: 12 -> 13 of 24 | 12.8 -> 12.2 | PEG 12
+  147_sequence_3q_new g79 497-541: 38 -> 45 of 45 | 7.6 -> 8.7 | PEG 38
+  187_sequence_66q_new g247 141-173: 33 -> 16 of 33 | 5.4 -> 10.1 | PEG 33
+  187_sequence_66q_new g247 201-235: 19 -> 3 of 35 | 9.1 -> 28.9 | PEG 25
+  203_sequence_80q_new g299 104-146: 42 -> 7 of 43 | 5.9 -> 23.0 | PEG 42
+  203_sequence_80q_new g299 306-340: 33 -> 35 of 35 | 11.1 -> 8.7 | PEG 35
+  210_sequence_87q_complete g317 192-209: 16 -> 2 of 18 | 5.8 -> 17.5 | PEG 16

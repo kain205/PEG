@@ -2,7 +2,7 @@
 
 _File này được sinh tự động từ deck_build.js; số liệu lấy từ numbers.json._
 
-Tổng: Người 1 ≈ 22.5 phút, Người 2 ≈ 11.1 phút (tốc độ ~160 tiếng/phút), Q&A không tính.
+Tổng: Người 1 ≈ 22.5 phút, Người 2 ≈ 14.3 phút (tốc độ ~160 tiếng/phút), Q&A không tính.
 
 # NGƯỜI 1 — PEG-F, kiểm chứng (≈ 22.4 phút)
 
@@ -118,7 +118,7 @@ Chọn lại trên val chưa đủ, vì các tham số bên trong method vẫn l
 
 Đây là cùng bảng trên val, tập dùng để chọn. Trên val các mức chênh nhỏ hơn và gần như mức nào cũng nằm ở một hai video: cone nhờ video 156 và 147, hãm vận tốc nhờ một lần chói ở video 332. PEG+ trên val gần như bằng PEG, vì val hầu như không có ca box bị co lại khi coast.
 
-# NGƯỜI 2 — PEG+ và kết hợp (≈ 11.1 phút)
+# NGƯỜI 2 — PEG+ và kết hợp (≈ 14.3 phút)
 
 ## Slide 13 — PEG+: khóa kích thước  _(≈ 86 giây)_
 
@@ -148,11 +148,23 @@ Từ các thí nghiệm, mình thử ghép có chọn lọc: lấy PEG+, thêm M
 
 Vì sao val và test lại ngược nhau? Mình đếm lại theo từng lần chói. M1-damp được chọn trên val nhờ đúng một lần chói, ở video 332: số frame box còn trùng người tăng từ 3 lên 13. Trên val, một frame chỉ đáng 0.18 điểm, nên chỉ một lần chói đó cũng đủ vượt ngưỡng 0.5. Trên test, M1-damp làm 9 lần chói tệ hơn và mất 87 frame. PEG+ thì ngược lại: trên test tăng +5.6, trên val −0.4. Lý do là val có ít trường hợp box co lại khi coast; lỗi của PEG trên val chủ yếu là người chưa bao giờ được track, có 3 lần chói gần như không phủ được frame nào, và khóa kích thước box không cứu được những ca đó. M1-swap trên val không cải thiện Table I mà IDSW còn tăng từ 15 lên 22. Nếu gộp cả bốn mươi tám lần chói của val và test, PEG+ tăng +3.2 với khoảng tin cậy chín mươi lăm phần trăm từ +0.1 đến +7.3, tức là chỉ vừa đủ khác không; còn M1-damp giảm 5.6 điểm và chắc chắn có hại. Bài học là luật của bọn mình đặt ngưỡng quá thấp so với độ nhiễu của một tập nhỏ như vậy. Bọn mình không sửa luật sau khi đã thấy test, vì như thế lại là chọn trên test lần nữa; lần sau mình sẽ chỉ nhận một thành phần khi khoảng tin cậy không chứa không.
 
-## Slide 36 — Kết luận và bài học  _(≈ 107 giây)_
+## Slide 36 — PEG-O: dùng chính vùng chói để đo box dời bao xa  _(≈ 60 giây)_
 
-Tóm lại năm điều. Một, PEG-F bản đầu tái hiện được, nhưng khi so cùng cấu hình thì mức tăng chỉ +0.49 HOTA, và hai lần đổi ID quyết định gần hết mức tăng đó. Hai, PEG-F bản hai: Table I tái hiện đúng cả mười bốn cấu hình, nhưng Thạch chỉnh và chọn mọi thứ trên test; khi chọn lại trên val bằng luật chốt trước thì không method nào qua; và khi tune lại tham số từ đầu, chỉ trên val, kết quả vẫn vậy, cấu hình cuối cùng là PEG. Ba, ở bản hai, M1 đi cùng M5 làm Table III sụt mạnh, từ 76.2 xuống 53.6 trên test và từ 67.6 xuống 37.1 trên val, vì box bị kéo trượt ngang khỏi người. Bốn, PEG+ tăng Rcv trên test +5.6, trên val −0.4, gộp lại +3.2: chỉ giúp khi box co lại lúc coast. Năm, nhìn một mình Table I rất dễ bị đánh lừa, nên lúc nào cũng đo đủ ba bảng, chọn trên val và báo test một lần. Hướng tiếp theo: chọn bằng khoảng tin cậy hoặc cross-validation thay vì ngưỡng cứng; thêm dữ liệu val, vì hiện giờ một hai video quyết định mọi mức tăng; nếu giữ M5 thì cú kéo về đèn phải có độ tin cố định, không phụ thuộc độ bất định của Kalman; và M6 đáng thử lại khi có thêm dữ liệu val có người đứng gần đèn. Bài học lớn nhất với mình không phải một con số mà là cách làm: tái hiện trước, so cùng cấu hình, đo cả ba bảng, chọn trên val, và tách từng phần ra để xem phần nào thật sự có tác dụng.
+PEG: ánh sáng phá hủy quyết định giữ box. PEG-O: cùng ánh sáng đó đo box đã dời bao xa — không giả định đèn ở đâu trên người, và chỉ tin khi đỉnh tương quan đủ nhọn. Đi qua bốn dòng. Một, tâm đĩa chói gắn cứng với người, nên độ dời của đĩa chính là độ dời của người, không cần biết đèn nằm đâu. Hai, lọc đĩa trên thành phần bão hòa để tìm tâm đĩa. Ba, độ nhọn của đỉnh là độ tin cậy: đỉnh phẳng thì không cập nhật. Bốn, đưa độ dời vào Kalman chỉ cho tâm, kích thước giữ như PEG+. Sau thử nghiệm trên video 135, bọn mình đã đổi một lần: với nhiễu đo tuyệt đối của kế hoạch ban đầu, gain gần như bằng không nên box không nhúc nhích; đổi sang nhiễu tương đối theo độ nhọn, và ghi thay đổi này vào protocol trước khi chạy val.
 
-## Slide 37 — Hỏi đáp (cả hai)
+## Slide 37 — PEG-O trên val và test: không qua  _(≈ 47 giây)_
+
+Kết quả thẳng thắn: PEG-O không qua. Trên val, cả chín điểm của lưới tau và gamma đều làm Table III sụt, mất từ 13.5 đến 41.2 điểm, nên theo luật viết trước, cấu hình cuối vẫn là PEG+. Test chạy đúng một lần, ở điểm val tốt nhất để báo cáo cho đủ: Table III Rcv 73.6 so với 82.2 của PEG+, và Table I, II gần như không đổi. Gộp 48 lần chói, PEG-O thấp hơn PEG+ 10.6 điểm, khoảng tin cậy không chứa không. Một chi tiết thú vị: tỉ lệ ID bị tắt giảm, 9.5 phần trăm so với 15.5, vì box sống lâu hơn; nhưng phần lớn các box đó bị lệch khỏi người nên không tính là trúng.
+
+## Slide 38 — Vì sao thua: đĩa chói không cứng  _(≈ 71 giây)_
+
+Hai video cho hai kết cục. Ở video 135 trên test, người đi khoảng 111 pixel và box rộng 264: với cấu hình tau 0,06 gamma 1, box bám theo người, 41 trên 43 frame trúng, đúng bằng cận trên nếu căn tâm hoàn hảo. Nhưng chính cấu hình đó không phải điểm val chọn; điểm báo cáo tau 0,08 gamma 4 chỉ được 11 trên 43. Ở video 187 trên val thì ngược lại: người gần như đứng yên, box chỉ rộng 30 pixel, nhưng đỉnh của bộ lọc đĩa trôi mười đến hai mươi pixel khi độ chói tăng rồi giảm, vì vùng bão hòa đổi hình chứ không dời theo người. Với box hẹp như vậy, sai số đó đủ để mất box. Bọn mình kiểm tra lại là không phải lỗi code: ước lượng offline với mốc là đúng vị trí thật cũng thua, không có anchor cũ, và độ lệch trung vị của cập nhật là 9.7 pixel so với bề rộng box 41. Ngoài ra anchor lấy đúng lúc chói đang tăng, và vận tốc bị bơm vào Kalman nên box tiếp tục trôi.
+
+## Slide 39 — Kết luận và bài học  _(≈ 123 giây)_
+
+Tóm lại sáu điều. Một, PEG-F bản đầu tái hiện được, nhưng khi so cùng cấu hình thì mức tăng chỉ +0.49 HOTA, và hai lần đổi ID quyết định gần hết mức tăng đó. Hai, PEG-F bản hai: Table I tái hiện đúng cả mười bốn cấu hình, nhưng Thạch chỉnh và chọn mọi thứ trên test; khi chọn lại trên val bằng luật chốt trước thì không method nào qua; và khi tune lại tham số từ đầu, chỉ trên val, kết quả vẫn vậy, cấu hình cuối cùng là PEG. Ba, ở bản hai, M1 đi cùng M5 làm Table III sụt mạnh, từ 76.2 xuống 53.6 trên test và từ 67.6 xuống 37.1 trên val, vì box bị kéo trượt ngang khỏi người. Bốn, PEG+ tăng Rcv trên test +5.6, trên val −0.4, gộp lại +3.2: chỉ giúp khi box co lại lúc coast. Năm, PEG-O, thử đo vị trí bằng chính vùng chói: đúng ở video 135 nơi người đi xa, nhưng so với PEG+ trên val −13.5 và trên test −8.6 Rcv, nên không nhận, vì đĩa chói đổi hình chứ không cứng. Sáu, nhìn một mình Table I rất dễ bị đánh lừa, nên lúc nào cũng đo đủ ba bảng, chọn trên val và báo test một lần. Hướng tiếp theo: chọn bằng khoảng tin cậy hoặc cross-validation thay vì ngưỡng cứng; thêm dữ liệu val, vì hiện giờ một hai video quyết định mọi mức tăng; đo vị trí từ vùng chói chỉ khi đĩa đã ổn định và box đủ lớn so với nhiễu đo khoảng 10 pixel; và M6 đáng thử lại khi có thêm dữ liệu val có người đứng gần đèn. Bài học lớn nhất với mình không phải một con số mà là cách làm: tái hiện trước, so cùng cấu hình, đo cả ba bảng, chọn trên val, và tách từng phần ra để xem phần nào thật sự có tác dụng.
+
+## Slide 40 — Hỏi đáp (cả hai)
 
 Bọn mình xin cảm ơn thầy cô và các bạn đã lắng nghe. Giờ bọn mình xin nhận câu hỏi.
 
@@ -204,7 +216,15 @@ Có, vì bọn mình kiểm tra bằng công tắc con trong chính code của T
 
 Trên test M6 tăng cả ba bảng, nhưng trên val cả ba bảng đều giảm nhẹ (T1 −0.10, T2 −0.73, T3 −0.7). Luật chốt trước không cho nhận; M6 đáng thử lại với nhiều dữ liệu hơn.
 
-**12. Vậy rốt cuộc PEG+ có tốt hơn PEG không?** _(Người 2 trả lời)_
+**12. B và M5 thua, PEG-O khác gì mà vẫn thua?** _(Người 2 trả lời)_
+
+B và M5 giả định đèn nằm cách tâm người 0.35 lần chiều cao nên lệch có hệ thống. PEG-O chỉ đo độ dời nên không cần offset, và đúng ở video 135 (41/43 frame với τ .06 γ 1). Nhưng đĩa chói không cứng: khi độ chói tăng hay giảm thì đỉnh lọc dịch 10–20 px dù người không đi, và với người rộng khoảng 30 px thì đủ mất box. Kết quả: val −13.5, test −8.6 Rcv so với PEG+.
+
+**13. Khi nào PEG-O không giúp?** _(Người 2 trả lời)_
+
+Khi người đứng yên hoặc hẹp (val: 187, 203, 210); khi vùng chói phẳng (nửa khung hình trắng, như video 325): đỉnh chỉ nhọn ở cuối lần chói nên PEG-O gần như không đổi gì (bằng PEG+); và khi mục tiêu chưa bao giờ được track trước lúc chói (312, 305): không cách coast nào cứu được. PEG-O chỉ có ích khi quãng người đi lớn so với nhiễu đo khoảng 10 px.
+
+**14. Vậy rốt cuộc PEG+ có tốt hơn PEG không?** _(Người 2 trả lời)_
 
 Chỉ ở những ca box co lại khi coast. Trên test nó tăng +5.6 Rcv, trên val −0.4. Gộp 48 lần chói thì tăng +3.2 với khoảng tin cậy [+0.1, +7.3]: có dấu hiệu tốt nhưng chưa chắc chắn.
 
