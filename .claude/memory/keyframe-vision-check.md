@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 0df269ad-f5e2-495b-a234-6df8236c01ce
-  modified: 2026-10-20T23:02:22.407Z
+  modified: 2026-10-20T23:09:18.496Z
 ---
 
 MoRongMo labeling (frames 35068-56611) was redone on 2026-10-21 as a KEYFRAME job: `scripts/18_project_edit.py rekey`
@@ -26,7 +26,8 @@ Round 7 (same day): user reviewed the early part by hand, then asked for three f
 (standing person occluded -> box pulled up; geometry = bottom/side moves in while the top stays, API confirms),
 `extend` (track ends inside the image -> probe later frames, merge with the continuation track or hold the box),
 `blob` (delete tracks that are not a recognizable person; none found). 95 -> 59 tracks, ids 200-258.
-**The API key hit its monthly usage limit on 2026-10-21 (resets 2026-11-01 00:00 UTC)**: no more API passes until then.
+The API key hit its monthly usage limit on 2026-10-21; the user raised the limit the same day, so the second
+`unshrink` pass ran (423 more keyframes). Final round-7 result: 59 tracks, ids 200-258, `kf/project_r7.json`.
 
 **How to apply:** for any further label fixes, edit the app project with script 18 (app closed), re-run
 `23 run` only for changed tracks (resumable), then `rekey --keep '*' --first_id 200`. Related: [[morongmo-labeling-task]],
