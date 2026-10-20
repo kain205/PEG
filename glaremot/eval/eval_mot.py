@@ -30,7 +30,8 @@ if not hasattr(np, "bool"):
 
 from ..config import data_path, load_config, results_dir, weight_path
 from ..data.splits import make_splits
-from ..tracking.tracker import GlareAwareTracker, Perception, norm_box_to_xyxy
+from ..tracking.tracker import (FS, GlareAwareTracker, Perception, apply_backfill, backfill_lag,
+                                mot_row, norm_box_to_xyxy)
 
 if os.environ.get("TRACKEVAL_ROOT"):
     sys.path.insert(0, os.environ["TRACKEVAL_ROOT"])
@@ -85,6 +86,9 @@ def track_sequence(seq_dir, percep, out_txt, max_frames=0, diag_out=None):
         tracker.attach_perception(percep)
     H, W = cv2.imread(img_paths[0]).shape[:2]
     rows = []
+    index = {}               # (frame, track id) -> position in rows (PEG-C B / BB fixed-lag rewrites)
+    n_added = 0
+    lag = backfill_lag()
     t0 = time.time()
 
     # prefetch thread: decode the next frames while the GPU works on this one
@@ -118,12 +122,16 @@ def track_sequence(seq_dir, percep, out_txt, max_frames=0, diag_out=None):
         if diag_out is not None:
             diag_out(fi, tracker, tracks)
         for t in tracks:
-            x1, y1, x2, y2 = norm_box_to_xyxy(t.out_box(), W, H)
-            rows.append(
-                f"{fi},{t.id},{max(0.0, x1):.2f},{max(0.0, y1):.2f},"
-                f"{max(1.0, x2 - x1):.2f},{max(1.0, y2 - y1):.2f},"
-                f"{max(t.m, 0.001):.4f},-1,-1,-1")
+            index[(fi, t.id)] = len(rows)
+            rows.append(mot_row(fi, t.id, t.out_box(), W, H, max(t.m, 0.001)))
+        recs = getattr(tracker, "backfill_records", None)
+        if recs:
+            n_added += apply_backfill(rows, index, recs, W, H, fi, lag)
     fps = len(img_paths) / max(time.time() - t0, 1e-6)
+    if n_added:
+        rows.sort(key=lambda r: int(r.split(",", 1)[0]))   # stable: added rows go to their frame
+    if FS.on and n_added:
+        FS.inc("pegc_rows_added", n_added)
     if hasattr(tracker, "dump_stats"):
         tracker.dump_stats(os.path.basename(seq_dir.rstrip("/\\")))
     os.makedirs(os.path.dirname(out_txt), exist_ok=True)

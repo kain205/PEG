@@ -50,6 +50,22 @@ pseudo-measurement (odometry), trusted only when the matched-filter peak is shar
   GPEG_ARMED_SURVIVE=1        "S": a confirmed track with the gate armed is not deleted by the
                               allowed_gap() age budget (hard MAX_AGE cap stays; tracker.py)
 
+PEG-C (our extension, default off; docs/PEG_C_PROTOCOL.md): one constant-velocity model, designed. P = the size
+lock above (in by design); V, C, S are online, B, BB are FIXED-LAG (they rewrite / add MOT rows up to L frames in
+the past; report them separately from online rows).
+  GPEG_VEL_K, GPEG_VEL_T      "V": coast-entry velocity = OLS slope (px/frame) of the last K raw detection centres
+                              (< K/2 detection frames in the last 2K -> 0; axis zeroed if |v| <= t*SE; speed guard
+                              |v| > 0.1*box height -> 0; then the usual 2*median-step ceiling; tracker.py)
+  GPEG_CAP                    "C": the gate may arm a track only while time_since_update <= N (0 = off)
+  GPEG_STITCH_K               "S": burn-exit stitch; an unmatched would-be-born detection within k*max(w,h) of the
+                              predicted box of a track whose gate armed <= 10 frames ago re-acquires it (1:1 only)
+  GPEG_BACKFILL_L, _MODE      "B": backfill the gap of a burn-armed track re-acquired after M <= L missed frames
+                              (linear interpolation of the two detection boxes); MODE hidden (add rows only where
+                              the id has none) | all (also replace emitted coast boxes)
+  GPEG_BACKBIRTH=1            "BB": a track burnt at birth gets rows for its tentative detections and a frozen
+                              birth box backwards while phi >= h (at most L = GPEG_BACKFILL_L or 90 frames)
+  GPEG_F_STATS=1 prints per-seq counters pegc_* (vel_set/vel_zero, cap_block, stitch, backfill_*, bb_*).
+
 PEG-F (friend's methods; default off, GPEG_F=1 turns on all; an individual var overrides):
   GBEACON_DYNAMIC_H           M3: gate threshold h grows with the loss gap (wall-flare FPs)
   GBEACON_ADAPTIVE_TTL        M3: emit grace window scaled by the burn-evidence strength
@@ -62,9 +78,10 @@ import cv2
 import numpy as np
 
 from ..photometric import core_centroid_in_box, mask_area_inside
-from .tracker import (BEACON_EXPAND_UP, BEACON_GATE_FRAC, BEACON_HEAD_BAND,
-                      BEACON_MIN_PX, FS, OUTPUT_MAX_GAP, GlareAwareTracker,
-                      armed_survives, peg_f_flag, smooth_box, xyxy_to_norm_box)
+from .tracker import (BACKBIRTH, BACKFILL_L, BEACON_EXPAND_UP, BEACON_GATE_FRAC,
+                      BEACON_HEAD_BAND, BEACON_MIN_PX, FS, OUTPUT_MAX_GAP,
+                      GlareAwareTracker, armed_survives, backfill_lag, norm_box_to_xyxy,
+                      peg_f_flag, smooth_box, xyxy_to_norm_box)
 
 
 def _flag(name, default="1"):
@@ -90,6 +107,7 @@ ODO_GAMMA = float(os.environ.get("GPEG_ODO_GAMMA", "1.0"))   # trust ratio (R = 
 ODO_KAPPA = 2.0        # search window = predicted box dilated x kappa
 ODO_RHO_MIN = 0.3      # disc radius clip, x min(w,h) of the box (PHOTO_S px)
 ODO_RHO_MAX = 1.5      # disc radius clip, x max(w,h)
+CAP = int(os.environ.get("GPEG_CAP", "0"))   # PEG-C "C": gate may arm only while gap <= CAP (0 = off)
 ODO_JUMP = 0.5         # reject a measurement farther than ODO_JUMP * box diagonal from the box centre
 
 
@@ -241,7 +259,11 @@ class PEG(GlareAwareTracker):
         ordinary output cap would have suppressed. Emission is thus driven by an
         active lamp measurement, not by a blind fixed-age coast."""
         self._cur_frame = frame_idx
+        if BACKBIRTH:
+            self._bb_store_mask(frame_idx)
         outputs = super().step(dets, W, H, frame_idx, core_fn=core_fn)
+        if BACKBIRTH:
+            self._backbirth(W, H, frame_idx)
         if not (LAMP_ENABLE and GATE_EMIT):
             return outputs
         # evidence-gate the inherited blind coast: past the short floor, keep a
@@ -263,6 +285,61 @@ class PEG(GlareAwareTracker):
         if extra:
             self._update_vis(outputs + extra, W, H)
         return outputs + extra
+
+    # --- PEG-C BB: backward birth (fixed-lag) -------------------------------- #
+    def _bb_store_mask(self, frame_idx):
+        """Ring buffer of the last L+2 saturation masks (bit-packed), only when BB is on."""
+        hist = getattr(self, "_sat_hist", None)
+        if hist is None:
+            hist = self._sat_hist = {}
+        sat_fn = getattr(self, "_sat_fn", None)
+        sat, _ = sat_fn() if sat_fn is not None else (None, None)
+        if sat is not None:
+            sat = np.asarray(sat).astype(bool)
+            hist[frame_idx] = (np.packbits(sat, axis=None), sat.shape)
+        for f in [f for f in hist if f <= frame_idx - (backfill_lag() + 2)]:
+            del hist[f]
+
+    def _bb_phi(self, box, frame, W, H):
+        """Saturated fraction of a normalised box on the mask of `frame`; None if that mask is missing."""
+        ent = self._sat_hist.get(frame)
+        if ent is None:
+            return None
+        packed, shape = ent
+        sat = np.unpackbits(packed, count=shape[0] * shape[1]).reshape(shape)
+        S = shape[0]
+        x1, y1, x2, y2 = [float(v) for v in norm_box_to_xyxy(box, W, H)]
+        sx, sy = S / float(W), S / float(H)
+        roi = (x1 * sx, y1 * sy, x2 * sx, y2 * sy)
+        area = max(1.0, (x2 - x1) * sx) * max(1.0, (y2 - y1) * sy)
+        return mask_area_inside(sat, roi) / area
+
+    def _backbirth(self, W, H, f_c):
+        """A track that has just become confirmed and whose birth box was burnt at birth: emit its
+        tentative detection boxes and a frozen birth box backwards while phi(birth box) >= h."""
+        Lbb = backfill_lag()
+        for t in self.tracks:
+            if not t.is_confirmed or getattr(t, "_bb_seen", False):
+                continue
+            t._bb_seen = True
+            f_b = t.birth_frame
+            phi_b = self._bb_phi(t.birth_box, f_b, W, H)
+            if phi_b is None or phi_b < CUSUM_H:
+                continue
+            n = 0
+            for f, b in t._tent_boxes:
+                if f < f_c:
+                    self.backfill_records.append((int(t.id), f, b.copy(), False))
+                    n += 1
+            for f in range(f_b - 1, max(1, f_c - Lbb) - 1, -1):
+                phi = self._bb_phi(t.birth_box, f, W, H)
+                if phi is None or phi < CUSUM_H:
+                    break
+                self.backfill_records.append((int(t.id), f, t.birth_box.copy(), False))
+                n += 1
+            if FS.on:
+                FS.inc("pegc_bb_tracks")
+                FS.inc("pegc_bb_frames", n)
 
     def _lamp_localize(self, core, roi, sx, sy):
         """Locate the lamp inside the head-band ROI (PHOTO_S coords). Returns
@@ -394,6 +471,10 @@ class PEG(GlareAwareTracker):
             mt._cusum_g = 0.0
             mt._burn = False
             mt._odo_anchor = None
+        if CAP > 0 and gap > CAP:          # PEG-C "C": a coast this old is not licensed any more
+            if FS.on:
+                FS.inc("pegc_cap_block")
+            return False
         g = getattr(mt, "_cusum_g", 0.0) + (phi - CUSUM_K)
         mt._cusum_g = float(max(0.0, g))
         eff_h = CUSUM_H
@@ -485,6 +566,7 @@ class PEG(GlareAwareTracker):
                 FS.inc("m3_ttl_shortened")
                 FS.inc("m3_ttl_frames_removed", EMIT_TTL - cur_ttl)
         mt._lamp_emit_until = self._cur_frame + cur_ttl
+        mt._armed_frame = self._cur_frame      # PEG-C: last frame the gate armed (S, B)
         return True
 
     @staticmethod

@@ -180,6 +180,92 @@ def armed_survives(t, frame_idx, gap):
     return bool(ARMED_SURVIVE and t.is_confirmed
                 and frame_idx <= getattr(t, "_lamp_emit_until", -1) and gap <= MAX_AGE)
 
+
+# --- PEG-C (the coast, designed; all default off = PEG / PEG+ byte-identical). See beacon_tracker.py. ---
+# V  GPEG_VEL_K / GPEG_VEL_T  coast-entry velocity = OLS slope of the last K raw detection centres
+#                              (axis zeroed when |v| <= t * SE). GPEG_CAP (C) lives in beacon_tracker.py.
+# S  GPEG_STITCH_K            burn-exit stitch: an unmatched would-be-born detection within k*max(w,h) of the
+#                              predicted box of a track whose gate armed <= STITCH_A frames ago re-acquires it.
+# B  GPEG_BACKFILL_L / _MODE  fixed-lag backfill of the gap between two detections of a burn-armed track
+# BB GPEG_BACKBIRTH           fixed-lag backward birth (rows before a burnt-at-birth track was confirmed)
+VEL_K = int(os.environ.get("GPEG_VEL_K", "0"))
+VEL_T = float(os.environ.get("GPEG_VEL_T", "0"))
+STITCH_K = float(os.environ.get("GPEG_STITCH_K", "0"))
+STITCH_A = 10
+BACKFILL_L = int(os.environ.get("GPEG_BACKFILL_L", "0"))
+BACKFILL_MODE = os.environ.get("GPEG_BACKFILL_MODE", "hidden").lower()
+BACKBIRTH = os.environ.get("GPEG_BACKBIRTH", "0") not in ("0", "off", "false", "")
+
+
+def backfill_lag():
+    """Fixed lag (frames) of the rows B / BB may touch: L if set, else 90 for BB, else 0."""
+    if BACKFILL_L > 0:
+        return BACKFILL_L
+    return 90 if BACKBIRTH else 0
+
+
+def ols_velocity(frames, cx, cy, K, t=0.0):
+    """PEG-C "V": long-baseline velocity (px/frame) of a track from its detection centres.
+
+    frames = increasing detection frame indices, cx/cy = centres in px. Shared by the tracker and
+    scripts/21_peg_c_check.py. Fewer than K/2 detection frames in the last 2K frames -> zeros.
+    Else OLS slope of the last K centres per axis; with t > 0 an axis whose |slope| <= t * SE
+    (SE = sqrt(RSS / (n - 2) / sum (f - mean f)^2)) is set to 0 (n < 3 -> zeros)."""
+    fr = np.asarray(frames, np.float64)
+    if fr.size == 0 or int(np.sum(fr > fr[-1] - 2 * K)) < K / 2:
+        return np.zeros(2)
+    f = fr[-K:]
+    n = f.size
+    if n < 2 or np.ptp(f) == 0:
+        return np.zeros(2)
+    fc = f - f.mean()
+    sxx = float(np.sum(fc * fc))
+    v = np.zeros(2)
+    for d, c in enumerate((cx, cy)):
+        c = np.asarray(c, np.float64)[-K:]
+        cc = c - c.mean()
+        slope = float(np.sum(fc * cc) / sxx)
+        if t > 0:
+            if n < 3:
+                continue
+            rss = float(np.sum((cc - slope * fc) ** 2))
+            se = float(np.sqrt(rss / (n - 2) / sxx))
+            if abs(slope) <= t * se:
+                continue
+        v[d] = slope
+    return v
+
+
+def mot_row(fi, tid, box, W, H, conf):
+    """One MOT txt row (shared by track_sequence and apply_backfill). conf: float (formatted
+    .4f) or an already formatted string (kept verbatim)."""
+    x1, y1, x2, y2 = norm_box_to_xyxy(box, W, H)
+    cs = conf if isinstance(conf, str) else f"{conf:.4f}"
+    return (f"{fi},{tid},{max(0.0, x1):.2f},{max(0.0, y1):.2f},"
+            f"{max(1.0, x2 - x1):.2f},{max(1.0, y2 - y1):.2f},{cs},-1,-1,-1")
+
+
+def apply_backfill(rows, index, records, W, H, fi, lag):
+    """PEG-C B / BB: apply (tid, frame, norm_box, replace) records to the already written MOT
+    rows. index = {(frame, tid): position in rows}. Fixed-lag guarantee: a record older than
+    lag + 1 frames raises. Existing row: rewritten only if replace (conf field kept), else
+    skipped; no row: appended with conf 0.001. Returns the number of rows added."""
+    added = 0
+    for tid, frame, box, replace in records:
+        if fi - frame > lag + 1:
+            raise AssertionError(f"backfill record {fi - frame} frames old > lag {lag} + 1")
+        key = (frame, tid)
+        if key in index:
+            if replace:
+                pos = index[key]
+                conf = rows[pos].split(",")[6]
+                rows[pos] = mot_row(frame, tid, box, W, H, conf)
+            continue
+        index[key] = len(rows)
+        rows.append(mot_row(frame, tid, box, W, H, 0.001))
+        added += 1
+    return added
+
 # --- exit gate (a person who walked OUT of the frame must die fast) ---
 # The detector loses a leaving person BEFORE the box touches the edge (half a
 # body left), so the test is projective: at the observed outward speed, would
@@ -543,6 +629,12 @@ class MotionTrack:
         self.smooth = self.box.copy()
         self.det_box = np.array(det["box"], np.float32)  # raw detector box (tight) for output
         self.appearance = det.get("appearance")          # PEG-F M2/M4
+        # PEG-C: raw detection centres (separate from `centers`; never cleared) for V; birth data for BB
+        self._det_hist = deque(maxlen=max(96, 2 * VEL_K + 8))
+        self._det_hist.append((frame_idx, float(self.det_box[0]), float(self.det_box[1])))
+        self.birth_frame = frame_idx
+        self.birth_box = self.det_box.copy()
+        self._tent_boxes = [(frame_idx, self.det_box.copy())]
         self._push_hist(self.box, max(self.m_glare, HIST_M_MIN))
 
     def out_box(self):
@@ -609,6 +701,9 @@ class MotionTrack:
         self.present = float(det["present"])
         self.det_box = np.array(det["box"], np.float32)  # tight box for this observed frame
         self.last_frame = frame_idx
+        self._det_hist.append((frame_idx, float(self.det_box[0]), float(self.det_box[1])))
+        if not self.is_confirmed:
+            self._tent_boxes.append((frame_idx, self.det_box.copy()))   # PEG-C BB (tentative only)
 
         # PEG-F M2: pre-burn appearance cache (EMA of clean views; frozen once m_glare drops)
         if USE_APPEARANCE:
@@ -668,10 +763,22 @@ class MotionTrack:
                 # entering coast: glare-era updates can leave a bogus velocity.
                 # The history median step is the trustworthy speed — clamp to it.
                 v = self.kf.kf.x[4:6, 0]
+                if VEL_K > 0:
+                    # PEG-C V: long-baseline velocity of the raw detection centres instead
+                    dh = list(self._det_hist)
+                    v = ols_velocity([h[0] for h in dh], [h[1] * W for h in dh], [h[2] * H for h in dh],
+                                     VEL_K, VEL_T)
+                    b = self.kf.get_state()[0]
+                    if float(np.hypot(v[0], v[1])) > 0.1 * float(b[3] - b[1]):
+                        v = np.zeros(2)
+                    if FS.on:
+                        FS.inc("pegc_vel_set" if (v[0] != 0.0 or v[1] != 0.0) else "pegc_vel_zero")
                 vmax = 2.0 * self.median_step_px(W, H)
                 vn = float(np.hypot(v[0], v[1]))
                 if vn > vmax > 0.0:
                     self.kf.kf.x[4:6, 0] = v * (vmax / vn)
+                elif VEL_K > 0:
+                    self.kf.kf.x[4:6, 0] = v
         if gap >= FORECAST_START:
             # constant-velocity is not credible over long unobserved stretches
             self.kf.kf.x[4:6] *= VEL_DAMP
@@ -693,6 +800,7 @@ class GlareAwareTracker:
         self.tracks = []
         self.dormant_tracks = []   # PEG-F M4
         FS.reset()
+        self.backfill_records = []   # PEG-C B / BB: (tid, frame, norm_box, replace), read by track_sequence
         self.frame_count = 0
         self._W = 1
         self._H = 1
@@ -1025,11 +1133,25 @@ class GlareAwareTracker:
     def _apply_det(self, mt, det_row, meta, frame_idx):
         """Confidence-weighted Kalman update: m scales the measurement noise."""
         gap_before = int(mt.kf.time_since_update)
+        if BACKFILL_L > 0:
+            was_conf, f0, b0 = mt.is_confirmed, mt.last_frame, mt.det_box.copy()
         scale = 1.0 / max(float(meta["m_glare"]), R_M_FLOOR)
         mt.kf.kf.R = mt.R0 * scale
         mt.kf.update(det_row)
         mt.kf.kf.R = mt.R0
         mt.update_detection(meta, self._W, self._H, frame_idx, gap_before)
+        if BACKFILL_L > 0:
+            # PEG-C B: a burn-armed track re-acquired after M missed frames -> interpolate the gap
+            M = frame_idx - f0 - 1
+            if was_conf and 1 <= M <= BACKFILL_L and getattr(mt, "_armed_frame", -1) > f0:
+                b1 = mt.det_box
+                for f in range(f0 + 1, frame_idx):
+                    a = (f - f0) / float(frame_idx - f0)
+                    self.backfill_records.append(
+                        (int(mt.id), f, ((1.0 - a) * b0 + a * b1).astype(np.float32), BACKFILL_MODE == "all"))
+                if FS.on:
+                    FS.inc("pegc_backfill_records")
+                    FS.inc("pegc_backfill_frames", M)
 
     @staticmethod
     def _weak_center_update(kfin, zx, zy, r_x, r_y):
@@ -1081,6 +1203,7 @@ class GlareAwareTracker:
 
     def step(self, dets, W, H, frame_idx, core_fn=None):
         self.frame_count += 1
+        self.backfill_records = []
         self._W = W
         self._H = H
         det_arr, det_meta, byte_arr, byte_meta = self._valid_detections(dets, W, H)
@@ -1200,6 +1323,36 @@ class GlareAwareTracker:
                     self._apply_det(mt, byte_arr[int(bi)], byte_meta[int(bi)], frame_idx)
                     used_t.append(ti)
                 if used_t:
+                    unmatched_trks = np.setdiff1d(unmatched_trks, np.asarray(used_t, dtype=int))
+
+        # PEG-C S: burn-exit stitch. A detection that would be BORN next to the predicted box of a track
+        # whose gate armed within STITCH_A frames is that track re-emerging from the burn (1:1 pairs only).
+        if STITCH_K > 0 and unmatched_dets.shape[0] > 0 and unmatched_trks.shape[0] > 0:
+            cand = [int(ti) for ti in unmatched_trks
+                    if self.tracks[int(ti)].is_confirmed and not self.tracks[int(ti)].exiting
+                    and frame_idx - getattr(self.tracks[int(ti)], "_armed_frame", -10 ** 9) <= STITCH_A]
+            if cand:
+                pairs = []
+                for di in unmatched_dets:
+                    di = int(di)
+                    if not self._birth_allowed(det_arr[di], det_meta[di]):
+                        continue
+                    dcx, dcy = (det_arr[di][0] + det_arr[di][2]) * 0.5, (det_arr[di][1] + det_arr[di][3]) * 0.5
+                    for ti in cand:
+                        px1, py1, px2, py2 = [float(v) for v in trks[ti][:4]]
+                        lim = STITCH_K * max(px2 - px1, py2 - py1)
+                        if float(np.hypot(dcx - (px1 + px2) * 0.5, dcy - (py1 + py2) * 0.5)) <= lim:
+                            pairs.append((di, ti))
+                used_d, used_t = [], []
+                for di, ti in pairs:
+                    if sum(1 for p in pairs if p[0] == di) == 1 and sum(1 for p in pairs if p[1] == ti) == 1:
+                        self._apply_det(self.tracks[ti], det_arr[di], det_meta[di], frame_idx)
+                        used_d.append(di)
+                        used_t.append(ti)
+                        if FS.on:
+                            FS.inc("pegc_stitch")
+                if used_d:
+                    unmatched_dets = np.setdiff1d(unmatched_dets, np.asarray(used_d, dtype=int))
                     unmatched_trks = np.setdiff1d(unmatched_trks, np.asarray(used_t, dtype=int))
 
         for ti in unmatched_trks:

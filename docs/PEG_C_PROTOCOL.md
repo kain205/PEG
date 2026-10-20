@@ -98,3 +98,15 @@ re-run) and T3 (burn episode), the summed Δ must stay > 0. Every evaluation is 
    should improve vs PEG+ (`v_A_rcv`); this checks the wiring only (oracle b40: 35 vs 19 and 26 vs 17 frames).
    A failure is diagnosed as a bug; any design change after it is written here as an addendum before the val search.
 4. Port check: Thach-fork rows = ours on those sequences (same config, guard on).
+
+## Addendum 1 (2026-10-20, before the val search): implementation checks done, one disclosure
+- Checks passed: `21_peg_c_check.py` b40 = 88.5 / 86.6 / 87.8 (test / val / pooled), b20 = 85.5 pooled, all 43
+  episodes equal to the published json; flags unset ⇒ byte-identical on 6 pairs (T1 20/20 ×2, T2 15/15 ×2,
+  T3 15/15 ×2, PEG and PEG+); val smoke P + V(40, 0): 187 g247 19 → 35, 133 g117 17 → 24 covered frames (wiring
+  check passed, no change made). Structural check of C/S/B/BB on val (MOT txt + firing counters only): B rows lie on
+  the interpolation line (max 0.012 px), hidden mode leaves every online row byte-identical, no row older than L+1.
+  BB never fired on any val run (a forced-mask plumbing test produced one row as intended).
+- Disclosure: while wiring C/S/B/BB the executor ran ad-hoc val runs on 4 T3 / 17 T1 val sequences whose COMBINED /
+  all-burn lines were printed in its terminal before it was told not to look. Those runs were deleted, the numbers
+  were not reported to the orchestrator, and no design or grid was changed afterwards. The selection below is a
+  mechanical greedy rule, unchanged.
