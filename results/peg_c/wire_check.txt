@@ -1,0 +1,62 @@
+=== T3 val: wire_pegc_all (mode all) vs wire_online
+  133_sequence_17q_new: cap_block=399 stitch=1 backfill_records=3 backfill_frames=103 bb_tracks=0 bb_frames=0 rows_added=0 | online 5571 changed 103 added 0
+  147_sequence_3q_new: cap_block=119 stitch=1 backfill_records=5 backfill_frames=133 bb_tracks=0 bb_frames=0 rows_added=0 | online 1343 changed 133 added 0
+  178_sequence_58q_new: cap_block=0 stitch=0 backfill_records=2 backfill_frames=82 bb_tracks=0 bb_frames=0 rows_added=0 | online 767 changed 82 added 0
+  187_sequence_66q_new: cap_block=0 stitch=0 backfill_records=2 backfill_frames=71 bb_tracks=0 bb_frames=0 rows_added=0 | online 484 changed 71 added 0
+  TOTAL added=0, b_err_max=0.0122, b_rows=389, b_run_len_max=51, b_runs=12, bb_rows=0, changed=389, missing_online=0, online_rows=8165, pegc_backfill_frames=389, pegc_backfill_records=12, pegc_bb_frames=0, pegc_bb_tracks=0, pegc_cap_block=518, pegc_rows_added=0, pegc_stitch=2
+  violations: 0
+  log errors (Traceback/AssertionError => lag guard fired): none
+
+=== T3 val: wire_pegc_hid (mode hid) vs wire_online
+  133_sequence_17q_new: cap_block=399 stitch=1 backfill_records=3 backfill_frames=103 bb_tracks=0 bb_frames=0 rows_added=0 | online 5571 changed 0 added 0
+  147_sequence_3q_new: cap_block=119 stitch=1 backfill_records=5 backfill_frames=133 bb_tracks=0 bb_frames=0 rows_added=0 | online 1343 changed 0 added 0
+  178_sequence_58q_new: cap_block=0 stitch=0 backfill_records=2 backfill_frames=82 bb_tracks=0 bb_frames=0 rows_added=0 | online 767 changed 0 added 0
+  187_sequence_66q_new: cap_block=0 stitch=0 backfill_records=2 backfill_frames=71 bb_tracks=0 bb_frames=0 rows_added=0 | online 484 changed 0 added 0
+  TOTAL added=0, changed=0, missing_online=0, online_rows=8165, pegc_backfill_frames=389, pegc_backfill_records=12, pegc_bb_frames=0, pegc_bb_tracks=0, pegc_cap_block=518, pegc_rows_added=0, pegc_stitch=2
+  violations: 0
+  log errors (Traceback/AssertionError => lag guard fired): none
+
+=== T1 val: wire_pegc_all_t1 (mode all) vs wire_online_t1
+  133_sequence_17q_new: cap_block=399 stitch=0 backfill_records=0 backfill_frames=0 bb_tracks=0 bb_frames=0 rows_added=0 | online 5571 changed 0 added 0
+  141_sequence_24q_new: cap_block=0 stitch=0 backfill_records=0 backfill_frames=0 bb_tracks=0 bb_frames=0 rows_added=0 | online 417 changed 0 added 0
+  147_sequence_3q_new: cap_block=116 stitch=0 backfill_records=1 backfill_frames=5 bb_tracks=0 bb_frames=0 rows_added=0 | online 1343 changed 5 added 0
+  150_sequence_32_new: cap_block=0 stitch=0 backfill_records=0 backfill_frames=0 bb_tracks=0 bb_frames=0 rows_added=0 | online 212 changed 0 added 0
+  156_sequence_38k_new: cap_block=413 stitch=0 backfill_records=1 backfill_frames=14 bb_tracks=0 bb_frames=0 rows_added=0 | online 3709 changed 14 added 0
+  165_sequence_46_new: cap_block=226 stitch=0 backfill_records=0 backfill_frames=0 bb_tracks=0 bb_frames=0 rows_added=0 | online 1475 changed 0 added 0
+  171_sequence_51_new: cap_block=0 stitch=0 backfill_records=0 backfill_frames=0 bb_tracks=0 bb_frames=0 rows_added=0 | online 673 changed 0 added 0
+  178_sequence_58q_new: cap_block=0 stitch=0 backfill_records=0 backfill_frames=0 bb_tracks=0 bb_frames=0 rows_added=0 | online 767 changed 0 added 0
+  187_sequence_66q_new: cap_block=0 stitch=0 backfill_records=0 backfill_frames=0 bb_tracks=0 bb_frames=0 rows_added=0 | online 484 changed 0 added 0
+  195_sequence_73_new: cap_block=4 stitch=0 backfill_records=1 backfill_frames=52 bb_tracks=0 bb_frames=0 rows_added=17 | online 4253 changed 35 added 17
+  203_sequence_80q_new: cap_block=0 stitch=0 backfill_records=0 backfill_frames=0 bb_tracks=0 bb_frames=0 rows_added=0 | online 388 changed 0 added 0
+  210_sequence_87q_complete: cap_block=0 stitch=0 backfill_records=0 backfill_frames=0 bb_tracks=0 bb_frames=0 rows_added=0 | online 529 changed 0 added 0
+  213_sequence_9_complete: cap_block=0 stitch=0 backfill_records=0 backfill_frames=0 bb_tracks=0 bb_frames=0 rows_added=0 | online 378 changed 0 added 0
+  315_sequence_111q_new: cap_block=0 stitch=0 backfill_records=0 backfill_frames=0 bb_tracks=0 bb_frames=0 rows_added=0 | online 48 changed 0 added 0
+  319_sequence_115_new: cap_block=1294 stitch=0 backfill_records=0 backfill_frames=0 bb_tracks=0 bb_frames=0 rows_added=0 | online 3880 changed 0 added 0
+  323_sequence_90_new: cap_block=0 stitch=0 backfill_records=0 backfill_frames=0 bb_tracks=0 bb_frames=0 rows_added=0 | online 302 changed 0 added 0
+  332_sequence_99q_complete: cap_block=0 stitch=0 backfill_records=0 backfill_frames=0 bb_tracks=0 bb_frames=0 rows_added=0 | online 495 changed 0 added 0
+  TOTAL added=17, b_err_max=0.0116, b_rows=71, b_run_len_max=52, b_runs=3, bb_rows=0, changed=54, missing_online=0, online_rows=24924, pegc_backfill_frames=71, pegc_backfill_records=3, pegc_bb_frames=0, pegc_bb_tracks=0, pegc_cap_block=2452, pegc_rows_added=17, pegc_stitch=0
+  violations: 0
+  log errors (Traceback/AssertionError => lag guard fired): none
+
+=== T1 val: wire_pegc_hid_t1 (mode hid) vs wire_online_t1
+  133_sequence_17q_new: cap_block=399 stitch=0 backfill_records=0 backfill_frames=0 bb_tracks=0 bb_frames=0 rows_added=0 | online 5571 changed 0 added 0
+  141_sequence_24q_new: cap_block=0 stitch=0 backfill_records=0 backfill_frames=0 bb_tracks=0 bb_frames=0 rows_added=0 | online 417 changed 0 added 0
+  147_sequence_3q_new: cap_block=116 stitch=0 backfill_records=1 backfill_frames=5 bb_tracks=0 bb_frames=0 rows_added=0 | online 1343 changed 0 added 0
+  150_sequence_32_new: cap_block=0 stitch=0 backfill_records=0 backfill_frames=0 bb_tracks=0 bb_frames=0 rows_added=0 | online 212 changed 0 added 0
+  156_sequence_38k_new: cap_block=413 stitch=0 backfill_records=1 backfill_frames=14 bb_tracks=0 bb_frames=0 rows_added=0 | online 3709 changed 0 added 0
+  165_sequence_46_new: cap_block=226 stitch=0 backfill_records=0 backfill_frames=0 bb_tracks=0 bb_frames=0 rows_added=0 | online 1475 changed 0 added 0
+  171_sequence_51_new: cap_block=0 stitch=0 backfill_records=0 backfill_frames=0 bb_tracks=0 bb_frames=0 rows_added=0 | online 673 changed 0 added 0
+  178_sequence_58q_new: cap_block=0 stitch=0 backfill_records=0 backfill_frames=0 bb_tracks=0 bb_frames=0 rows_added=0 | online 767 changed 0 added 0
+  187_sequence_66q_new: cap_block=0 stitch=0 backfill_records=0 backfill_frames=0 bb_tracks=0 bb_frames=0 rows_added=0 | online 484 changed 0 added 0
+  195_sequence_73_new: cap_block=4 stitch=0 backfill_records=1 backfill_frames=52 bb_tracks=0 bb_frames=0 rows_added=17 | online 4253 changed 0 added 17
+  203_sequence_80q_new: cap_block=0 stitch=0 backfill_records=0 backfill_frames=0 bb_tracks=0 bb_frames=0 rows_added=0 | online 388 changed 0 added 0
+  210_sequence_87q_complete: cap_block=0 stitch=0 backfill_records=0 backfill_frames=0 bb_tracks=0 bb_frames=0 rows_added=0 | online 529 changed 0 added 0
+  213_sequence_9_complete: cap_block=0 stitch=0 backfill_records=0 backfill_frames=0 bb_tracks=0 bb_frames=0 rows_added=0 | online 378 changed 0 added 0
+  315_sequence_111q_new: cap_block=0 stitch=0 backfill_records=0 backfill_frames=0 bb_tracks=0 bb_frames=0 rows_added=0 | online 48 changed 0 added 0
+  319_sequence_115_new: cap_block=1294 stitch=0 backfill_records=0 backfill_frames=0 bb_tracks=0 bb_frames=0 rows_added=0 | online 3880 changed 0 added 0
+  323_sequence_90_new: cap_block=0 stitch=0 backfill_records=0 backfill_frames=0 bb_tracks=0 bb_frames=0 rows_added=0 | online 302 changed 0 added 0
+  332_sequence_99q_complete: cap_block=0 stitch=0 backfill_records=0 backfill_frames=0 bb_tracks=0 bb_frames=0 rows_added=0 | online 495 changed 0 added 0
+  TOTAL added=17, b_err_max=0.0107, b_rows=17, b_run_len_max=17, b_runs=1, bb_rows=0, changed=0, missing_online=0, online_rows=24924, pegc_backfill_frames=71, pegc_backfill_records=3, pegc_bb_frames=0, pegc_bb_tracks=0, pegc_cap_block=2452, pegc_rows_added=17, pegc_stitch=0
+  violations: 0
+  log errors (Traceback/AssertionError => lag guard fired): none
+

@@ -1,0 +1,3 @@
+port vs ours (guard on, P+V40+C48+S1.5+B90all): 2 sequences compared, 0 differ byte-wise
+  187_sequence_66q_new: rows his 484 ours 484, max |box diff| 0.000 px over 484 rows
+  133_sequence_17q_new: rows his 5571 ours 5571, max |box diff| 0.000 px over 5571 rows

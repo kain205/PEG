@@ -3,7 +3,8 @@ two "strongest" finals. Notes = where the gain sits (where_gain.json). -> full_m
 import json, os
 HERE = os.path.dirname(os.path.abspath(__file__))
 L = {}
-for d, f in (("tune", "ledger.json"), ("tune", "ledger_extra.json"), ("tune_strong", "ledger.json"), ("tune_strong_P", "ledger.json"), ("tune_O", "ledger.json")):
+for d, f in (("tune", "ledger.json"), ("tune", "ledger_extra.json"), ("tune_strong", "ledger.json"), ("tune_strong_P", "ledger.json"), ("tune_O", "ledger.json"),
+          ("tune_C", "ledger.json"), ("tune_C_strong", "ledger.json"), ("tune_C_lag", "ledger.json"), ("tune_C_all", "ledger.json")):
     p = os.path.join(HERE, d, f)
     if os.path.exists(p):
         L.update(json.load(open(p)))
@@ -63,6 +64,14 @@ for s in ("val", "test"):
     kO = next(r["key"] for r in tO[1]["rows"] if r["add"].startswith("O[8]"))
     out[s].append({"config": "PEG-O (P+O, best val point τ .08 γ 4; rejected by val)", **(by_key(s, kO) if s == "val" else {}),
                    "note": note(s, "O") if s == "val" else "not run on test: rejected on val"})
+    # PEG-C rows (docs/PEG_C_PROTOCOL.md): online final, fixed-lag B[2] (val only), strongest, ALL
+    fin = lambda d: json.load(open(os.path.join(HERE, d, "final.json")))
+    kB = next(r["key"] for r in json.load(open(os.path.join(HERE, "tune_C_lag", "trace.json")))[1]["rows"] if r["add"] == "B[2]")
+    out[s].append({"config": "PEG-C online (P + V K40 t2; val-chosen)", **by_key(s, fin("tune_C")["key"]), "note": note(s, "C")})
+    out[s].append({"config": "PEG-C fixed-lag 90 (B hidden; rejected by val)", **(by_key(s, kB) if s == "val" else {}),
+                   "note": note(s, "Clag") if s == "val" else "not run in this harness: rejected on val; paper-setting row in results/peg_c"})
+    out[s].append({"config": "PEG-C strongest (+ S stitch k 1.0)", **by_key(s, fin("tune_C_strong")["key"]), "note": note(s, "Cstrong")})
+    out[s].append({"config": "ALL = PEG-C + Thach greedy (M1 cone)", **by_key(s, fin("tune_C_all")["key"]), "note": note(s, "Call")})
 LOWER = ("T1 IDSW", "T3 ID-off")      # lower is better; everything else higher is better
 for s in ("val", "test"):
     for c in COLS:
@@ -83,7 +92,8 @@ def best_line(s):
     return (f"Best overall (chosen on val by ΣΔ T1 HOTA + T2 HOTA + T3 Rcv@.5 vs PEG): {out['val'][bi]['config']} — val ΣΔ {sd[bi]:+.2f}; "
             f"test: {tv}")
 FOOT = ("S (armed survival): byte-identical to PEG+ on val, never fires. ALL (Stage B: PEG-O's Stage-A final + Thach greedy) = Stage-A final is PEG+, "
-        "so ALL = 'STRONGEST with PEG+ by design' above.")
+        "so ALL = 'STRONGEST with PEG+ by design' above. "
+        "PEG-C: lag stage (B, BB) accepted nothing (B hidden ±0.03, B all T3 −2.1; BB never fires); C (cap) ≤ +0.09; tune_C_lag_all = tune_C_all.")
 out["best_overall"] = {"config": out["val"][bi]["config"], "val_sum_delta": round(sd[bi], 2), "val": {c: out["val"][bi][c] for c in KEYC},
                        "test": {c: out["test"][bi].get(c) for c in KEYC}, "line": {s: best_line(s) for s in ("val", "test")}, "footnote": FOOT}
 json.dump(out, open(os.path.join(HERE, "full_metrics.json"), "w"), indent=1)

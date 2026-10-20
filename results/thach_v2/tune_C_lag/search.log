@@ -1,0 +1,22 @@
+S0 (69.67, 76.2, 75.8)
+t2 val tv068dd40f: exit 0, 16s
+t3 val tv068dd40f: exit 0, 12s
+t1 val tv068dd40f: exit 0, 28s
+  round 1: B[0] + P[0] + V[3]                       d=[0.0, 0.0, 0.0] score=+0.00
+t2 val tvdbe6a196: exit 0, 16s
+t1 val tvdbe6a196: exit 0, 28s
+t3 val tvdbe6a196: exit 0, 12s
+  round 1: B[1] + P[0] + V[3]                       d=[-0.01, 0.28, -2.1] score=-1.83
+t2 val tv10fbb353: exit 0, 16s
+t3 val tv10fbb353: exit 0, 12s
+t1 val tv10fbb353: exit 0, 28s
+  round 1: B[2] + P[0] + V[3]                       d=[0.03, 0.0, 0.0] score=+0.03
+t2 val tve6bcc87d: exit 0, 16s
+t3 val tve6bcc87d: exit 0, 12s
+t1 val tve6bcc87d: exit 0, 29s
+  round 1: B[3] + P[0] + V[3]                       d=[0.02, 0.28, -2.1] score=-1.80
+t2 val tv28e8504e: exit 0, 17s
+t3 val tv28e8504e: exit 0, 13s
+t1 val tv28e8504e: exit 0, 29s
+  round 1: BB[0] + P[0] + V[3]                      d=[0.0, 0.0, 0.0] score=+0.00
+FINAL P[0] + V[3] (69.67, 76.2, 75.8)

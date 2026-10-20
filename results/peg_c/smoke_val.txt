@@ -1,0 +1,8 @@
+smoke run: smoke_pegc_v40 vs PEG+ v_A_rcv (val, T3, guard off, cached)
+seq tid burn_frames n | covered PEG+ -> smoke | oracle b40 | centre err px PEG+ -> smoke
+187_sequence_66q_new g247 141-173 n33 | 33 -> 33 | 33 | 5.4 -> 3.8
+187_sequence_66q_new g247 201-235 n35 | 19 -> 35 | 35 | 9.1 -> 4.7
+133_sequence_17q_new g115 1932-1957 n26 | 26 -> 26 | - | 1.4 -> 0.8
+133_sequence_17q_new g117 3065-3100 n36 | 36 -> 36 | 34 | 2.7 -> 6.8
+133_sequence_17q_new g117 3239-3275 n37 | 17 -> 24 | 26 | 20.3 -> 13.3
+TOTAL over listed episodes: PEG+ 131 -> smoke 154 of 167 burn frames

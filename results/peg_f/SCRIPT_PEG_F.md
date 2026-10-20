@@ -2,9 +2,9 @@
 
 _File này được sinh tự động từ deck_build.js; số liệu lấy từ numbers.json._
 
-Tổng: Người 1 ≈ 22.5 phút, Người 2 ≈ 14.3 phút (tốc độ ~160 tiếng/phút), Q&A không tính.
+Tổng: Người 1 ≈ 22.9 phút, Người 2 ≈ 19.9 phút (tốc độ ~160 tiếng/phút), Q&A không tính.
 
-# NGƯỜI 1 — PEG-F, kiểm chứng (≈ 22.4 phút)
+# NGƯỜI 1 — PEG-F, kiểm chứng (≈ 22.7 phút)
 
 ## Slide 1 — PEG-F và PEG+ — giữ ID đúng người khi đèn mũ làm chói camera  _(≈ 39 giây)_
 
@@ -110,15 +110,15 @@ Giờ đến tập val, phần dữ liệu Thạch chưa dùng tới. Cấu hìn
 
 Chọn lại trên val chưa đủ, vì các tham số bên trong method vẫn là số Thạch đã chỉnh trên test. Nên bọn mình tune lại từ đầu, chỉ trên val, với luật viết trước và đưa lên git trước khi chạy. Điểm xuất phát là PEG: bọn mình chép lại logic đổi ID gốc của PEG vào code của Thạch và kiểm tra là khi tắt hết method thì ra đúng từng số của PEG. Phần đổi ID mà Thạch viết lại cũng thành một thành phần để thử. Mỗi vòng, mỗi thành phần được thử với vài giá trị tham số, vòng đầu tổng cộng 26 lượt. Bảng này là giá trị tốt nhất của từng thành phần ở vòng đầu. Chỉ có hai thứ tăng quá ngưỡng: cone của M1, cộng 1.73, và phần hãm vận tốc, cộng 1.32. Nhưng khi bỏ đi một video hoặc một lần chói có lợi nhất, cone còn −0.01 và hãm vận tốc còn −0.60: toàn bộ mức tăng của cone nằm ở hai video, 156 và 147, còn của hãm vận tốc nằm ở một lần chói trong video 332. Phần nở vùng bất định, Re-ID và pool track ngủ không đổi gì khi đứng một mình; neo đèn và tone-map làm giảm. Nên không thành phần nào được nhận, cấu hình cuối cùng chính là PEG, và test một lần cho nó ra đúng số PEG: 68.34, 61.41 và 76.2. Cột cuối là số test của từng thành phần, chạy sau khi đã chốt, chỉ để đối chiếu. Trên test cũng vậy: M6 và phần đổi ID viết lại tăng gần như chỉ nhờ sửa đúng một lần đổi ID ở video 129, lần đó đáng hai mươi ba điểm HOTA ở video ấy; cone tăng chủ yếu nhờ video 204; còn hãm vận tốc giảm tám điểm rưỡi, nên val loại nó là đúng. Lưu ý là số test của M6 và phần đổi ID bị lạc quan, vì Thạch đã chỉnh chúng trên chính tập test.
 
-## Slide 34 — Full metrics trên test  _(≈ 57 giây)_
+## Slide 34 — Full metrics trên test  _(≈ 69 giây)_
 
-Đây là bảng đầy đủ trên test: mỗi dòng là PEG cộng một thành phần, với tham số tốt nhất chọn trên val, cộng hai bản mạnh nhất và bản của Thạch. Xanh là tốt hơn PEG, đỏ là kém hơn, cột cuối ghi video quyết định mức tăng. Bản mạnh nhất mà để val chọn hết, gồm cone và hãm vận tốc, chỉ ra Table III 70.0, kém PEG, vì phần hãm vận tốc. Bản tốt nhất là PEG+ cộng cone: Table I 68.44, Table II HOTA 63.14, Table III 83.1, tốt hơn PEG ở cả ba bảng, và hơn PEG+ một mình +0.81 HOTA ở Table II và +0.9 ở Table III. Phần tăng Table III của nó không phụ thuộc một video: bỏ lần chói có lợi nhất thì vẫn còn khoảng cộng bốn điểm rưỡi. Bản của Thạch có Table I cao nhất, nhưng Table III chỉ 53.6.
+Đây là bảng đầy đủ trên test: mỗi dòng là PEG cộng một thành phần, với tham số tốt nhất chọn trên val, cộng hai bản mạnh nhất và bản của Thạch. Xanh là tốt hơn PEG, đỏ là kém hơn, cột cuối ghi video quyết định mức tăng. Bản mạnh nhất mà để val chọn hết, gồm cone và hãm vận tốc, chỉ ra Table III 70.0, kém PEG, vì phần hãm vận tốc. Bản tốt nhất là PEG+ cộng cone: Table I 68.44, Table II HOTA 63.14, Table III 83.1, tốt hơn PEG ở cả ba bảng, và hơn PEG+ một mình +0.81 HOTA ở Table II và +0.9 ở Table III. Phần tăng Table III của nó không phụ thuộc một video: bỏ lần chói có lợi nhất thì vẫn còn khoảng cộng bốn điểm rưỡi. Bản của Thạch có Table I cao nhất, nhưng Table III chỉ 53.6. Bốn dòng PEG-C ở cuối: PEG-C online, T1 IDF1 84.26, T3 80.4; bản có S, T2 HOTA 62.67 nhưng nhờ một video; ALL cộng cone của Thạch. Chi tiết ở slide PEG-C.
 
-## Slide 35 — Full metrics trên val  _(≈ 24 giây)_
+## Slide 35 — Full metrics trên val  _(≈ 35 giây)_
 
-Đây là cùng bảng trên val, tập dùng để chọn. Trên val các mức chênh nhỏ hơn và gần như mức nào cũng nằm ở một hai video: cone nhờ video 156 và 147, hãm vận tốc nhờ một lần chói ở video 332. PEG+ trên val gần như bằng PEG, vì val hầu như không có ca box bị co lại khi coast.
+Đây là cùng bảng trên val, tập dùng để chọn. Trên val các mức chênh nhỏ hơn và gần như mức nào cũng nằm ở một hai video: cone nhờ video 156 và 147, hãm vận tốc nhờ một lần chói ở video 332. PEG+ trên val gần như bằng PEG, vì val hầu như không có ca box bị co lại khi coast. Bốn dòng PEG-C ở cuối: trên val PEG-C online tăng Table III lên 75.8 so với 67.3 của PEG+, đó là phần V được chọn; dòng fixed-lag chỉ có val.
 
-# NGƯỜI 2 — PEG+ và kết hợp (≈ 14.3 phút)
+# NGƯỜI 2 — PEG+ và kết hợp (≈ 19.9 phút)
 
 ## Slide 13 — PEG+: khóa kích thước  _(≈ 86 giây)_
 
@@ -160,11 +160,23 @@ Kết quả thẳng thắn: PEG-O không qua. Trên val, cả chín điểm củ
 
 Hai video cho hai kết cục. Ở video 135 trên test, người đi khoảng 111 pixel và box rộng 264: với cấu hình tau 0,06 gamma 1, box bám theo người, 41 trên 43 frame trúng, đúng bằng cận trên nếu căn tâm hoàn hảo. Nhưng chính cấu hình đó không phải điểm val chọn; điểm báo cáo tau 0,08 gamma 4 chỉ được 11 trên 43. Ở video 187 trên val thì ngược lại: người gần như đứng yên, box chỉ rộng 30 pixel, nhưng đỉnh của bộ lọc đĩa trôi mười đến hai mươi pixel khi độ chói tăng rồi giảm, vì vùng bão hòa đổi hình chứ không dời theo người. Với box hẹp như vậy, sai số đó đủ để mất box. Bọn mình kiểm tra lại là không phải lỗi code: ước lượng offline với mốc là đúng vị trí thật cũng thua, không có anchor cũ, và độ lệch trung vị của cập nhật là 9.7 pixel so với bề rộng box 41. Ngoài ra anchor lấy đúng lúc chói đang tăng, và vận tốc bị bơm vào Kalman nên box tiếp tục trôi.
 
-## Slide 39 — Kết luận và bài học  _(≈ 123 giây)_
+## Slide 39 — Coast chưa được thiết kế  _(≈ 92 giây)_
 
-Tóm lại sáu điều. Một, PEG-F bản đầu tái hiện được, nhưng khi so cùng cấu hình thì mức tăng chỉ +0.49 HOTA, và hai lần đổi ID quyết định gần hết mức tăng đó. Hai, PEG-F bản hai: Table I tái hiện đúng cả mười bốn cấu hình, nhưng Thạch chỉnh và chọn mọi thứ trên test; khi chọn lại trên val bằng luật chốt trước thì không method nào qua; và khi tune lại tham số từ đầu, chỉ trên val, kết quả vẫn vậy, cấu hình cuối cùng là PEG. Ba, ở bản hai, M1 đi cùng M5 làm Table III sụt mạnh, từ 76.2 xuống 53.6 trên test và từ 67.6 xuống 37.1 trên val, vì box bị kéo trượt ngang khỏi người. Bốn, PEG+ tăng Rcv trên test +5.6, trên val −0.4, gộp lại +3.2: chỉ giúp khi box co lại lúc coast. Năm, PEG-O, thử đo vị trí bằng chính vùng chói: đúng ở video 135 nơi người đi xa, nhưng so với PEG+ trên val −13.5 và trên test −8.6 Rcv, nên không nhận, vì đĩa chói đổi hình chứ không cứng. Sáu, nhìn một mình Table I rất dễ bị đánh lừa, nên lúc nào cũng đo đủ ba bảng, chọn trên val và báo test một lần. Hướng tiếp theo: chọn bằng khoảng tin cậy hoặc cross-validation thay vì ngưỡng cứng; thêm dữ liệu val, vì hiện giờ một hai video quyết định mọi mức tăng; đo vị trí từ vùng chói chỉ khi đĩa đã ổn định và box đủ lớn so với nhiễu đo khoảng 10 pixel; và M6 đáng thử lại khi có thêm dữ liệu val có người đứng gần đèn. Bài học lớn nhất với mình không phải một con số mà là cách làm: tái hiện trước, so cùng cấu hình, đo cả ba bảng, chọn trên val, và tách từng phần ra để xem phần nào thật sự có tác dụng.
+Phần này là phân tích oracle, chưa phải tracker. Câu hỏi: PEG giữ box cho người đang bị chói, nhưng box giữ như thế nào là tốt nhất. Mình lấy bốn mươi ba lần chói mà PEG+ đang theo dõi người, rồi thử áp một vận tốc không đổi từ khung cuối có detection. Nếu cứ đứng yên thì Rcv@.5 là 72.9 khi gộp. Nếu đoán vận tốc từ năm khung gần nhất thì chỉ 62.9, tệ hơn đứng yên, vì năm khung là nhiễu. Nếu đoán từ bốn mươi khung thì lên 87.8, trên val 86.6 và trên test 88.5, cao hơn cả PEG+ thực tế là 84.2. Trần lý thuyết nếu biết vận tốc thật là 96.0, và nếu biết cả tâm thật thì 99.9. Hình bên phải trả lời vì sao cửa sổ dài thắng: nét đứt xám là sai số nếu chỉ có nhiễu trắng, σ bằng 2.21 pixel, rơi theo K mũ trừ một phẩy năm. Đường xanh là sai số đo được, và nó dừng ở khoảng 0.28 pixel mỗi frame, bằng khoảng 54 phần trăm tốc độ thật. Đường cam là sai số khi lấy vận tốc từ chính ground truth quá khứ, cũng dừng ở khoảng 0.30. Vậy phần sai còn lại là do người đổi nhịp, tức là do mô hình vận tốc không đổi, không phải do nhiễu. Hàm ý: đi bộ dự đoán được từ cửa sổ dài, còn năm khung thì không.
 
-## Slide 40 — Hỏi đáp (cả hai)
+## Slide 40 — PEG-C: PEG quyết định có giữ, PEG-C thiết kế giữ thế nào  _(≈ 115 giây)_
+
+PEG trả lời câu hỏi có nên giữ box hay không, bằng cổng phi lớn hơn hoặc bằng h. PEG-C trả lời câu hỏi giữ như thế nào, bằng một mô hình duy nhất: vận tốc không đổi. Mô hình này dùng theo hai cách. Cách thứ nhất là bộ lọc online, gồm ba thành phần. V: lúc bắt đầu coast, vận tốc lấy từ độ dốc bình phương tối thiểu của K tâm detection gần nhất, thay vì vận tốc Kalman bị chói làm sai; trục nào có độ dốc nhỏ hơn t lần sai số chuẩn thì đặt bằng không. C: cổng chỉ được arm khi track đã mất không quá N khung. S: nếu ngay sau khi hết chói có một detection định sinh ID mới mà nằm sát box dự đoán của một track vừa cháy, thì nối lại thay vì sinh ID mới, chỉ khi ghép một đối một. Cách thứ hai là bộ làm mượt fixed-lag, cho phép sửa các hàng đã ghi tới L khung trước. B: khi một track cháy được bắt lại sau M khung, nối đường thẳng giữa hai detection hai đầu và điền vào khoảng trống; chế độ hidden chỉ thêm hàng còn thiếu, chế độ all thay luôn box coast. BB: nếu một track đã cháy ngay lúc sinh thì thêm hàng ngược về trước. Mỗi thành phần chỉ có một núm, lưới viết trước trong protocol, và val chọn. Có hai lưu ý ghi ở khung dưới. Một, dữ liệu chói giả đặt đĩa chói theo đúng ground truth box, nên bất cứ thứ gì đọc hình đĩa là rò rỉ; PEG-C chỉ đọc cổng phi lớn hơn h, giống PEG. Hai, B và BB sửa quá khứ nên không phải online; mọi hàng của chúng luôn gắn nhãn fixed-lag và báo riêng.
+
+## Slide 41 — PEG-C trên val và test: val nhận V, test không xác nhận  _(≈ 100 giây)_
+
+Kết quả thẳng thắn. Trên val, luật chốt trước chấp nhận V, vận tốc từ bốn mươi khung với t bằng hai: Table III tăng +8.5, Table I và II gần như không đổi. Thành phần S, nối lại ID sau chói, tăng Table II trên val nhưng chỉ nhờ một video, nên luật chặt không nhận. C và B hidden không đổi gì; B all làm Table III val giảm. Test chạy đúng một lần: Table III −1.7 so với PEG+, Table II HOTA −1.4, và Table I IDF1 +1.0. Theo từng lần chói, test −1.8 với khoảng tin cậy từ −7.7 đến +3.6, 4 tốt hơn và 5 tệ hơn; val +8.6 với 9 tốt hơn và 1 tệ hơn; gộp +2.4, khoảng tin cậy từ −2.1 đến +6.8, còn chứa không. Hàng nhỏ màu hồng là fixed-lag chín mươi khung: không được val chọn, và trên Table III trùng online. Hai hình dưới là hai đầu: video 187 trên val, người đi đều, cửa sổ sạch, PEG+ 19 lên 35 trên 35 khung; video 211 trên test, 25 xuống 13 trên 25. Phân tích sau test, không dùng để chọn: ở hai video thua trên test, vận tốc Kalman sẵn có của PEG+ lúc vào coast gần vận tốc thật hơn độ dốc bốn mươi khung: ở 211, Kalman (-0.33, 1.42), OLS (0.53, 1.08), thật (-0.08, 1.96); cửa sổ bốn mươi khung bắc qua một khoảng trống bốn mươi khung trước đó. Nền dài chỉ thắng khi người đi đều. Lợi ích nhất quán duy nhất trên test là IDF1 Table I, +1.0.
+
+## Slide 42 — Kết luận và bài học  _(≈ 152 giây)_
+
+Tóm lại bảy điều. Một, PEG-F bản đầu tái hiện được, nhưng khi so cùng cấu hình thì mức tăng chỉ +0.49 HOTA, và hai lần đổi ID quyết định gần hết mức tăng đó. Hai, PEG-F bản hai: Table I tái hiện đúng cả mười bốn cấu hình, nhưng Thạch chỉnh và chọn mọi thứ trên test; khi chọn lại trên val bằng luật chốt trước thì không method nào qua; và khi tune lại tham số từ đầu, chỉ trên val, kết quả vẫn vậy, cấu hình cuối cùng là PEG. Ba, ở bản hai, M1 đi cùng M5 làm Table III sụt mạnh, từ 76.2 xuống 53.6 trên test và từ 67.6 xuống 37.1 trên val, vì box bị kéo trượt ngang khỏi người. Bốn, PEG+ tăng Rcv trên test +5.6, trên val −0.4, gộp lại +3.2: chỉ giúp khi box co lại lúc coast. Năm, PEG-O, thử đo vị trí bằng chính vùng chói: đúng ở video 135 nơi người đi xa, nhưng so với PEG+ trên val −13.5 và trên test −8.6 Rcv, nên không nhận, vì đĩa chói đổi hình chứ không cứng. Sáu, PEG-C, thiết kế lại cách coast bằng vận tốc đo từ cửa sổ quá khứ dài: val nhận V và Table III tăng +8.6, nhưng test không xác nhận, −1.8 với khoảng tin cậy từ −7.7 đến +3.6, chỉ IDF1 Table I tăng +1.0; bài học là lợi ích oracle do val dẫn dắt thì vẫn do val dẫn dắt, và sàn sai số của vận tốc là mô hình vận tốc không đổi, không phải nhiễu. Bảy, nhìn một mình Table I rất dễ bị đánh lừa, nên lúc nào cũng đo đủ ba bảng, chọn trên val và báo test một lần. Hướng tiếp theo: chọn bằng khoảng tin cậy hoặc cross-validation thay vì ngưỡng cứng; thêm dữ liệu val, vì hiện giờ một hai video quyết định mọi mức tăng; đo vị trí từ vùng chói chỉ khi đĩa đã ổn định và box đủ lớn so với nhiễu đo khoảng 10 pixel; và M6 đáng thử lại khi có thêm dữ liệu val có người đứng gần đèn. Bài học lớn nhất với mình không phải một con số mà là cách làm: tái hiện trước, so cùng cấu hình, đo cả ba bảng, chọn trên val, và tách từng phần ra để xem phần nào thật sự có tác dụng.
+
+## Slide 43 — Hỏi đáp (cả hai)
 
 Bọn mình xin cảm ơn thầy cô và các bạn đã lắng nghe. Giờ bọn mình xin nhận câu hỏi.
 
@@ -224,7 +236,19 @@ B và M5 giả định đèn nằm cách tâm người 0.35 lần chiều cao n�
 
 Khi người đứng yên hoặc hẹp (val: 187, 203, 210); khi vùng chói phẳng (nửa khung hình trắng, như video 325): đỉnh chỉ nhọn ở cuối lần chói nên PEG-O gần như không đổi gì (bằng PEG+); và khi mục tiêu chưa bao giờ được track trước lúc chói (312, 305): không cách coast nào cứu được. PEG-O chỉ có ích khi quãng người đi lớn so với nhiễu đo khoảng 10 px.
 
-**14. Vậy rốt cuộc PEG+ có tốt hơn PEG không?** _(Người 2 trả lời)_
+**14. Fixed-lag có phải ăn gian không?** _(Người 2 trả lời)_
+
+Không phải ăn gian, nhưng cũng không phải online: B và BB sửa hoặc thêm các hàng đã ghi tới L khung trước, nên có độ trễ tối đa L khung. Vì vậy bọn mình báo riêng, luôn gắn nhãn fixed-lag L, không trộn với hàng online. Ở đây val không chọn nó: B hidden không thêm hàng nào ở Table III, còn B all làm Table III val giảm.
+
+**15. Synth rò rỉ GT thì PEG cũng rò rỉ?** _(Người 2 trả lời)_
+
+Synth đặt đĩa chói theo đúng GT box nên mọi phương pháp đọc hình hay vị trí đĩa đều rò rỉ GT. PEG và PEG-C chỉ đọc phi lớn hơn h, tức là cổng tồn tại: phần rò rỉ chỉ là có cháy hay không, giống nhau cho mọi phương pháp dùng cổng. Table I trên video thật là phép kiểm tra không rò rỉ.
+
+**16. Vì sao PEG-C val tăng mà test không?** _(Người 2 trả lời)_
+
+Val nhỏ, mười tám lần chói, và các thành phần được chọn từ phân tích oracle đã gộp cả val lẫn test. Trên test vận tốc từ cửa sổ dài sai ở hai video người đổi nhịp hoặc cửa sổ bắc qua một khoảng trống: Kalman sẵn có của PEG+ lúc vào coast gần vận tốc thật hơn. Đây là phân tích sau test, không dùng để chọn.
+
+**17. Vậy rốt cuộc PEG+ có tốt hơn PEG không?** _(Người 2 trả lời)_
 
 Chỉ ở những ca box co lại khi coast. Trên test nó tăng +5.6 Rcv, trên val −0.4. Gộp 48 lần chói thì tăng +3.2 với khoảng tin cậy [+0.1, +7.3]: có dấu hiệu tốt nhưng chưa chắc chắn.
 

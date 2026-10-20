@@ -1,0 +1,3 @@
+t1: 20 files compared, 0 differ  (th_tvPORTCHK vs th_tv51d09158)
+t2: 15 files compared, 0 differ  (th_tvPORTCHK_fs vs th_tv51d09158_fs)
+t3: 15 files compared, 0 differ  (th_tvPORTCHK_rcv vs th_tv51d09158_rcv)

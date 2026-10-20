@@ -1,0 +1,215 @@
+[
+ {
+  "round": 0,
+  "config": "P[0]",
+  "key": "tv51d09158",
+  "val": [
+   70.11,
+   76.3,
+   67.3
+  ]
+ },
+ {
+  "round": 1,
+  "rows": [
+   {
+    "add": "V[0]",
+    "comp": "V",
+    "idx": 0,
+    "key": "tvfc19f6d3",
+    "delta": [
+     0.0,
+     -0.38,
+     4.0
+    ],
+    "score": 3.62,
+    "admissible": true
+   },
+   {
+    "add": "V[1]",
+    "comp": "V",
+    "idx": 1,
+    "key": "tv55ea9bad",
+    "delta": [
+     0.0,
+     -0.39,
+     3.8
+    ],
+    "score": 3.41,
+    "admissible": true
+   },
+   {
+    "add": "V[2]",
+    "comp": "V",
+    "idx": 2,
+    "key": "tvd0b80eff",
+    "delta": [
+     -0.45,
+     -0.1,
+     8.5
+    ],
+    "score": 7.95,
+    "admissible": true
+   },
+   {
+    "add": "V[3]",
+    "comp": "V",
+    "idx": 3,
+    "key": "tv8267a438",
+    "delta": [
+     -0.44,
+     -0.1,
+     8.5
+    ],
+    "score": 7.96,
+    "admissible": true
+   },
+   {
+    "add": "C[0]",
+    "comp": "C",
+    "idx": 0,
+    "key": "tv438afaac",
+    "delta": [
+     0.07,
+     0.0,
+     0.0
+    ],
+    "score": 0.07,
+    "admissible": true
+   },
+   {
+    "add": "C[1]",
+    "comp": "C",
+    "idx": 1,
+    "key": "tv62b30d2c",
+    "delta": [
+     0.04,
+     0.0,
+     0.0
+    ],
+    "score": 0.04,
+    "admissible": true
+   },
+   {
+    "add": "S[0]",
+    "comp": "S",
+    "idx": 0,
+    "key": "tvd0e2129b",
+    "delta": [
+     0.0,
+     0.66,
+     0.0
+    ],
+    "score": 0.66,
+    "admissible": true
+   },
+   {
+    "add": "S[1]",
+    "comp": "S",
+    "idx": 1,
+    "key": "tv6fa28920",
+    "delta": [
+     0.0,
+     0.66,
+     0.0
+    ],
+    "score": 0.66,
+    "admissible": true
+   }
+  ],
+  "checks": [],
+  "accepted": "V[3]"
+ },
+ {
+  "round": 2,
+  "rows": [
+   {
+    "add": "C[0]",
+    "comp": "C",
+    "idx": 0,
+    "key": "tvfeae7c50",
+    "delta": [
+     0.09,
+     0.0,
+     0.0
+    ],
+    "score": 0.09,
+    "admissible": true
+   },
+   {
+    "add": "C[1]",
+    "comp": "C",
+    "idx": 1,
+    "key": "tvca34e575",
+    "delta": [
+     0.04,
+     0.0,
+     0.0
+    ],
+    "score": 0.04,
+    "admissible": true
+   },
+   {
+    "add": "S[0]",
+    "comp": "S",
+    "idx": 0,
+    "key": "tv869c07b7",
+    "delta": [
+     0.0,
+     1.3,
+     0.0
+    ],
+    "score": 1.3,
+    "admissible": true
+   },
+   {
+    "add": "S[1]",
+    "comp": "S",
+    "idx": 1,
+    "key": "tvd462461b",
+    "delta": [
+     0.0,
+     1.3,
+     0.0
+    ],
+    "score": 1.3,
+    "admissible": true
+   }
+  ],
+  "checks": [],
+  "accepted": "S[0]"
+ },
+ {
+  "round": 3,
+  "rows": [
+   {
+    "add": "C[0]",
+    "comp": "C",
+    "idx": 0,
+    "key": "tv1d1ed8d8",
+    "delta": [
+     0.09,
+     0.0,
+     0.0
+    ],
+    "score": 0.09,
+    "admissible": true
+   },
+   {
+    "add": "C[1]",
+    "comp": "C",
+    "idx": 1,
+    "key": "tv4f02a749",
+    "delta": [
+     0.04,
+     0.0,
+     0.0
+    ],
+    "score": 0.04,
+    "admissible": true
+   }
+  ],
+  "checks": [],
+  "accepted": null
+ }
+]

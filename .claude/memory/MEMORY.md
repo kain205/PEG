@@ -4,3 +4,5 @@
 - [MoRongMo labeling task](morongmo-labeling-task.md) — frames 35068-56611 for FastLabeler; app timeline != decode order; use COCO yolo11l, not the PEG detector
 - [PEG-O photometric odometry](peg-o-photometric-odometry.md) — 2026-10-20: burn-disc odometry for the held box FAILED on val+test (disc not rigid); PEG+ stays best
 - [Coast design research](coast-design-research.md) — oracle/residual/literature findings 2026-10-20: long-baseline velocity, gated backfill, causal cap, stitch; dead ends; synth disc leaks GT
+- [Principles from failures are OK](principles-from-failures-ok.md) — general principles may come from observed (even test) failures; only parameter tuning on test is forbidden
+- [PEG-C coast design](peg-c-coast-design.md) — 2026-10-20: long-baseline velocity etc.; val picked P+V (T3 +8.5) but test T3 −1.8 vs PEG+; PEG+ stays best; CV model is the error floor

@@ -1,0 +1,24 @@
+POST-TEST ANALYSIS, NOT USED FOR SELECTION. Instrumented replay of pegc (P + V K40 t2), guard off, cached, T3.
+
+== test 176_sequence_56q_new g204: replay rows == pegc_rcv: BYTE-IDENTICAL (1310 rows)
+   burn frames 331-355 (n=25); tracker ids matched to the target: [2]; covered@.5: PEG+ 25 -> pegc 10; oracle b40 21
+   oracle (ORACLE_T3.md): vt (true mean burn velocity) (-1.24, -0.47)  ve (b40 estimate) (-1.02, -0.87)  px/frame;  GT mean velocity recomputed here: (-1.24,-0.47)
+   coast entries (gap==1, mature track) of those ids from f271 to f355: 1; inside the burn window: 1
+   IN-BURN  f331 id2: n_det 40 (in 2K window 80) | v_ols(t=0) (-1.02,-0.87) SE (0.044,0.024) | t=2 zeroed axes [False, False] -> (-1.02,-0.87) | speed guard False (h 156.2) | ceiling vmax 2.912 hit False | Kalman v before (-1.29,-0.77) -> written (-1.02,-0.87)
+   counterfactual (arithmetic, same start box 47x157 from the pegc row at f331, v_final): undamped constant velocity covers 17/25; with the tracker's VEL_DAMP x0.95/frame past gap 10 it covers 14/25 (tracker actual 10)
+
+== test 211_sequence_88q_new g320: replay rows == pegc_rcv: BYTE-IDENTICAL (890 rows)
+   burn frames 436-460 (n=25); tracker ids matched to the target: [2]; covered@.5: PEG+ 25 -> pegc 13; oracle b40 20
+   oracle (ORACLE_T3.md): vt (true mean burn velocity) (-0.08, 1.96)  ve (b40 estimate) (0.27, 1.28)  px/frame;  GT mean velocity recomputed here: (-0.08,+1.96)
+   coast entries (gap==1, mature track) of those ids from f376 to f460: 1; inside the burn window: 0
+   pre-burn f435 id2: n_det 40 (in 2K window 40) | v_ols(t=0) (+0.53,+1.08) SE (0.033,0.025) | t=2 zeroed axes [False, False] -> (+0.53,+1.08) | speed guard False (h 207.9) | ceiling vmax 1.907 hit False | Kalman v before (-0.33,+1.42) -> written (+0.53,+1.08)
+   counterfactual (arithmetic, same start box 65x208 from the pegc row at f435, v_final): undamped constant velocity covers 12/25; with the tracker's VEL_DAMP x0.95/frame past gap 10 it covers 13/25 (tracker actual 13)
+
+== val 187_sequence_66q_new g247: replay rows == v_pegc_rcv: BYTE-IDENTICAL (484 rows)
+   burn frames 201-235 (n=35); tracker ids matched to the target: [1]; covered@.5: PEG+ 19 -> pegc 35; oracle b40 35
+   oracle (ORACLE_T3.md): vt (true mean burn velocity) (0.53, 0.46)  ve (b40 estimate) (0.33, 0.29)  px/frame;  GT mean velocity recomputed here: (+0.53,+0.46)
+   coast entries (gap==1, mature track) of those ids from f141 to f235: 2; inside the burn window: 0
+   pre-burn f141 id1: n_det 40 (in 2K window 80) | v_ols(t=0) (+0.58,+0.23) SE (0.017,0.017) | t=2 zeroed axes [False, False] -> (+0.58,+0.23) | speed guard False (h 101.9) | ceiling vmax 0.86 hit False | Kalman v before (+0.52,+0.10) -> written (+0.58,+0.23)
+   pre-burn f200 id1: n_det 40 (in 2K window 46) | v_ols(t=0) (+0.33,+0.29) SE (0.009,0.008) | t=2 zeroed axes [False, False] -> (+0.33,+0.29) | speed guard False (h 117.7) | ceiling vmax 1.129 hit False | Kalman v before (-0.04,+0.33) -> written (+0.33,+0.29)
+   counterfactual (arithmetic, same start box 35x117 from the pegc row at f200, v_final): undamped constant velocity covers 35/35; with the tracker's VEL_DAMP x0.95/frame past gap 10 it covers 35/35 (tracker actual 35)
+

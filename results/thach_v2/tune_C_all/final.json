@@ -1,0 +1,33 @@
+{
+ "chosen": {
+  "P": 0,
+  "V": 3,
+  "M1c": 0
+ },
+ "label": "M1c[0] + P[0] + V[3]",
+ "key": "tvbbd5a238",
+ "env": {
+  "GMOT_ADAPTIVE_MOTION": "1",
+  "GMOT_INTERACT_DAMP": "0",
+  "GMOT_REID": "0",
+  "GBEACON_DYNAMIC_H": "0",
+  "GBEACON_ADAPTIVE_TTL": "0",
+  "GMOT_DORMANT": "0",
+  "GBEACON_ANCHOR": "0",
+  "GMOT_DEGLARE": "0",
+  "GMOT_ID_RESOLVE_V2": "0",
+  "GMOT_ADAPTIVE_Q": "0",
+  "GMOT_CONE": "1",
+  "GMOT_REID_DEEP": "1",
+  "GMOT_CONE_CHI2": "5.99",
+  "GMOT_CONE_SPEED": "0.04",
+  "GPEG_SIZE_LOCK": "1",
+  "GPEG_VEL_K": "40",
+  "GPEG_VEL_T": "2"
+ },
+ "val": [
+  70.09,
+  77.49,
+  75.8
+ ]
+}

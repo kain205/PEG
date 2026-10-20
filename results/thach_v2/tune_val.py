@@ -165,8 +165,44 @@ if __name__ == "__main__":
     ap.add_argument("--peg_o", action="store_true", help="PEG-O search on top of S0+P (docs/PEG_O_PROTOCOL.md) -> tune_O/ "
                     "(+ --strong -> tune_O_strong/, + --all -> tune_O_all/)")
     ap.add_argument("--all", action="store_true", help="with --peg_o: start from tune_O/final.json, add Thach components (strongest rule)")
+    ap.add_argument("--peg_c", action="store_true", help="PEG-C search (docs/PEG_C_PROTOCOL.md): online {P,V,C,S} -> tune_C/ "
+                    "(+ --strong -> tune_C_strong/; + --lag -> tune_C_lag/ adds B, BB on top of tune_C/final.json; "
+                    "+ --all -> tune_C_all/ adds Thach components, strongest rule; --lag --all -> tune_C_lag_all/)")
+    ap.add_argument("--lag", action="store_true", help="with --peg_c: fixed-lag stage (B, BB)")
     a = ap.parse_args()
-    if a.peg_o:
+    if a.peg_c:
+        C_GRIDS = dict(
+            P=[{"GPEG_SIZE_LOCK": "1"}],
+            V=[{"GPEG_VEL_K": k, "GPEG_VEL_T": t} for k in ("20", "40") for t in ("0", "2")],
+            C=[{"GPEG_CAP": n} for n in ("48", "90")],
+            S=[{"GPEG_STITCH_K": k} for k in ("1.0", "1.5")])
+        LAG_GRIDS = dict(
+            B=[{"GPEG_BACKFILL_L": L, "GPEG_BACKFILL_MODE": m} for L in ("45", "90") for m in ("hidden", "all")],
+            BB=[{"GPEG_BACKBIRTH": "1"}])
+        ONLINE = ("P", "V", "C", "S")
+        THACH = {"R", "M1q", "M1c", "M1d", "M2", "M3", "M4", "M5", "M6"}
+        use = {**C_GRIDS, **(LAG_GRIDS if a.lag else {})}
+        if a.all:
+            STRONG = True
+            CANDIDATES = set(THACH)
+            GRID.update(use)
+            src = "tune_C_lag" if a.lag else "tune_C"
+            FORCE = dict(json.load(open(os.path.join(HERE, src, "final.json")))["chosen"])
+            sub = "tune_C_lag_all" if a.lag else "tune_C_all"
+        else:
+            GRID.clear(); GRID.update(use)
+            if a.lag:
+                STRONG = False
+                CANDIDATES = {"B", "BB"}
+                FORCE = dict(json.load(open(os.path.join(HERE, "tune_C", "final.json")))["chosen"])
+                sub = "tune_C_lag"
+            else:
+                STRONG = a.strong
+                FORCE = {"P": 0}
+                sub = "tune_C_strong" if a.strong else "tune_C"
+        TUNE = os.path.join(HERE, sub); os.makedirs(TUNE, exist_ok=True)
+        LEDGER = os.path.join(TUNE, "ledger.json")
+    elif a.peg_o:
         P_GRID = [{"GPEG_SIZE_LOCK": "1"}]
         O_GRID = [{"GPEG_ODO": "1", "GPEG_ODO_TAU": t, "GPEG_ODO_GAMMA": g}
                   for t in ("0.04", "0.06", "0.08") for g in ("0.25", "1", "4")]

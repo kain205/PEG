@@ -1,0 +1,84 @@
+[
+ {
+  "round": 0,
+  "config": "P[0] + V[3]",
+  "key": "tv8267a438",
+  "val": [
+   69.67,
+   76.2,
+   75.8
+  ]
+ },
+ {
+  "round": 1,
+  "rows": [
+   {
+    "add": "B[0]",
+    "comp": "B",
+    "idx": 0,
+    "key": "tv068dd40f",
+    "delta": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "score": 0.0,
+    "admissible": true
+   },
+   {
+    "add": "B[1]",
+    "comp": "B",
+    "idx": 1,
+    "key": "tvdbe6a196",
+    "delta": [
+     -0.01,
+     0.28,
+     -2.1
+    ],
+    "score": -1.83,
+    "admissible": false
+   },
+   {
+    "add": "B[2]",
+    "comp": "B",
+    "idx": 2,
+    "key": "tv10fbb353",
+    "delta": [
+     0.03,
+     0.0,
+     0.0
+    ],
+    "score": 0.03,
+    "admissible": true
+   },
+   {
+    "add": "B[3]",
+    "comp": "B",
+    "idx": 3,
+    "key": "tve6bcc87d",
+    "delta": [
+     0.02,
+     0.28,
+     -2.1
+    ],
+    "score": -1.8,
+    "admissible": false
+   },
+   {
+    "add": "BB[0]",
+    "comp": "BB",
+    "idx": 0,
+    "key": "tv28e8504e",
+    "delta": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "score": 0.0,
+    "admissible": true
+   }
+  ],
+  "checks": [],
+  "accepted": null
+ }
+]

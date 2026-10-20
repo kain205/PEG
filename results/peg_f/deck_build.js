@@ -22,6 +22,8 @@ const VS = JSON.parse(fs.readFileSync("D:/PROJECT/PEG/results/val_selection/numb
 const EPS = JSON.parse(fs.readFileSync("D:/PROJECT/PEG/results/val_selection/episodes.json", "utf8")).episodes;
 // PEG-O (results/peg_o/collect.py -> numbers.json): every PEG-O number comes from here or from full_metrics.json
 const PO = JSON.parse(fs.readFileSync("D:/PROJECT/PEG/results/peg_o/numbers.json", "utf8"));
+// PEG-C (results/peg_c/collect.py -> numbers.json): every PEG-C number comes from here or from full_metrics.json
+const PC = JSON.parse(fs.readFileSync("D:/PROJECT/PEG/results/peg_c/numbers.json", "utf8"));
 const need = (v, what) => { if (v === undefined || v === null || (typeof v === "number" && !isFinite(v))) throw new Error("PEG-O: missing " + what); return v; };
 
 const C = {
@@ -928,8 +930,10 @@ function v2table(s, sp, y0, sel) {
     .replace("PEG + M4 dormant", "PEG + M4").replace("PEG + M2 Re-ID", "PEG + M2").replace("PEG + M5 anchor", "PEG + M5").replace("PEG + M6 tone-map", "PEG + M6")
     .replace("Thach full+M6 (his params, tuned on test)", "Thạch full+M6 (tham số của Thạch)").replace(/ \[[A-Za-z0-9]+\[\d\]\]/, "")
     .replace("STRONGEST (val, no single-event check): M1c[0] + M1d[0]", "★ Mạnh nhất: cone + hãm vận tốc").replace("STRONGEST with PEG+ by design: M1c[0] + P[0]", "★ PEG+ (nguyên lý) + cone")
-    .replace("PEG-O (P+O, best val point τ .08 γ 4; rejected by val)", "PEG-O (τ .08 γ 4, val loại)");
-  const WGK = { "PEG+ (ours)": "P", "Thach": null, "STRONGEST (val": "tune_strong", "STRONGEST with": "tune_strong_P" };
+    .replace("PEG-O (P+O, best val point τ .08 γ 4; rejected by val)", "PEG-O (τ .08 γ 4, val loại)")
+    .replace("PEG-C online (P + V K40 t2; val-chosen)", "PEG-C online (V K40 t2, val chọn)").replace("PEG-C fixed-lag 90 (B hidden; rejected by val)", "PEG-C fixed-lag 90 (B hidden, val loại)")
+    .replace("PEG-C strongest (+ S stitch k 1.0)", "PEG-C mạnh nhất (+ S k 1.0)").replace("ALL = PEG-C + Thach greedy (M1 cone)", "ALL = PEG-C + Thạch (M1 cone)");
+  const WGK = { "PEG+ (ours)": "P", "Thach": null, "STRONGEST (val": "tune_strong", "STRONGEST with": "tune_strong_P", "PEG-C online": "C", "PEG-C fixed-lag": "Clag", "PEG-C strongest": "Cstrong", "ALL = PEG-C": "Call" };
   const wgName = (c) => { for (const [k, v] of Object.entries(WGK)) if (c.startsWith(k)) return v; const m = c.match(/\[([A-Za-z0-9]+)\[/); return m ? m[1] : null; };
   const short = (sp, c) => {
     const w = WG[sp + "|" + wgName(c)]; if (!w) return "";
@@ -943,37 +947,37 @@ function v2table(s, sp, y0, sel) {
   [["test", "test"], ["val", "val"]].forEach(([sp, lab]) => {
     const rows = FM[sp], peg = rows[0];
     const s = base("Full metrics trên " + lab + ": từng thành phần và bản mạnh nhất", "PEG-F v2 · FULL METRICS · " + lab.toUpperCase(), 1);
-    const x0 = 3.5, cw = 0.74, xn = x0 + COLS.length * cw, y0 = 1.3, rh = 0.30;
+    const x0 = 3.5, cw = 0.74, xn = x0 + COLS.length * cw, y0 = 1.3, rh = Math.min(0.30, 4.6 / rows.length), fs_ = rh < 0.28 ? 9 : 10;
     COLS.forEach(([cn], j) => txt(s, cn.replace(" ", "\n"), { x: x0 + j * cw, y: y0, w: cw, h: 0.42, fontSize: 9.5, bold: true, color: C.muted, align: "center", valign: "bottom" }));
     txt(s, "chủ yếu nhờ", { x: xn + 0.05, y: y0, w: 1.6, h: 0.42, fontSize: 9.5, bold: true, color: C.muted, valign: "bottom" });
     rows.forEach((r, i) => {
-      const y = y0 + 0.45 + i * rh, star = r.config.startsWith("STRONGEST"), isO = r.config.startsWith("PEG-O");
+      const y = y0 + 0.45 + i * rh, star = r.config.startsWith("STRONGEST"), isO = r.config.startsWith("PEG-O"), isC = r.config.startsWith("PEG-C") || r.config.startsWith("ALL = PEG-C"), noT = isO || (r.config.startsWith("PEG-C fixed-lag") && r["T1 HOTA"] === undefined);
       if (i % 2 === 0 || star) s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y, w: 12.13, h: rh - 0.02, fill: { color: star ? C.card2 : C.card }, line: { color: star ? C.amber : C.card, width: star ? 1 : 0 } });
-      txt(s, VN(r.config), { x: 0.7, y, w: 2.85, h: rh, fontSize: 10, bold: i < 2 || star || isO, color: isO ? C.po : i === 0 ? C.peg : i === 1 || r.config.includes("PEG+ by") ? C.plus : star ? C.amber : C.text, valign: "middle" });
+      txt(s, VN(r.config), { x: 0.7, y, w: 2.85, h: rh, fontSize: fs_, bold: i < 2 || star || isO || isC, color: isO ? C.po : isC ? C.sel : i === 0 ? C.peg : i === 1 || r.config.includes("PEG+ by") ? C.plus : star ? C.amber : C.text, valign: "middle" });
       COLS.forEach(([cn, dec], j) => {
         const v = r[cn], b = peg[cn];
         if (v === undefined || v === null) {
-          if (isO) txt(s, "–", { x: x0 + j * cw, y, w: cw, h: rh, fontSize: 10, align: "center", valign: "middle", color: C.muted });
+          if (noT) txt(s, "–", { x: x0 + j * cw, y, w: cw, h: rh, fontSize: fs_, align: "center", valign: "middle", color: C.muted });
           return;
         }
         const isBest = (r.best || []).includes(cn) && rows.filter((q) => (q.best || []).includes(cn)).length <= 3;
         const d = (v - b) * (LOWER[cn] ? -1 : 1), thr = dec === 0 ? 0.5 : 0.05;
         const col = i === 0 || Math.abs(d) < thr ? C.text : d > 0 ? C.good : C.red;
-        txt(s, dec ? fmt(v, dec) : fmtI(v), Object.assign({ x: x0 + j * cw, y, w: cw, h: rh, fontSize: 10, align: "center", valign: "middle", color: col, bold: star || isBest }, isBest ? { underline: { style: "sng", color: C.amber } } : {}));
+        txt(s, dec ? fmt(v, dec) : fmtI(v), Object.assign({ x: x0 + j * cw, y, w: cw, h: rh, fontSize: fs_, align: "center", valign: "middle", color: col, bold: star || isBest }, isBest ? { underline: { style: "sng", color: C.amber } } : {}));
       });
-      txt(s, isO ? (sp === "val" ? "T3 " + sgn(need(WG["val|O"], "where_gain val|O").T3.delta, 1) + ": " + WG["val|O"].T3.worse + " ep. tệ hơn" : "") : short(sp, r.config), { x: xn + 0.05, y, w: 12.7 - xn - 0.05, h: rh, fontSize: 8.5, color: C.muted, valign: "middle" });
+      txt(s, isO ? (sp === "val" ? "T3 " + sgn(need(WG["val|O"], "where_gain val|O").T3.delta, 1) + ": " + WG["val|O"].T3.worse + " ep. tệ hơn" : "") : noT ? "không chạy ở harness (val loại)" : short(sp, r.config), { x: xn + 0.05, y, w: 12.7 - xn - 0.05, h: rh, fontSize: rh < 0.28 ? 7 : 8.5, color: C.muted, valign: "middle" });
     });
     const yb = y0 + 0.45 + rows.length * rh + 0.05;
     const BO = need(FM.best_overall, "full_metrics best_overall");
     txt(s, [{ text: "Xanh/đỏ = tốt/xấu hơn PEG (IDSW, ID-off: ít hơn là tốt); gạch chân vàng = tốt nhất cột; “chủ yếu nhờ” = bỏ video/lần chói đó thì mất hơn nửa mức tăng. Dòng ★ chọn trên val, test chạy 1 lần." +
-        (sp === "test" ? " PEG-O không chạy test ở harness này (val loại); số test (guard tắt) ở slide PEG-O." : ""), options: { breakLine: true } },
+        (sp === "test" ? " PEG-O và PEG-C fixed-lag không chạy test ở harness này (val loại); số test (guard tắt) ở slide PEG-O và PEG-C." : ""), options: { breakLine: true } },
       { text: "Tốt nhất theo val (ΣΔ): " + VN(BO.config) + "  (ΣΔ val " + sgn(BO.val_sum_delta, 2) + ")", options: { bold: true, color: C.amber } }],
-      { x: 0.6, y: yb, w: 12.1, h: 6.97 - yb, fontSize: 10, color: C.muted, valign: "top" });
+      { x: 0.6, y: yb, w: 12.1, h: 7.0 - yb, fontSize: 9.5, color: C.muted, valign: "top" });
     const st = rows.find((r) => r.config.startsWith("STRONGEST with")), sa = rows.find((r) => r.config.startsWith("STRONGEST (val")), pp = rows[1];
     done(s, "Full metrics trên " + lab,
       sp === "test"
-        ? "Đây là bảng đầy đủ trên test: mỗi dòng là PEG cộng một thành phần, với tham số tốt nhất chọn trên val, cộng hai bản mạnh nhất và bản của Thạch. Xanh là tốt hơn PEG, đỏ là kém hơn, cột cuối ghi video quyết định mức tăng. Bản mạnh nhất mà để val chọn hết, gồm cone và hãm vận tốc, chỉ ra Table III " + fmt(sa["T3 Rcv@.5"], 1) + ", kém PEG, vì phần hãm vận tốc. Bản tốt nhất là PEG+ cộng cone: Table I " + fmt(st["T1 HOTA"], 2) + ", Table II HOTA " + fmt(st["T2 HOTA"], 2) + ", Table III " + fmt(st["T3 Rcv@.5"], 1) + ", tốt hơn PEG ở cả ba bảng, và hơn PEG+ một mình " + sgn(st["T2 HOTA"] - pp["T2 HOTA"], 2) + " HOTA ở Table II và " + sgn(st["T3 Rcv@.5"] - pp["T3 Rcv@.5"], 1) + " ở Table III. Phần tăng Table III của nó không phụ thuộc một video: bỏ lần chói có lợi nhất thì vẫn còn khoảng cộng bốn điểm rưỡi. Bản của Thạch có Table I cao nhất, nhưng Table III chỉ " + fmt(rows.find((r) => r.config.startsWith("Thach"))["T3 Rcv@.5"], 1) + "."
-        : "Đây là cùng bảng trên val, tập dùng để chọn. Trên val các mức chênh nhỏ hơn và gần như mức nào cũng nằm ở một hai video: cone nhờ video 156 và 147, hãm vận tốc nhờ một lần chói ở video 332. PEG+ trên val gần như bằng PEG, vì val hầu như không có ca box bị co lại khi coast.");
+        ? "Đây là bảng đầy đủ trên test: mỗi dòng là PEG cộng một thành phần, với tham số tốt nhất chọn trên val, cộng hai bản mạnh nhất và bản của Thạch. Xanh là tốt hơn PEG, đỏ là kém hơn, cột cuối ghi video quyết định mức tăng. Bản mạnh nhất mà để val chọn hết, gồm cone và hãm vận tốc, chỉ ra Table III " + fmt(sa["T3 Rcv@.5"], 1) + ", kém PEG, vì phần hãm vận tốc. Bản tốt nhất là PEG+ cộng cone: Table I " + fmt(st["T1 HOTA"], 2) + ", Table II HOTA " + fmt(st["T2 HOTA"], 2) + ", Table III " + fmt(st["T3 Rcv@.5"], 1) + ", tốt hơn PEG ở cả ba bảng, và hơn PEG+ một mình " + sgn(st["T2 HOTA"] - pp["T2 HOTA"], 2) + " HOTA ở Table II và " + sgn(st["T3 Rcv@.5"] - pp["T3 Rcv@.5"], 1) + " ở Table III. Phần tăng Table III của nó không phụ thuộc một video: bỏ lần chói có lợi nhất thì vẫn còn khoảng cộng bốn điểm rưỡi. Bản của Thạch có Table I cao nhất, nhưng Table III chỉ " + fmt(rows.find((r) => r.config.startsWith("Thach"))["T3 Rcv@.5"], 1) + ". Bốn dòng PEG-C ở cuối: PEG-C online, T1 IDF1 " + fmt(rows.find((r) => r.config.startsWith("PEG-C online"))["T1 IDF1"], 2) + ", T3 " + fmt(rows.find((r) => r.config.startsWith("PEG-C online"))["T3 Rcv@.5"], 1) + "; bản có S, T2 HOTA " + fmt(rows.find((r) => r.config.startsWith("PEG-C strongest"))["T2 HOTA"], 2) + " nhưng nhờ một video; ALL cộng cone của Thạch. Chi tiết ở slide PEG-C."
+        : "Đây là cùng bảng trên val, tập dùng để chọn. Trên val các mức chênh nhỏ hơn và gần như mức nào cũng nằm ở một hai video: cone nhờ video 156 và 147, hãm vận tốc nhờ một lần chói ở video 332. PEG+ trên val gần như bằng PEG, vì val hầu như không có ca box bị co lại khi coast. Bốn dòng PEG-C ở cuối: trên val PEG-C online tăng Table III lên " + fmt(rows.find((r) => r.config.startsWith("PEG-C online"))["T3 Rcv@.5"], 1) + " so với " + fmt(rows[1]["T3 Rcv@.5"], 1) + " của PEG+, đó là phần V được chọn; dòng fixed-lag chỉ có val.");
   });
 }
 
@@ -1126,6 +1130,154 @@ function v2table(s, sp, y0, sel) {
   }
 }
 
+// ═════════ PEG-C (results/peg_c/numbers.json, results/thach_v2/full_metrics.json) ═════════
+{
+  const FMX = JSON.parse(fs.readFileSync("D:/PROJECT/PEG/results/thach_v2/full_metrics.json", "utf8"));
+  const PCF = "D:/PROJECT/PEG/results/peg_c/figures";
+  const KIND = "PEG-C · ";
+  const needC = (v, what) => { if (v === undefined || v === null || (typeof v === "number" && !isFinite(v))) throw new Error("PEG-C: missing " + what); return v; };
+  const R = PC.paper_setting_test;
+  const rPlus = needC(R["PEG+"], "paper_setting_test.PEG+"), rC = needC(R["PEG-C online (P + V K40 t2)"], "paper_setting_test.PEG-C online"),
+    rL = needC(R["PEG-C fixed-lag 90 (B hidden; label: fixed-lag)"], "paper_setting_test.PEG-C fixed-lag"), rPeg = needC(R["PEG (ours reproduction)"], "PEG");
+  const vrowC = (p) => needC(FMX.val.find((r) => r.config.startsWith(p)), "full_metrics val " + p);
+  const vC = vrowC("PEG-C online"), vP = vrowC("PEG+ (ours)"), vL = vrowC("PEG-C fixed-lag");
+  const EP = PC.episodes_summary, epc = (sp, k) => needC(EP[sp][k || "PEG-C_vs_PEG+"], "episodes_summary." + sp);
+  const SN = needC(PC.slope_noise, "slope_noise"), OR = needC(PC.oracle, "oracle"), OT = OR.other, OV = OR.vest;
+  const DG = needC(PC.diag_test_losses, "diag"), G176 = DG["176_sequence_56q_new"], G211 = DG["211_sequence_88q_new"], G187 = DG["187_sequence_66q_new"];
+  const gov = (g) => g.entries.filter((e) => e.frame <= g.frames[0]).slice(-1)[0];
+  const S_ = PC.search, GRID = PC.grids;
+  const dVal = [vC["T1 HOTA"] - vP["T1 HOTA"], vC["T1 IDF1"] - vP["T1 IDF1"], vC["T2 HOTA"] - vP["T2 HOTA"], vC["T3 Rcv@.5"] - vP["T3 Rcv@.5"]];
+  const dTest = [rC.T1.HOTA - rPlus.T1.HOTA, rC.T1.IDF1 - rPlus.T1.IDF1, rC.T2.HOTA - rPlus.T2.HOTA, rC.T3["Rcv@.5"] - rPlus.T3["Rcv@.5"]];
+  const dLag = [rL.T1.HOTA - rPlus.T1.HOTA, rL.T1.IDF1 - rPlus.T1.IDF1, rL.T2.HOTA - rPlus.T2.HOTA, rL.T3["Rcv@.5"] - rPlus.T3["Rcv@.5"]];
+  const dLagVal = [vL["T1 HOTA"] - vP["T1 HOTA"], vL["T1 IDF1"] - vP["T1 IDF1"], vL["T2 HOTA"] - vP["T2 HOTA"], vL["T3 Rcv@.5"] - vP["T3 Rcv@.5"]];
+  dVal.concat(dTest, dLag, dLagVal).forEach((v) => { if (!isN(v)) throw new Error("PEG-C: missing delta"); });
+  const oracleRows = [
+    ["đứng yên (frozen)", OT.test.a_frozen, OT.val.a_frozen, OT.pooled.a_frozen, C.muted],
+    ["vận tốc 5 khung (b5)", OV.test.b5.rcv, OV.val.b5.rcv, OV.pooled.b5.rcv, C.red],
+    ["vận tốc 20 khung (b20)", OV.test.b20.rcv, OV.val.b20.rcv, OV.pooled.b20.rcv, C.text],
+    ["vận tốc 40 khung (b40)", OV.test.b40.rcv, OV.val.b40.rcv, OV.pooled.b40.rcv, C.sel],
+    ["40 khung từ GT (g40)", OV.test.g40.rcv, OV.val.g40.rcv, OV.pooled.g40.rcv, C.text],
+    ["vận tốc thật (GT, oracle)", OT.test.i_oracle_constvel, OT.val.i_oracle_constvel, OT.pooled.i_oracle_constvel, C.text],
+    ["tâm thật (GT, oracle)", OT.test.d_oracle_centre, OT.val.d_oracle_centre, OT.pooled.d_oracle_centre, C.text],
+    ["PEG+ thực tế", OT.test.PEGp_tracked_actual, OT.val.PEGp_tracked_actual, OT.pooled.PEGp_tracked_actual, C.plus],
+  ];
+  oracleRows.forEach((r) => r.slice(1, 4).forEach((v) => needC(v, "oracle row " + r[0])));
+  const vt = needC(SN.median_vtrue_speed, "median v"), mb = SN.measured_med_verr_pooled, mg = SN.model_error_med_verr_pooled;
+
+  // ───── 39: coast is not designed yet ─────
+  {
+    const s = base("Coast chưa được thiết kế", KIND + "ORACLE", 2);
+    card(s, 0.6, 1.55, 5.55, 4.15);
+    txt(s, "Rcv@.5 nếu coast bằng vận tốc đoán từ quá khứ (43 lần chói có track)", { x: 0.75, y: 1.62, w: 5.3, h: 0.5, fontSize: 12, bold: true, color: C.muted });
+    const x0 = 3.0, cw = 0.95;
+    ["test", "val", "gộp"].forEach((h, j) => txt(s, h, { x: x0 + j * cw, y: 2.12, w: cw, h: 0.3, fontSize: 12, bold: true, color: C.muted, align: "center" }));
+    oracleRows.forEach((r, i) => {
+      const y = 2.45 + i * 0.395;
+      if (i % 2 === 0) s.addShape(pres.shapes.RECTANGLE, { x: 0.7, y, w: 5.35, h: 0.37, fill: { color: C.card2 }, line: { color: C.card2 } });
+      txt(s, r[0], { x: 0.8, y, w: 2.2, h: 0.37, fontSize: 12, bold: i === 3 || i === 7, color: r[4], valign: "middle" });
+      [1, 2, 3].forEach((j) => txt(s, fmt(r[j], 1), { x: x0 + (j - 1) * cw, y, w: cw, h: 0.37, fontSize: 14, bold: i === 3 || i === 7 || j === 3, color: r[4] === C.muted ? C.text : r[4], align: "center", valign: "middle" }));
+    });
+    fig(s, path.join(PCF, "slope_noise.png"), 6.3, 1.55, 6.43, 4.15, "center");
+    card(s, 0.6, 5.85, 12.13, 1.0, C.card2);
+    s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y: 5.85, w: 0.1, h: 1.0, fill: { color: C.amber }, line: { color: C.amber } });
+    txt(s, [{ text: "Đi bộ dự đoán được từ cửa sổ quá khứ dài; 5 khung chỉ là nhiễu.", options: { bold: true, fontSize: 16, breakLine: true } },
+      { text: "σ = " + fmt(SN.sigma_px, 2) + " px: sàn nhiễu rơi nhanh theo K, nhưng sai số vận tốc dừng ở " + fmt(mb.b40, 2) + "–" + fmt(mb.b80, 2) + " px/frame (" + fmtI(100 * mb.b40 / vt) + "–" + fmtI(100 * mb.b80 / vt) + "% tốc độ thật " + fmt(vt, 2) + "): giới hạn là mô hình vận tốc không đổi, không phải nhiễu.", options: { fontSize: 12.5, color: C.muted } }],
+      { x: 0.9, y: 5.85, w: 11.7, h: 1.0, valign: "middle" });
+    done(s, "Coast chưa được thiết kế",
+      "Phần này là phân tích oracle, chưa phải tracker. Câu hỏi: PEG giữ box cho người đang bị chói, nhưng box giữ như thế nào là tốt nhất. Mình lấy bốn mươi ba lần chói mà PEG+ đang theo dõi người, rồi thử áp một vận tốc không đổi từ khung cuối có detection. Nếu cứ đứng yên thì Rcv@.5 là " + fmt(OT.pooled.a_frozen, 1) + " khi gộp. Nếu đoán vận tốc từ năm khung gần nhất thì chỉ " + fmt(OV.pooled.b5.rcv, 1) + ", tệ hơn đứng yên, vì năm khung là nhiễu. Nếu đoán từ bốn mươi khung thì lên " + fmt(OV.pooled.b40.rcv, 1) + ", trên val " + fmt(OV.val.b40.rcv, 1) + " và trên test " + fmt(OV.test.b40.rcv, 1) + ", cao hơn cả PEG+ thực tế là " + fmt(OT.pooled.PEGp_tracked_actual, 1) + ". Trần lý thuyết nếu biết vận tốc thật là " + fmt(OT.pooled.i_oracle_constvel, 1) + ", và nếu biết cả tâm thật thì " + fmt(OT.pooled.d_oracle_centre, 1) + ". Hình bên phải trả lời vì sao cửa sổ dài thắng: nét đứt xám là sai số nếu chỉ có nhiễu trắng, σ bằng " + fmt(SN.sigma_px, 2) + " pixel, rơi theo K mũ trừ một phẩy năm. Đường xanh là sai số đo được, và nó dừng ở khoảng " + fmt(mb.b40, 2) + " pixel mỗi frame, bằng khoảng " + fmtI(100 * mb.b40 / vt) + " phần trăm tốc độ thật. Đường cam là sai số khi lấy vận tốc từ chính ground truth quá khứ, cũng dừng ở khoảng " + fmt(mg.g40, 2) + ". Vậy phần sai còn lại là do người đổi nhịp, tức là do mô hình vận tốc không đổi, không phải do nhiễu. Hàm ý: đi bộ dự đoán được từ cửa sổ dài, còn năm khung thì không.");
+  }
+
+  // ───── 40: algorithm ─────
+  {
+    const s = base("PEG-C: PEG quyết định có giữ, PEG-C thiết kế giữ thế nào", KIND + "THUẬT TOÁN", 2);
+    // timeline diagram (shapes only): past detections | burn (coast) | re-acquisition
+    card(s, 0.6, 1.55, 12.13, 1.9, C.card2);
+    const bx0 = 5.25, bx1 = 9.25;
+    s.addShape(pres.shapes.RECTANGLE, { x: bx0, y: 1.65, w: bx1 - bx0, h: 1.4, fill: { color: "FFFFFF", transparency: 88 }, line: { color: "FFFFFF", transparency: 70, width: 1 } });
+    txt(s, "chói: không có detection, cổng φ ≥ h arm", { x: bx0, y: 1.68, w: bx1 - bx0, h: 0.3, fontSize: 11, color: C.muted, align: "center" });
+    const past = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => [1.2 + i * 0.5, 2.78 - i * 0.06]);
+    past.forEach(([x, y]) => s.addShape(pres.shapes.OVAL, { x: x - 0.06, y: y - 0.06, w: 0.12, h: 0.12, fill: { color: C.sel }, line: { color: C.sel } }));
+    s.addShape(pres.shapes.LINE, { x: past[0][0], y: past[7][1], w: past[7][0] - past[0][0], h: past[0][1] - past[7][1], flipV: true, line: { color: C.sel, width: 1.5 } });
+    // V: constant-velocity extrapolation (dashed amber) continues the slope
+    s.addShape(pres.shapes.LINE, { x: past[7][0], y: 1.85, w: bx1 - past[7][0] - 0.05, h: past[7][1] - 1.85, flipV: true, line: { color: C.amber, width: 2.25, dashType: "dash", endArrowType: "triangle" } });
+    txt(s, "coast: x_t = x_0 + v·t", { x: 9.4, y: 1.72, w: 2.9, h: 0.3, fontSize: 10.5, color: C.amber });
+    // B: straight line between the two detections (green), re-acquired detection below the extrapolation
+    const dx = 9.85, dy = 2.85;
+    s.addShape(pres.shapes.OVAL, { x: dx - 0.08, y: dy - 0.08, w: 0.16, h: 0.16, fill: { color: C.plus }, line: { color: C.plus } });
+    s.addShape(pres.shapes.LINE, { x: past[7][0], y: past[7][1], w: dx - past[7][0], h: dy - past[7][1], line: { color: C.plus, width: 2.25 } });
+    txt(s, "V: độ dốc OLS của K tâm\ndetection gần nhất", { x: 0.95, y: 1.7, w: 3.9, h: 0.55, fontSize: 11, color: C.sel, bold: true });
+    txt(s, "B: đường thẳng giữa hai detection (fixed-lag)", { x: 5.3, y: 3.1, w: 4.6, h: 0.3, fontSize: 11, color: C.plus, bold: true });
+    txt(s, "S: detection này sắp sinh ID mới ⇒\nnối lại vào track vừa cháy", { x: 10.1, y: 2.45, w: 2.55, h: 0.6, fontSize: 11, color: C.amber, bold: true });
+    // table of knobs
+    const T = [
+      ["V", "online", "vận tốc lúc vào coast = OLS trên K tâm detection gần nhất; trục |v| ≤ t·SE về 0", "K " + GRID.V.map((g) => g.replace("K", "").replace(" t", "/t")).join(" · ")],
+      ["C", "online", "trần nhân quả: cổng chỉ arm khi gap ≤ N", GRID.C.join(" · ")],
+      ["S", "online", "burn-exit stitch: detection sắp sinh ID mới nối lại track vừa cháy (1:1)", GRID.S.join(" · ")],
+      ["B", "fixed-lag", "backfill: đường thẳng giữa hai detection (hidden: chỉ thêm hàng thiếu; all: thay luôn)", GRID.B.join(" · ")],
+      ["BB", "fixed-lag", "backward birth: track cháy ngay lúc sinh được thêm hàng ngược về trước", GRID.BB.join(" · ")],
+    ];
+    const TY = 3.6, RH = 0.44;
+    ["", "loại", "làm gì (một núm mỗi thành phần)", "lưới val chọn"].forEach((h, j) => txt(s, h, { x: [0.7, 1.35, 2.75, 9.0][j], y: TY, w: [0.6, 1.3, 6.2, 3.6][j], h: 0.3, fontSize: 11, bold: true, color: C.muted }));
+    T.forEach((r, i) => {
+      const y = TY + 0.32 + i * RH, lag = r[1] === "fixed-lag";
+      s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y, w: 12.13, h: RH - 0.03, fill: { color: i % 2 ? C.card2 : C.card }, line: { color: i % 2 ? C.card2 : C.card } });
+      txt(s, r[0], { x: 0.7, y, w: 0.6, h: RH - 0.03, fontSize: 16, bold: true, color: lag ? C.miss : C.sel, valign: "middle" });
+      txt(s, r[1], { x: 1.35, y, w: 1.3, h: RH - 0.03, fontSize: 12, bold: lag, color: lag ? C.miss : C.muted, valign: "middle" });
+      txt(s, r[2], { x: 2.75, y, w: 6.15, h: RH - 0.03, fontSize: 11, valign: "middle" });
+      txt(s, r[3], { x: 9.0, y, w: 3.65, h: RH - 0.03, fontSize: 11, color: C.muted, valign: "middle" });
+    });
+    // leak caveat
+    const yb = TY + 0.32 + 5 * RH + 0.12;
+    card(s, 0.6, yb, 12.13, 6.92 - yb, C.card2);
+    s.addShape(pres.shapes.RECTANGLE, { x: 0.6, y: yb, w: 0.1, h: 6.92 - yb, fill: { color: C.amber }, line: { color: C.amber } });
+    txt(s, [{ text: "Lưu ý rò rỉ: ", options: { bold: true, color: C.amber } }, { text: "PEG-C chỉ đọc cổng φ ≥ h như PEG, không đọc hình đĩa chói (synth đặt đĩa theo GT box). Hàng fixed-lag trễ ≤ L khung nên không phải online và luôn được báo riêng.", options: { color: C.text } }],
+      { x: 0.9, y: yb, w: 11.7, h: 6.92 - yb, fontSize: 13.5, valign: "middle" });
+    done(s, "PEG-C: PEG quyết định có giữ, PEG-C thiết kế giữ thế nào",
+      "PEG trả lời câu hỏi có nên giữ box hay không, bằng cổng phi lớn hơn hoặc bằng h. PEG-C trả lời câu hỏi giữ như thế nào, bằng một mô hình duy nhất: vận tốc không đổi. Mô hình này dùng theo hai cách. Cách thứ nhất là bộ lọc online, gồm ba thành phần. V: lúc bắt đầu coast, vận tốc lấy từ độ dốc bình phương tối thiểu của K tâm detection gần nhất, thay vì vận tốc Kalman bị chói làm sai; trục nào có độ dốc nhỏ hơn t lần sai số chuẩn thì đặt bằng không. C: cổng chỉ được arm khi track đã mất không quá N khung. S: nếu ngay sau khi hết chói có một detection định sinh ID mới mà nằm sát box dự đoán của một track vừa cháy, thì nối lại thay vì sinh ID mới, chỉ khi ghép một đối một. Cách thứ hai là bộ làm mượt fixed-lag, cho phép sửa các hàng đã ghi tới L khung trước. B: khi một track cháy được bắt lại sau M khung, nối đường thẳng giữa hai detection hai đầu và điền vào khoảng trống; chế độ hidden chỉ thêm hàng còn thiếu, chế độ all thay luôn box coast. BB: nếu một track đã cháy ngay lúc sinh thì thêm hàng ngược về trước. Mỗi thành phần chỉ có một núm, lưới viết trước trong protocol, và val chọn. Có hai lưu ý ghi ở khung dưới. Một, dữ liệu chói giả đặt đĩa chói theo đúng ground truth box, nên bất cứ thứ gì đọc hình đĩa là rò rỉ; PEG-C chỉ đọc cổng phi lớn hơn h, giống PEG. Hai, B và BB sửa quá khứ nên không phải online; mọi hàng của chúng luôn gắn nhãn fixed-lag và báo riêng.");
+  }
+
+  // ───── 41: val and test ─────
+  {
+    const s = base("PEG-C trên val và test: val nhận V, test không xác nhận", KIND + "KẾT QUẢ", 2);
+    // effect strip
+    card(s, 0.6, 1.55, 7.2, 2.7);
+    txt(s, "Δ so với PEG+:", { x: 0.85, y: 1.6, w: 3, h: 0.3, fontSize: 13, bold: true, color: C.muted });
+    const x0 = 3.1, cw = 1.12;
+    ["Δ T1 HOTA", "Δ T1 IDF1", "Δ T2 HOTA", "Δ T3 Rcv@.5"].forEach((cn, j) => txt(s, cn, { x: x0 + j * cw, y: 1.9, w: cw, h: 0.28, fontSize: 11, color: C.muted, align: "center" }));
+    [["val", "harness Thạch, guard bật", dVal, false],
+     ["test", "repo mình, guard tắt (paper)", dTest, false],
+     ["fixed-lag 90", "không được val chọn · test, guard tắt", dLag, true]].forEach(([lab, sub, d, mini], i) => {
+      const yy = 2.2 + i * 0.58, hh = mini ? 0.5 : 0.55;
+      txt(s, [{ text: lab, options: { bold: true, fontSize: mini ? 13 : 16, color: mini ? C.miss : C.text, breakLine: true } }, { text: sub, options: { fontSize: 8.5, color: C.muted } }], { x: 0.85, y: yy, w: 2.55, h: hh, valign: "middle" });
+      d.forEach((v, j) => txt(s, sgn(v, j === 3 ? 1 : 2), { x: x0 + j * cw, y: yy, w: cw, h: hh, fontSize: mini ? 16 : 19, bold: true, color: Math.abs(v) < 0.05 ? C.muted : v > 0 ? C.good : C.red, align: "center", valign: "middle" }));
+    });
+    txt(s, "Fixed-lag (B hidden) trùng online ở T3: B không thêm hàng nào vì cổng đã phát box cho gần như mọi khung.", { x: 0.85, y: 3.93, w: 6.8, h: 0.3, fontSize: 10, color: C.muted });
+    // per-episode card
+    card(s, 7.95, 1.55, 4.78, 2.7, C.card2);
+    txt(s, "Từng lần chói (T3), PEG-C so với PEG+", { x: 8.15, y: 1.6, w: 4.5, h: 0.3, fontSize: 12.5, bold: true, color: C.sel });
+    [["test", "test"], ["val", "val"], ["pooled", "gộp"]].forEach(([k, lab], i) => {
+      const e = epc(k), n = EP[k].n_episodes;
+      txt(s, [{ text: lab + " (" + n + " ep.)  ", options: { bold: true, color: C.text } },
+        { text: "Δ " + sgn(e.delta, 1) + " [" + sgn(e.ci95[0], 1) + ", " + sgn(e.ci95[1], 1) + "]", options: { bold: true, color: e.ci95[0] > 0 ? C.good : C.amber, breakLine: true } },
+        { text: e.better + " tốt hơn / " + e.worse + " tệ hơn / " + e.same + " như nhau", options: { color: C.muted, fontSize: 11 } }],
+        { x: 8.15, y: 2.0 + i * 0.75, w: 4.45, h: 0.7, fontSize: 14, valign: "middle" });
+    });
+    // strips
+    const sy = 4.4, sh = 2.0;
+    const r1 = fig(s, path.join(PCF, "187_66q_strip.png"), 0.6, sy, 4.1, sh, "left");
+    const r2 = fig(s, path.join(PCF, "211_88q_strip.png"), 4.85, sy, 4.1, sh, "left");
+    txt(s, [{ text: "187 (val): ", options: { bold: true, color: C.good } }, { text: G187.covered_pegplus + " → " + G187.covered_pegc + " / " + G187.oracle.n + " frame", options: { color: C.muted } }], { x: 0.6, y: r1.y + r1.h + 0.04, w: 4.1, h: 0.3, fontSize: 11 });
+    txt(s, [{ text: "211 (test): ", options: { bold: true, color: C.red } }, { text: G211.covered_pegplus + " → " + G211.covered_pegc + " / " + G211.oracle.n + " frame", options: { color: C.muted } }], { x: 4.85, y: r2.y + r2.h + 0.04, w: 4.1, h: 0.3, fontSize: 11 });
+    card(s, 9.1, 4.4, 3.63, 2.45, C.card2);
+    txt(s, "Vì sao test thua", { x: 9.3, y: 4.45, w: 3.3, h: 0.3, fontSize: 13, bold: true, color: C.amber });
+    txt(s, "Nền dài lỗi thời khi người đổi nhịp, hoặc cửa sổ bắc qua một khoảng trống trước đó. Ở 176 và 211 vận tốc Kalman sẵn có gần vận tốc thật hơn OLS 40 khung; ở 187 (val) OLS thắng. Mỗi burn là một lần coast liên tục nên vận tốc chỉ được ước lượng một lần, lúc vào coast.",
+      { x: 9.3, y: 4.78, w: 3.3, h: 2.0, fontSize: 12, color: C.text });
+    const ct = epc("test"), cv_ = epc("val"), cp = epc("pooled");
+    done(s, "PEG-C trên val và test: val nhận V, test không xác nhận",
+      "Kết quả thẳng thắn. Trên val, luật chốt trước chấp nhận V, vận tốc từ bốn mươi khung với t bằng hai: Table III tăng " + sgn(dVal[3], 1) + ", Table I và II gần như không đổi. Thành phần S, nối lại ID sau chói, tăng Table II trên val nhưng chỉ nhờ một video, nên luật chặt không nhận. C và B hidden không đổi gì; B all làm Table III val giảm. Test chạy đúng một lần: Table III " + sgn(dTest[3], 1) + " so với PEG+, Table II HOTA " + sgn(dTest[2], 1) + ", và Table I IDF1 " + sgn(dTest[1], 1) + ". Theo từng lần chói, test " + sgn(ct.delta, 1) + " với khoảng tin cậy từ " + sgn(ct.ci95[0], 1) + " đến " + sgn(ct.ci95[1], 1) + ", " + ct.better + " tốt hơn và " + ct.worse + " tệ hơn; val " + sgn(cv_.delta, 1) + " với " + cv_.better + " tốt hơn và " + cv_.worse + " tệ hơn; gộp " + sgn(cp.delta, 1) + ", khoảng tin cậy từ " + sgn(cp.ci95[0], 1) + " đến " + sgn(cp.ci95[1], 1) + ", còn chứa không. Hàng nhỏ màu hồng là fixed-lag chín mươi khung: không được val chọn, và trên Table III trùng online. Hai hình dưới là hai đầu: video 187 trên val, người đi đều, cửa sổ sạch, PEG+ " + G187.covered_pegplus + " lên " + G187.covered_pegc + " trên " + G187.oracle.n + " khung; video 211 trên test, " + G211.covered_pegplus + " xuống " + G211.covered_pegc + " trên " + G211.oracle.n + ". Phân tích sau test, không dùng để chọn: ở hai video thua trên test, vận tốc Kalman sẵn có của PEG+ lúc vào coast gần vận tốc thật hơn độ dốc bốn mươi khung: ở 211, Kalman (" + fmt(gov(G211).v_kalman_before[0], 2) + ", " + fmt(gov(G211).v_kalman_before[1], 2) + "), OLS (" + fmt(gov(G211).v_ols_t0[0], 2) + ", " + fmt(gov(G211).v_ols_t0[1], 2) + "), thật (" + fmt(G211.gt_mean_v[0], 2) + ", " + fmt(G211.gt_mean_v[1], 2) + "); cửa sổ bốn mươi khung bắc qua một khoảng trống bốn mươi khung trước đó. Nền dài chỉ thắng khi người đi đều. Lợi ích nhất quán duy nhất trên test là IDF1 Table I, " + sgn(dTest[1], 1) + ".");
+  }
+}
+
 // ═════════ 17 ─ Conclusion ═════════
 {
   const s = base("Kết luận và bài học", "TỔNG KẾT", 2);
@@ -1134,6 +1286,8 @@ function v2table(s, sp, y0, sel) {
   const stc = need(FMC.test.find((r) => r.config.startsWith("STRONGEST with")), "full_metrics STRONGEST with PEG+");
   const dpo = need(PO.episodes_summary.val["PEG-O_vs_PEG+"].delta, "val delta"), dpt = need(PO.episodes_summary.test["PEG-O_vs_PEG+"].delta, "test delta");
   const noise = Math.round(need(PO.val_diagnosis.D2.zc_median_px, "zc median"));
+  const pcT = need(PC.episodes_summary.test["PEG-C_vs_PEG+"], "PEG-C test"), pcV = need(PC.episodes_summary.val["PEG-C_vs_PEG+"], "PEG-C val");
+  const pcRt = need(PC.paper_setting_test["PEG-C online (P + V K40 t2)"], "pegc"), pcRp = need(PC.paper_setting_test["PEG+"], "pegc PEG+");
   card(s, 0.6, 1.55, 6.0, 5.2);
   txt(s, "Kết quả", { x: 0.9, y: 1.62, w: 5.4, h: 0.4, fontSize: 20, bold: true, color: C.amber });
   txt(s, bullets([
@@ -1142,14 +1296,15 @@ function v2table(s, sp, y0, sel) {
     "v2: M1 × M5 làm Table III sụt (" + fmt(v2p.T3["Rcv@.5"], 1) + " → " + fmt(v2t.T3["Rcv@.5"], 1) + " test): box trượt ngang.",
     "PEG+: Rcv test " + sgn(ES.test.A.delta, 1) + ", val " + sgn(ES.val.A.delta, 1) + "; PEG+ + cone tốt nhất: " + fmt(stc["T1 HOTA"], 2) + " · " + fmt(stc["T2 HOTA"], 2) + " · " + fmt(stc["T3 Rcv@.5"], 1) + ".",
     "PEG-O (đo bằng vùng chói): đúng ở 135 (người đi xa) nhưng val " + sgn(dpo, 1) + ", test " + sgn(dpt, 1) + " Rcv vs PEG+ → không nhận; đĩa chói không cứng.",
+    "PEG-C (thiết kế coast): val " + sgn(pcV.delta, 1) + " Rcv, test " + sgn(pcT.delta, 1) + " [" + sgn(pcT.ci95[0], 1) + ", " + sgn(pcT.ci95[1], 1) + "]; chỉ T1 IDF1 " + sgn(pcRt.T1.IDF1 - pcRp.T1.IDF1, 1) + " trên test (val " + sgn(need(FMC.val.find((r) => r.config.startsWith("PEG-C online")), "fm val PEG-C")["T1 IDF1"] - need(FMC.val.find((r) => r.config.startsWith("PEG+ (ours)")), "fm val PEG+")["T1 IDF1"], 1) + ": chưa chắc).",
     "Luôn đo đủ 3 bảng, chọn trên val, báo test 1 lần.",
-  ], { paraSpaceAfter: 7 }), { x: 0.9, y: 2.1, w: 5.45, h: 4.6, fontSize: 15 });
+  ], { paraSpaceAfter: 5 }), { x: 0.9, y: 2.1, w: 5.45, h: 4.6, fontSize: 14 });
   card(s, 6.78, 1.55, 5.95, 5.2, C.card2);
   txt(s, "Hướng tiếp theo", { x: 7.08, y: 1.62, w: 5.4, h: 0.4, fontSize: 20, bold: true, color: C.plus });
-  txt(s, ["Chọn bằng khoảng tin cậy hoặc cross-validation, không bằng ngưỡng cứng", "Thêm dữ liệu val: hiện 1–2 video quyết định mọi mức tăng", "Đo vị trí từ vùng chói chỉ khi đĩa đã ổn định và box đủ lớn so với nhiễu ~" + noise + " px", "M6 (tone-map): thử lại khi val có nhiều ca chói quanh người hơn"].map((t, i, a) => ({ text: t, options: { bullet: { type: "number" }, breakLine: i < a.length - 1, paraSpaceAfter: 18 } })),
-    { x: 7.08, y: 2.1, w: 5.4, h: 4.6, fontSize: 18 });
+  txt(s, ["Chọn bằng khoảng tin cậy hoặc cross-validation, không bằng ngưỡng cứng", "Thêm dữ liệu val: hiện 1–2 video quyết định mọi mức tăng", "Vận tốc coast: sàn sai số là mô hình vận tốc không đổi (≈ " + fmt(PC.slope_noise.measured_med_verr_pooled.b40, 2) + " px/frame), không phải nhiễu; cần cách ước lượng biết người đổi nhịp", "Đo vị trí từ vùng chói chỉ khi đĩa đã ổn định và box đủ lớn so với nhiễu ~" + noise + " px", "M6 (tone-map): thử lại khi val có nhiều ca chói quanh người hơn"].map((t, i, a) => ({ text: t, options: { bullet: { type: "number" }, breakLine: i < a.length - 1, paraSpaceAfter: 14 } })),
+    { x: 7.08, y: 2.1, w: 5.4, h: 4.6, fontSize: 16 });
   done(s, "Kết luận và bài học",
-    "Tóm lại sáu điều. Một, PEG-F bản đầu tái hiện được, nhưng khi so cùng cấu hình thì mức tăng chỉ " + sgn(CL.HOTA - FP_.HOTA, 2) + " HOTA, và hai lần đổi ID quyết định gần hết mức tăng đó. Hai, PEG-F bản hai: Table I tái hiện đúng cả mười bốn cấu hình, nhưng Thạch chỉnh và chọn mọi thứ trên test; khi chọn lại trên val bằng luật chốt trước thì không method nào qua; và khi tune lại tham số từ đầu, chỉ trên val, kết quả vẫn vậy, cấu hình cuối cùng là PEG. Ba, ở bản hai, M1 đi cùng M5 làm Table III sụt mạnh, từ " + fmt(v2p.T3["Rcv@.5"], 1) + " xuống " + fmt(v2t.T3["Rcv@.5"], 1) + " trên test và từ " + fmt(v2vp.T3["Rcv@.5"], 1) + " xuống " + fmt(v2v.T3["Rcv@.5"], 1) + " trên val, vì box bị kéo trượt ngang khỏi người. Bốn, PEG+ tăng Rcv trên test " + sgn(ES.test.A.delta, 1) + ", trên val " + sgn(ES.val.A.delta, 1) + ", gộp lại " + sgn(ES.pooled.A.delta, 1) + ": chỉ giúp khi box co lại lúc coast. Năm, PEG-O, thử đo vị trí bằng chính vùng chói: đúng ở video 135 nơi người đi xa, nhưng so với PEG+ trên val " + sgn(dpo, 1) + " và trên test " + sgn(dpt, 1) + " Rcv, nên không nhận, vì đĩa chói đổi hình chứ không cứng. Sáu, nhìn một mình Table I rất dễ bị đánh lừa, nên lúc nào cũng đo đủ ba bảng, chọn trên val và báo test một lần. Hướng tiếp theo: chọn bằng khoảng tin cậy hoặc cross-validation thay vì ngưỡng cứng; thêm dữ liệu val, vì hiện giờ một hai video quyết định mọi mức tăng; đo vị trí từ vùng chói chỉ khi đĩa đã ổn định và box đủ lớn so với nhiễu đo khoảng " + noise + " pixel; và M6 đáng thử lại khi có thêm dữ liệu val có người đứng gần đèn. Bài học lớn nhất với mình không phải một con số mà là cách làm: tái hiện trước, so cùng cấu hình, đo cả ba bảng, chọn trên val, và tách từng phần ra để xem phần nào thật sự có tác dụng.");
+    "Tóm lại bảy điều. Một, PEG-F bản đầu tái hiện được, nhưng khi so cùng cấu hình thì mức tăng chỉ " + sgn(CL.HOTA - FP_.HOTA, 2) + " HOTA, và hai lần đổi ID quyết định gần hết mức tăng đó. Hai, PEG-F bản hai: Table I tái hiện đúng cả mười bốn cấu hình, nhưng Thạch chỉnh và chọn mọi thứ trên test; khi chọn lại trên val bằng luật chốt trước thì không method nào qua; và khi tune lại tham số từ đầu, chỉ trên val, kết quả vẫn vậy, cấu hình cuối cùng là PEG. Ba, ở bản hai, M1 đi cùng M5 làm Table III sụt mạnh, từ " + fmt(v2p.T3["Rcv@.5"], 1) + " xuống " + fmt(v2t.T3["Rcv@.5"], 1) + " trên test và từ " + fmt(v2vp.T3["Rcv@.5"], 1) + " xuống " + fmt(v2v.T3["Rcv@.5"], 1) + " trên val, vì box bị kéo trượt ngang khỏi người. Bốn, PEG+ tăng Rcv trên test " + sgn(ES.test.A.delta, 1) + ", trên val " + sgn(ES.val.A.delta, 1) + ", gộp lại " + sgn(ES.pooled.A.delta, 1) + ": chỉ giúp khi box co lại lúc coast. Năm, PEG-O, thử đo vị trí bằng chính vùng chói: đúng ở video 135 nơi người đi xa, nhưng so với PEG+ trên val " + sgn(dpo, 1) + " và trên test " + sgn(dpt, 1) + " Rcv, nên không nhận, vì đĩa chói đổi hình chứ không cứng. Sáu, PEG-C, thiết kế lại cách coast bằng vận tốc đo từ cửa sổ quá khứ dài: val nhận V và Table III tăng " + sgn(pcV.delta, 1) + ", nhưng test không xác nhận, " + sgn(pcT.delta, 1) + " với khoảng tin cậy từ " + sgn(pcT.ci95[0], 1) + " đến " + sgn(pcT.ci95[1], 1) + ", chỉ IDF1 Table I tăng " + sgn(pcRt.T1.IDF1 - pcRp.T1.IDF1, 1) + "; bài học là lợi ích oracle do val dẫn dắt thì vẫn do val dẫn dắt, và sàn sai số của vận tốc là mô hình vận tốc không đổi, không phải nhiễu. Bảy, nhìn một mình Table I rất dễ bị đánh lừa, nên lúc nào cũng đo đủ ba bảng, chọn trên val và báo test một lần. Hướng tiếp theo: chọn bằng khoảng tin cậy hoặc cross-validation thay vì ngưỡng cứng; thêm dữ liệu val, vì hiện giờ một hai video quyết định mọi mức tăng; đo vị trí từ vùng chói chỉ khi đĩa đã ổn định và box đủ lớn so với nhiễu đo khoảng " + noise + " pixel; và M6 đáng thử lại khi có thêm dữ liệu val có người đứng gần đèn. Bài học lớn nhất với mình không phải một con số mà là cách làm: tái hiện trước, so cùng cấu hình, đo cả ba bảng, chọn trên val, và tách từng phần ra để xem phần nào thật sự có tác dụng.");
 }
 
 // ═════════ 18 ─ Q&A ═════════
@@ -1196,6 +1351,12 @@ const QA = [
     "B và M5 giả định đèn nằm cách tâm người 0.35 lần chiều cao nên lệch có hệ thống. PEG-O chỉ đo độ dời nên không cần offset, và đúng ở video 135 (" + SMQ.peg_o + "/" + SMQ.n + " frame với τ .06 γ 1). Nhưng đĩa chói không cứng: khi độ chói tăng hay giảm thì đỉnh lọc dịch 10–20 px dù người không đi, và với người rộng khoảng " + fmtI(need(PO.episode_facts["187_66q_g247_141"].box_w_start, "187 box")) + " px thì đủ mất box. Kết quả: val " + sgn(PO.episodes_summary.val["PEG-O_vs_PEG+"].delta, 1) + ", test " + sgn(PO.episodes_summary.test["PEG-O_vs_PEG+"].delta, 1) + " Rcv so với PEG+."],
   [2, "Khi nào PEG-O không giúp?",
     "Khi người đứng yên hoặc hẹp (val: 187, 203, 210); khi vùng chói phẳng (nửa khung hình trắng, như video 325): đỉnh chỉ nhọn ở cuối lần chói nên PEG-O gần như không đổi gì (bằng PEG+); và khi mục tiêu chưa bao giờ được track trước lúc chói (312, 305): không cách coast nào cứu được. PEG-O chỉ có ích khi quãng người đi lớn so với nhiễu đo khoảng " + noiseQ + " px."],
+  [2, "Fixed-lag có phải ăn gian không?",
+    "Không phải ăn gian, nhưng cũng không phải online: B và BB sửa hoặc thêm các hàng đã ghi tới L khung trước, nên có độ trễ tối đa L khung. Vì vậy bọn mình báo riêng, luôn gắn nhãn fixed-lag L, không trộn với hàng online. Ở đây val không chọn nó: B hidden không thêm hàng nào ở Table III, còn B all làm Table III val giảm."],
+  [2, "Synth rò rỉ GT thì PEG cũng rò rỉ?",
+    "Synth đặt đĩa chói theo đúng GT box nên mọi phương pháp đọc hình hay vị trí đĩa đều rò rỉ GT. PEG và PEG-C chỉ đọc phi lớn hơn h, tức là cổng tồn tại: phần rò rỉ chỉ là có cháy hay không, giống nhau cho mọi phương pháp dùng cổng. Table I trên video thật là phép kiểm tra không rò rỉ."],
+  [2, "Vì sao PEG-C val tăng mà test không?",
+    "Val nhỏ, mười tám lần chói, và các thành phần được chọn từ phân tích oracle đã gộp cả val lẫn test. Trên test vận tốc từ cửa sổ dài sai ở hai video người đổi nhịp hoặc cửa sổ bắc qua một khoảng trống: Kalman sẵn có của PEG+ lúc vào coast gần vận tốc thật hơn. Đây là phân tích sau test, không dùng để chọn."],
   [2, "Vậy rốt cuộc PEG+ có tốt hơn PEG không?",
     "Chỉ ở những ca box co lại khi coast. Trên test nó tăng " + sgn(ES.test.A.delta, 1) + " Rcv, trên val " + sgn(ES.val.A.delta, 1) + ". Gộp " + ES.pooled.n_episodes + " lần chói thì tăng " + sgn(ES.pooled.A.delta, 1) + " với khoảng tin cậy [" + sgn(ES.pooled.A.ci95[0], 1) + ", " + sgn(ES.pooled.A.ci95[1], 1) + "]: có dấu hiệu tốt nhưng chưa chắc chắn."],
 ];

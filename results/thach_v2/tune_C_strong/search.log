@@ -1,0 +1,24 @@
+S0 (70.11, 76.3, 67.3)
+  round 1: P[0] + V[0]                              d=[0.0, -0.38, 4.0] score=+3.62
+  round 1: P[0] + V[1]                              d=[0.0, -0.39, 3.8] score=+3.41
+  round 1: P[0] + V[2]                              d=[-0.45, -0.1, 8.5] score=+7.95
+  round 1: P[0] + V[3]                              d=[-0.44, -0.1, 8.5] score=+7.96
+  round 1: C[0] + P[0]                              d=[0.07, 0.0, 0.0] score=+0.07
+  round 1: C[1] + P[0]                              d=[0.04, 0.0, 0.0] score=+0.04
+  round 1: P[0] + S[0]                              d=[0.0, 0.66, 0.0] score=+0.66
+  round 1: P[0] + S[1]                              d=[0.0, 0.66, 0.0] score=+0.66
+ACCEPT V[3] -> P[0] + V[3] (69.67, 76.2, 75.8)
+  round 2: C[0] + P[0] + V[3]                       d=[0.09, 0.0, 0.0] score=+0.09
+  round 2: C[1] + P[0] + V[3]                       d=[0.04, 0.0, 0.0] score=+0.04
+  round 2: P[0] + S[0] + V[3]                       d=[0.0, 1.3, 0.0] score=+1.30
+  round 2: P[0] + S[1] + V[3]                       d=[0.0, 1.3, 0.0] score=+1.30
+ACCEPT S[0] -> P[0] + S[0] + V[3] (69.67, 77.5, 75.8)
+t2 val tv1d1ed8d8: exit 0, 17s
+t3 val tv1d1ed8d8: exit 0, 12s
+t1 val tv1d1ed8d8: exit 0, 29s
+  round 3: C[0] + P[0] + S[0] + V[3]                d=[0.09, 0.0, 0.0] score=+0.09
+t2 val tv4f02a749: exit 0, 16s
+t3 val tv4f02a749: exit 0, 12s
+t1 val tv4f02a749: exit 0, 28s
+  round 3: C[1] + P[0] + S[0] + V[3]                d=[0.04, 0.0, 0.0] score=+0.04
+FINAL P[0] + S[0] + V[3] (69.67, 77.5, 75.8)
