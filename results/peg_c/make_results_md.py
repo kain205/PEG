@@ -7,6 +7,7 @@ rows, vt3, hr, sr, ep, orc, sn, dg = n["paper_setting_test"], n["val_T3"], n["ha
 f2 = lambda x: "–" if x is None else (f"{x:.2f}" if isinstance(x, float) else str(x))
 f1 = lambda x: "–" if x is None else (f"{x:.1f}" if isinstance(x, (int, float)) else str(x))
 PEG, PP, PC, PL = "PEG (ours reproduction)", "PEG+", "PEG-C online (P + V K40 t2)", "PEG-C fixed-lag 90 (B hidden; label: fixed-lag)"
+PLB = "PEG-C fixed-lag 90 (B all on PEG+; val-chosen)"
 PA = rows["paper PEG"]
 GL = {"V": n["grids"]["V"], "C": n["grids"]["C"], "S": n["grids"]["S"], "B": n["grids"]["B"], "BB": n["grids"]["BB"]}
 
@@ -38,17 +39,17 @@ md = ["# PEG-C: thiết kế cách coast (kết quả)", "",
       "- **Hàng fixed-lag không phải online**: B và BB ghi lại/thêm hàng tới L khung trong quá khứ. Mọi hàng thuộc họ này luôn ghi nhãn \"fixed-lag L\" và báo riêng, không trộn với hàng online.",
       "- Val nhỏ (17 seq thật, 18 episode T3): kết quả null trên val ít thông tin, nhưng vẫn là luật.", "",
       "## Bảng test, guard tắt (setting của paper)", "",
-      "PEG-C online = P + V (K 40, t 2) — **do val chọn**. PEG-C fixed-lag 90 (B hidden, L 90) — *không được val chọn* (hàng fixed-lag, chỉ để tham khảo).", "",
+      "PEG-C online = P + V (K 40, t 2) — **do val chọn**. PEG-C fixed-lag 90 (B hidden sau V) — *không được val chọn* (hàng fixed-lag, tham khảo). **PEG-C fixed-lag 90 (B all trên PEG+, không V)** = Stage 2b, do val chọn (Addendum 2); hàng fixed-lag, báo riêng.", "",
       "| | T1 HOTA | DetA | AssA | IDF1 | MOTA | IDSW | FP | FN |", "|---|---|---|---|---|---|---|---|---|"]
-for nm, r in (("paper PEG", PA), ("PEG", rows[PEG]), ("PEG+", rows[PP]), ("PEG-C online", rows[PC]), ("PEG-C fixed-lag 90 (không chọn)", rows[PL])):
+for nm, r in (("paper PEG", PA), ("PEG", rows[PEG]), ("PEG+", rows[PP]), ("PEG-C online", rows[PC]), ("PEG-C fixed-lag 90 (B hidden sau V; không chọn)", rows[PL]), ("PEG-C fixed-lag 90 (B all trên PEG+; val chọn)", rows[PLB])):
     t = r["T1"]; md.append(f"| {nm} | " + " | ".join(f2(t.get(k)) for k in ("HOTA", "DetA", "AssA", "IDF1", "MOTA", "IDSW", "FP", "FN")) + " |")
-md += ["", "| | T2 HOTA | AssA | MOTA | FP | Rcll | IDF1 | IDSW |", "|---|---|---|---|---|---|---|---|"]
-for nm, r in (("paper PEG", PA), ("PEG", rows[PEG]), ("PEG+", rows[PP]), ("PEG-C online", rows[PC]), ("PEG-C fixed-lag 90 (không chọn)", rows[PL])):
-    t = r["T2"]; md.append(f"| {nm} | " + " | ".join(f2(t.get(k)) for k in ("HOTA", "AssA", "MOTA", "FP", "Rcll", "IDF1", "IDSW")) + " |")
+md += ["", "| | T2 HOTA | AssA | MOTA | FP | FN | Rcll | IDF1 | IDSW |", "|---|---|---|---|---|---|---|---|---|"]
+for nm, r in (("paper PEG", PA), ("PEG", rows[PEG]), ("PEG+", rows[PP]), ("PEG-C online", rows[PC]), ("PEG-C fixed-lag 90 (B hidden sau V; không chọn)", rows[PL]), ("PEG-C fixed-lag 90 (B all trên PEG+; val chọn)", rows[PLB])):
+    t = r["T2"]; md.append(f"| {nm} | " + " | ".join(f2(t.get(k)) for k in ("HOTA", "AssA", "MOTA", "FP", "FN", "Rcll", "IDF1", "IDSW")) + " |")
 md += ["", "| | T3 clear | Rcv@.5 | heavy | total | ID-off % | survived | IDSW | Frag |", "|---|---|---|---|---|---|---|---|---|"]
-for nm, r in (("paper PEG", PA), ("PEG", rows[PEG]), ("PEG+", rows[PP]), ("PEG-C online", rows[PC]), ("PEG-C fixed-lag 90 (không chọn)", rows[PL])):
+for nm, r in (("paper PEG", PA), ("PEG", rows[PEG]), ("PEG+", rows[PP]), ("PEG-C online", rows[PC]), ("PEG-C fixed-lag 90 (B hidden sau V; không chọn)", rows[PL]), ("PEG-C fixed-lag 90 (B all trên PEG+; val chọn)", rows[PLB])):
     t = r["T3"]; md.append(f"| {nm} | " + " | ".join((str(int(t[k])) if (k in ("IDSW", "Frag") and t.get(k) is not None) else f1(t.get(k))) for k in ("clear", "Rcv@.5", "heavy", "total", "ID_off_pct", "survived", "IDSW", "Frag")) + " |")
-md += ["", f"Val T3 Rcv@.5 (guard tắt): PEG {vt3['PEG']['Rcv@.5']}, PEG+ {vt3['PEG+']['Rcv@.5']}, PEG-C online {vt3['PEG-C online']['Rcv@.5']}, PEG-C fixed-lag 90 {vt3['PEG-C fixed-lag 90']['Rcv@.5']}. "
+md += ["", f"Val T3 Rcv@.5 (guard tắt): PEG {vt3['PEG']['Rcv@.5']}, PEG+ {vt3['PEG+']['Rcv@.5']}, PEG-C online {vt3['PEG-C online']['Rcv@.5']}, PEG-C fixed-lag 90 (B hidden sau V) {vt3['PEG-C fixed-lag 90']['Rcv@.5']}, PEG-C fixed-lag 90 (B all trên PEG+) {vt3['PEG-C fixed-lag 90 (B all on PEG+)']['Rcv@.5']}. "
        f"Fixed-lag hidden giống hệt online trên T3 (cả test lẫn val): B hidden không thêm hàng nào ở T3.", ""]
 a, c_ = rows[PP], rows[PC]
 md += ["Chênh PEG-C online so với PEG+ / PEG (test, guard tắt):", "",
@@ -94,6 +95,43 @@ md += ["", "### Vì sao các thành phần bị loại", "",
        f"- **B hidden**: score {sr['tune_C_lag']['rounds'][0]['rows'][0]['score']:+.2f} / {sr['tune_C_lag']['rounds'][0]['rows'][2]['score']:+.2f} (L 45 / L 90): không thêm hàng nào ở T3 (hàng test và val giống hệt online) vì cổng đã phát box cho gần như mọi khung của khoảng trống.",
        "- **B all** làm tệ T3 val " + f"{sr['tune_C_lag']['rounds'][0]['rows'][1]['delta'][2]:+.1f}" + ": " + "; ".join(f"{e['episode'].split('|')[0].split('_')[0]} g{e['episode'].split('|')[1]} {e['covered_before']}→{e['covered_after']} (n {e['n']})" for e in lc) + " (nội suy thay luôn box coast).",
        f"- **BB**: không kích hoạt ở lần chạy val nào (score {sr['tune_C_lag']['rounds'][0]['rows'][4]['score']:+.2f}).", ""]
+
+# ---- Stage 2b: B on PEG+ (no V)
+LP = sr["tune_C_lagP"]
+lb = rows[PLB]; la = rows[PP]
+eb_t = ep["test"]["PEG-C lag B_vs_PEG+"]; eb_v = ep["val"]["PEG-C lag B_vs_PEG+"]; eb_p = ep["pooled"]["PEG-C lag B_vs_PEG+"]
+md += ["## Stage 2b: B trên PEG+ (không V) — Addendum 2", "",
+       "Lý do (`docs/PEG_C_PROTOCOL.md` Addendum 2, commit `a43ae88`, viết trước khi chạy): giai đoạn lag chỉ thử B *sau* V. Khi V bật, cổng đã phát box cho gần như mọi khung của khoảng trống nên B hidden không có gì để điền, "
+       "còn B all ghi đè coast của V: không đánh giá được B bằng đúng cơ chế của nó. Nay thử B (và BB) ngay trên PEG+ (P, không V, không S). Ghi chú đã công bố: kiểm tra tài liệu (`LITERATURE_IDEAS.md`) từng đo backfill trên đầu ra PEG+ ở cả hai split, trong đó có test. "
+       "B nội suy giữa hai box detection của chính track và chỉ bị cổng tồn tại (có khung arm trong khoảng trống) điều khiển; không đọc hình học đĩa. **Đây là hàng fixed-lag (trễ ≤ L khung), không online.**", ""]
+md += search_block("tune_C_lagP", "Stage 2b (luật chặt): B, BB trên PEG+", {1, 2})
+md += [f"Luật mạnh nhất: {sr['tune_C_lagP_strong']['same_as']}", ""]
+tt = LP["test"]
+md += [f"Test chạy đúng một lần (Thach harness, guard bật, `tune_C_lagP/test.json`): T1 HOTA {tt['T1']['HOTA']} / IDF1 {tt['T1']['IDF1']} / MOTA {tt['T1']['MOTA']} / IDSW {int(tt['T1']['IDSW'])}; "
+       f"T2 HOTA {tt['T2']['HOTA']} / IDF1 {tt['T2']['IDF1']} / MOTA {tt['T2']['MOTA']}; T3 Rcv@.5 {tt['T3']['Rcv@.5']} / total {tt['T3']['total']} / ID-off {tt['T3']['ID_off']}.", "",
+       "Hàng paper-setting (repo của mình, guard tắt, cache; B all, L 90) so với PEG+:", "",
+       "| | PEG+ | PEG-C fixed-lag 90 (B all trên PEG+) | Δ |", "|---|---|---|---|"]
+for lab_, tab, k, dec in (("T1 HOTA", "T1", "HOTA", 2), ("T1 IDF1", "T1", "IDF1", 2), ("T1 MOTA", "T1", "MOTA", 2), ("T1 IDSW", "T1", "IDSW", 0), ("T1 FP", "T1", "FP", 0), ("T1 FN", "T1", "FN", 0),
+                          ("T2 HOTA", "T2", "HOTA", 2), ("T2 IDF1", "T2", "IDF1", 2), ("T2 MOTA", "T2", "MOTA", 2), ("T2 IDSW", "T2", "IDSW", 0), ("T2 FP", "T2", "FP", 0), ("T2 FN", "T2", "FN", 0),
+                          ("T3 Rcv@.5", "T3", "Rcv@.5", 1), ("T3 total", "T3", "total", 1), ("T3 ID-off %", "T3", "ID_off_pct", 1)):
+    x, y = la[tab][k], lb[tab][k]
+    fm_ = (lambda v: f"{v:.{dec}f}") if dec else (lambda v: str(int(v)))
+    md.append(f"| {lab_} | {fm_(x)} | {fm_(y)} | {y - x:+.{dec}f} |")
+md += ["", f"Val T3 Rcv@.5 (repo của mình): PEG+ {vt3['PEG+']['Rcv@.5']} → {vt3['PEG-C fixed-lag 90 (B all on PEG+)']['Rcv@.5']}.", "",
+       f"Theo từng lần chói (T3), so với PEG+: test Δ {eb_t['delta']:+.1f} CI95 [{eb_t['ci95'][0]:+.1f}, {eb_t['ci95'][1]:+.1f}], {eb_t['better']} tốt hơn / {eb_t['worse']} tệ hơn / {eb_t['same']} bằng (+{eb_t['frames_gained']} / −{eb_t['frames_lost']} frame); "
+       f"val Δ {eb_v['delta']:+.1f} [{eb_v['ci95'][0]:+.1f}, {eb_v['ci95'][1]:+.1f}], {eb_v['better']}/{eb_v['worse']}/{eb_v['same']} (+{eb_v['frames_gained']} / −{eb_v['frames_lost']}); "
+       f"pooled Δ {eb_p['delta']:+.1f} [{eb_p['ci95'][0]:+.1f}, {eb_p['ci95'][1]:+.1f}], {eb_p['better']}/{eb_p['worse']}/{eb_p['same']} (+{eb_p['frames_gained']} / −{eb_p['frames_lost']}). "
+       f"So với PEG: test {ep['test']['PEG-C lag B_vs_PEG']['delta']:+.1f} [{ep['test']['PEG-C lag B_vs_PEG']['ci95'][0]:+.1f}, {ep['test']['PEG-C lag B_vs_PEG']['ci95'][1]:+.1f}], val {ep['val']['PEG-C lag B_vs_PEG']['delta']:+.1f}, pooled {ep['pooled']['PEG-C lag B_vs_PEG']['delta']:+.1f} [{ep['pooled']['PEG-C lag B_vs_PEG']['ci95'][0]:+.1f}, {ep['pooled']['PEG-C lag B_vs_PEG']['ci95'][1]:+.1f}].", ""]
+for sp_ in ("test", "val"):
+    md += [f"Episode khác PEG+ ({sp_}, B all trên PEG+): seq g<id> frames: covered PEG / PEG+ / lag B (n) | sai số tâm px PEG+ / lag B", ""]
+    for e in n["episodes_changed_lagB"][sp_]:
+        md.append(f"- {e['seq']} g{e['tid']} {e['start']}-{e['end']}: {e['PEG']} / {e['PEG+']} / {e['PEG-C lag B']} ({e['n']}) | {e['cerr_PEG+']} / {e['cerr_PEG-C lag B']}")
+    md.append("")
+_gt = sorted(n["episodes_changed_lagB"]["test"], key=lambda e: e["PEG-C lag B"] - e["PEG+"], reverse=True)[:2]
+_lv = [e for e in n["episodes_changed_lagB"]["val"] if e["PEG-C lag B"] < e["PEG+"]]
+md += ["Lưu ý trung thực: B all *thay* box coast bằng đường thẳng giữa hai detection nên chỉnh lại quá khứ (có độ trễ ≤ L khung), không phải số online. "
+       "Tăng trên test nằm ở " + str(eb_t['better']) + " lần chói, lớn nhất " + "; ".join(f"{e['seq'].split('_')[0]} g{e['tid']} ({e['PEG+']} → {e['PEG-C lag B']})" for e in _gt) + "; "
+       "trên val " + str(eb_v['better']) + " tốt hơn và " + str(eb_v['worse']) + " tệ hơn: " + "; ".join(f"{e['seq'].split('_')[0]} g{e['tid']} ({e['PEG+']} → {e['PEG-C lag B']})" for e in _lv) + ".", ""]
 
 md += ["## Thach harness (guard bật), val + test", "",
        "| config | split | T1 HOTA | T1 IDF1 | T1 MOTA | T1 IDSW | T2 HOTA | T2 IDF1 | T2 MOTA | T3 Rcv@.5 | T3 total | T3 ID-off |", "|---|---|---|---|---|---|---|---|---|---|---|---|"]
@@ -168,9 +206,10 @@ sv, st = hr["PEG-C strongest"]["val"], hr["PEG-C strongest"]["test"]
 e_t = ep["test"]["PEG-C_vs_PEG+"]; e_v = ep["val"]["PEG-C_vs_PEG+"]; e_p = ep["pooled"]["PEG-C_vs_PEG+"]
 md += ["## Kết luận", "",
        f"- Val chấp nhận V; test **không xác nhận** trên T3: PEG-C so với PEG+ {e_t['delta']:+.1f} (CI95 [{e_t['ci95'][0]:+.1f}, {e_t['ci95'][1]:+.1f}], {e_t['better']} tốt hơn / {e_t['worse']} tệ hơn); val {e_v['delta']:+.1f} [{e_v['ci95'][0]:+.1f}, {e_v['ci95'][1]:+.1f}] ({e_v['better']}/{e_v['worse']}); pooled {e_p['delta']:+.1f} [{e_p['ci95'][0]:+.1f}, {e_p['ci95'][1]:+.1f}].",
-       f"- Lợi ích duy nhất trên test (cả hai harness; nhưng val T1 IDF1 lại −1.1 nên chưa chắc): T1 IDF1 {sgn(c_['T1']['IDF1'] - a['T1']['IDF1'], 1)} (guard tắt, vs PEG+) / {sgn(ct['T1 IDF1'] - pegt['T1 IDF1'], 1)} (guard bật, vs PEG).",
+       f"- Lợi ích duy nhất trên test (cả hai harness; nhưng val T1 IDF1 lại {sgn(hr['PEG-C online']['val']['T1 IDF1'] - hr['PEG+']['val']['T1 IDF1'], 1)} so với PEG+ nên chưa chắc): T1 IDF1 {sgn(c_['T1']['IDF1'] - a['T1']['IDF1'], 1)} (guard tắt, vs PEG+) / {sgn(ct['T1 IDF1'] - pegt['T1 IDF1'], 1)} (guard bật, vs PEG).",
        f"- Chi phí: T2 HOTA {sgn(c_['T2']['HOTA'] - a['T2']['HOTA'], 1)} vs PEG+ (AssA {sgn(c_['T2']['AssA'] - a['T2']['AssA'], 1)}, IDSW {a['T2']['IDSW']} → {c_['T2']['IDSW']}).",
        f"- S (strongest) giúp test T2 HOTA ({st['T2 HOTA']} so với {ct['T2 HOTA']} của PEG-C online) nhưng dựa vào một sequence ({wg['test|Cstrong']['T2']['top'][0][0]} {wg['test|Cstrong']['T2']['top'][0][1]:+.1f}).",
+       f"- **Stage 2b (fixed-lag, B all trên PEG+, val chọn)**: test T3 Rcv@.5 {lb['T3']['Rcv@.5']} so với PEG+ {la['T3']['Rcv@.5']} ({sgn(lb['T3']['Rcv@.5'] - la['T3']['Rcv@.5'], 1)}), theo từng lần chói {eb_t['delta']:+.1f} [{eb_t['ci95'][0]:+.1f}, {eb_t['ci95'][1]:+.1f}] ({eb_t['better']} tốt hơn / {eb_t['worse']} tệ hơn); val {eb_v['delta']:+.1f}; pooled {eb_p['delta']:+.1f} [{eb_p['ci95'][0]:+.1f}, {eb_p['ci95'][1]:+.1f}]. Đây là hàng fixed-lag (trễ ≤ 90 khung), không online; T1 HOTA {sgn(lb['T1']['HOTA'] - la['T1']['HOTA'], 2)}, T2 HOTA {sgn(lb['T2']['HOTA'] - la['T2']['HOTA'], 2)} so với PEG+.",
        "- Bài học: lợi ích oracle do val dẫn dắt vẫn do val dẫn dắt; sai số vận tốc dừng ở sàn của mô hình CV, không phải nhiễu.", ""]
 
 md += ["## Lệnh", ""]

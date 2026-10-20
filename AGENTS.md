@@ -135,6 +135,9 @@ $PY scripts/08_failure_analysis.py extract --results_subdir eval --tracker_name 
 - **PEG-C (the coast designed, 2026-10-20)**, pre-registered (`docs/PEG_C_PROTOCOL.md`) → `docs/PEG_C_RESULTS.md`: val picks
   P + V (K 40, t 2): val T3 67.3 → 75.8, but test once (guard off) T1 68.49 / IDF1 83.24 · T2 HOTA 61.15 · T3 Rcv 80.5 (PEG+ 82.2);
   per episode test −1.8 [−7.7, +3.6], val +8.6, pooled +2.4 [−2.1, +6.8]. Long-baseline velocity is stale when walkers change
-  pace; error floor ≈ 0.3 px/f is the CV model, not noise. B/BB/C/S not accepted (S = one-seq T2 gain). PEG+ stays best.
+  pace; error floor ≈ 0.3 px/f is the CV model, not noise. C, S, B-after-V, BB not accepted (S = one-seq T2 gain). Online: PEG+ stays best.
   Details + deck slides 39–41: `results/peg_c/RESULTS.md`.
+  **Stage 2b, FIXED-LAG (not online): PEG+ + B (`GPEG_BACKFILL_L=90 GPEG_BACKFILL_MODE=all`, no V)** val-chosen, test once
+  guard off: T1 68.31 / FP 1435 / FN 2583 · T2 HOTA 62.93 / FN 2158 · T3 Rcv 86.5 (PEG+ 82.2); per episode test +4.2
+  [+1.0, +8.3] 6/0, pooled +4.1 [+0.9, +8.0]. Run names `pegcbl_*`. Report it only as a fixed-lag row.
 - Failure analysis, first pass: `results/failure_analysis/REPORT.md` (findings + next experiments).

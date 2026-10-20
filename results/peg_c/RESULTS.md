@@ -22,7 +22,7 @@ PEG quyết định *có* giữ box hay không (cổng phi >= h). PEG-C thiết 
 
 ## Bảng test, guard tắt (setting của paper)
 
-PEG-C online = P + V (K 40, t 2) — **do val chọn**. PEG-C fixed-lag 90 (B hidden, L 90) — *không được val chọn* (hàng fixed-lag, chỉ để tham khảo).
+PEG-C online = P + V (K 40, t 2) — **do val chọn**. PEG-C fixed-lag 90 (B hidden sau V) — *không được val chọn* (hàng fixed-lag, tham khảo). **PEG-C fixed-lag 90 (B all trên PEG+, không V)** = Stage 2b, do val chọn (Addendum 2); hàng fixed-lag, báo riêng.
 
 | | T1 HOTA | DetA | AssA | IDF1 | MOTA | IDSW | FP | FN |
 |---|---|---|---|---|---|---|---|---|
@@ -30,15 +30,17 @@ PEG-C online = P + V (K 40, t 2) — **do val chọn**. PEG-C fixed-lag 90 (B hi
 | PEG | 68.19 | 65.88 | 71.62 | 82.30 | 80.62 | 17 | 1425 | 2611 |
 | PEG+ | 68.23 | 65.96 | 71.62 | 82.24 | 80.52 | 17 | 1440 | 2618 |
 | PEG-C online | 68.49 | 65.88 | 72.22 | 83.24 | 80.58 | 18 | 1461 | 2583 |
-| PEG-C fixed-lag 90 (không chọn) | 68.48 | 65.87 | 72.22 | 83.23 | 80.57 | 16 | 1465 | 2582 |
+| PEG-C fixed-lag 90 (B hidden sau V; không chọn) | 68.48 | 65.87 | 72.22 | 83.23 | 80.57 | 16 | 1465 | 2582 |
+| PEG-C fixed-lag 90 (B all trên PEG+; val chọn) | 68.31 | 66.09 | 71.67 | 82.37 | 80.72 | 15 | 1435 | 2583 |
 
-| | T2 HOTA | AssA | MOTA | FP | Rcll | IDF1 | IDSW |
-|---|---|---|---|---|---|---|---|
-| paper PEG | – | – | 73.24 | 2024 | 85.61 | 75.29 | – |
-| PEG | 61.70 | 63.17 | 73.26 | 2022 | 85.62 | 75.30 | 19 |
-| PEG+ | 62.54 | 64.86 | 73.37 | 2113 | 86.26 | 77.95 | 16 |
-| PEG-C online | 61.15 | 62.05 | 73.63 | 2058 | 86.22 | 75.30 | 20 |
-| PEG-C fixed-lag 90 (không chọn) | 61.04 | 62.05 | 73.21 | 2128 | 86.22 | 75.14 | 20 |
+| | T2 HOTA | AssA | MOTA | FP | FN | Rcll | IDF1 | IDSW |
+|---|---|---|---|---|---|---|---|---|
+| paper PEG | – | – | 73.24 | 2024 | – | 85.61 | 75.29 | – |
+| PEG | 61.70 | 63.17 | 73.26 | 2022 | 2374 | 85.62 | 75.30 | 19 |
+| PEG+ | 62.54 | 64.86 | 73.37 | 2113 | 2268 | 86.26 | 77.95 | 16 |
+| PEG-C online | 61.15 | 62.05 | 73.63 | 2058 | 2275 | 86.22 | 75.30 | 20 |
+| PEG-C fixed-lag 90 (B hidden sau V; không chọn) | 61.04 | 62.05 | 73.21 | 2128 | 2275 | 86.22 | 75.14 | 20 |
+| PEG-C fixed-lag 90 (B all trên PEG+; val chọn) | 62.93 | 65.50 | 74.06 | 2108 | 2158 | 86.93 | 78.31 | 16 |
 
 | | T3 clear | Rcv@.5 | heavy | total | ID-off % | survived | IDSW | Frag |
 |---|---|---|---|---|---|---|---|---|
@@ -46,9 +48,10 @@ PEG-C online = P + V (K 40, t 2) — **do val chọn**. PEG-C fixed-lag 90 (B hi
 | PEG | 93.0 | 76.6 | 74.1 | 77.8 | 18.5 | 19/30 | 4 | 13 |
 | PEG+ | 93.3 | 82.2 | 78.9 | 85.1 | 15.5 | 21/30 | 3 | 12 |
 | PEG-C online | 93.3 | 80.5 | 79.6 | 81.8 | 14.6 | 20/30 | 3 | 15 |
-| PEG-C fixed-lag 90 (không chọn) | 93.3 | 80.5 | 79.6 | 81.8 | 14.6 | 20/30 | 3 | 15 |
+| PEG-C fixed-lag 90 (B hidden sau V; không chọn) | 93.3 | 80.5 | 79.6 | 81.8 | 14.6 | 20/30 | 3 | 15 |
+| PEG-C fixed-lag 90 (B all trên PEG+; val chọn) | 93.6 | 86.5 | 86.4 | 86.2 | 15.5 | 24/30 | 3 | 6 |
 
-Val T3 Rcv@.5 (guard tắt): PEG 67.6, PEG+ 67.3, PEG-C online 75.8, PEG-C fixed-lag 90 75.8. Fixed-lag hidden giống hệt online trên T3 (cả test lẫn val): B hidden không thêm hàng nào ở T3.
+Val T3 Rcv@.5 (guard tắt): PEG 67.6, PEG+ 67.3, PEG-C online 75.8, PEG-C fixed-lag 90 (B hidden sau V) 75.8, PEG-C fixed-lag 90 (B all trên PEG+) 71.1. Fixed-lag hidden giống hệt online trên T3 (cả test lẫn val): B hidden không thêm hàng nào ở T3.
 
 Chênh PEG-C online so với PEG+ / PEG (test, guard tắt):
 
@@ -216,6 +219,87 @@ Vòng 2 (4 dòng điểm cao nhất trong 22):
 - **B all** làm tệ T3 val -2.1: 141 g71 22→24 (n 24); 178 g206 4→0 (n 43); 332 g1030 10→0 (n 29) (nội suy thay luôn box coast).
 - **BB**: không kích hoạt ở lần chạy val nào (score +0.00).
 
+## Stage 2b: B trên PEG+ (không V) — Addendum 2
+
+Lý do (`docs/PEG_C_PROTOCOL.md` Addendum 2, commit `a43ae88`, viết trước khi chạy): giai đoạn lag chỉ thử B *sau* V. Khi V bật, cổng đã phát box cho gần như mọi khung của khoảng trống nên B hidden không có gì để điền, còn B all ghi đè coast của V: không đánh giá được B bằng đúng cơ chế của nó. Nay thử B (và BB) ngay trên PEG+ (P, không V, không S). Ghi chú đã công bố: kiểm tra tài liệu (`LITERATURE_IDEAS.md`) từng đo backfill trên đầu ra PEG+ ở cả hai split, trong đó có test. B nội suy giữa hai box detection của chính track và chỉ bị cổng tồn tại (có khung arm trong khoảng trống) điều khiển; không đọc hình học đĩa. **Đây là hàng fixed-lag (trễ ≤ L khung), không online.**
+
+### Stage 2b (luật chặt): B, BB trên PEG+
+
+Bắt đầu S0+P: val T1 70.11 / T2 76.3 / T3 67.3.
+
+Vòng 1:
+
+| thêm | Δ T1 | Δ T2 | Δ T3 | score | admissible |
+|---|---|---|---|---|---|
+| B[0] (L45 hidden) | +0.00 | +0.00 | +0.0 | +0.00 | có (score <= 0.5: không chọn) |
+| B[1] (L45 all) | +0.00 | +0.78 | +3.8 | +4.58 | có |
+| B[2] (L90 hidden) | +0.04 | +0.00 | +0.0 | +0.04 | có (score <= 0.5: không chọn) |
+| B[3] (L90 all) | +0.04 | +0.78 | +3.8 | +4.62 | có |
+| BB[0] (backward birth) | +0.00 | +0.00 | +0.0 | +0.00 | có (score <= 0.5: không chọn) |
+
+Kiểm tra single-event B[3]: score +4.62, bỏ đơn vị có lợi nhất còn +1.74 → qua.
+
+→ chấp nhận: B[3] (L90 all)
+
+Vòng 2:
+
+| thêm | Δ T1 | Δ T2 | Δ T3 | score | admissible |
+|---|---|---|---|---|---|
+| BB[0] (backward birth) | +0.00 | +0.00 | +0.0 | +0.00 | có (score <= 0.5: không chọn) |
+
+→ chấp nhận: không có
+
+**FINAL = `B[3] + P[0]`** (val T1 70.15 / T2 77.08 / T3 71.1), key `tv1f02b6d2`.
+
+Luật mạnh nhất: tune_C_lagP_strong final key tv1f02b6d2 == tune_C_lagP final key tv1f02b6d2 (B[3] + P[0]); no separate test run.
+
+Test chạy đúng một lần (Thach harness, guard bật, `tune_C_lagP/test.json`): T1 HOTA 68.5 / IDF1 82.82 / MOTA 81.01 / IDSW 15; T2 HOTA 62.74 / IDF1 77.9 / MOTA 74.72; T3 Rcv@.5 86.5 / total 86.2 / ID-off 15.5.
+
+Hàng paper-setting (repo của mình, guard tắt, cache; B all, L 90) so với PEG+:
+
+| | PEG+ | PEG-C fixed-lag 90 (B all trên PEG+) | Δ |
+|---|---|---|---|
+| T1 HOTA | 68.23 | 68.31 | +0.08 |
+| T1 IDF1 | 82.24 | 82.37 | +0.13 |
+| T1 MOTA | 80.52 | 80.72 | +0.20 |
+| T1 IDSW | 17 | 15 | -2 |
+| T1 FP | 1440 | 1435 | -5 |
+| T1 FN | 2618 | 2583 | -35 |
+| T2 HOTA | 62.54 | 62.93 | +0.39 |
+| T2 IDF1 | 77.95 | 78.31 | +0.36 |
+| T2 MOTA | 73.37 | 74.06 | +0.69 |
+| T2 IDSW | 16 | 16 | +0 |
+| T2 FP | 2113 | 2108 | -5 |
+| T2 FN | 2268 | 2158 | -110 |
+| T3 Rcv@.5 | 82.2 | 86.5 | +4.3 |
+| T3 total | 85.1 | 86.2 | +1.1 |
+| T3 ID-off % | 15.5 | 15.5 | +0.0 |
+
+Val T3 Rcv@.5 (repo của mình): PEG+ 67.3 → 71.1.
+
+Theo từng lần chói (T3), so với PEG+: test Δ +4.2 CI95 [+1.0, +8.3], 6 tốt hơn / 0 tệ hơn / 24 bằng (+36 / −0 frame); val Δ +3.9 [-2.2, +12.1], 4/3/11 (+31 / −9); pooled Δ +4.1 [+0.9, +8.0], 10/3/35 (+67 / −9). So với PEG: test +9.9 [+3.8, +16.9], val +3.5, pooled +7.3 [+3.1, +12.4].
+
+Episode khác PEG+ (test, B all trên PEG+): seq g<id> frames: covered PEG / PEG+ / lag B (n) | sai số tâm px PEG+ / lag B
+
+- 136_sequence_2q_new g1 234-252: 12 / 12 / 19 (19) | 11.1 / 5.0
+- 145_sequence_28q_new g84 1094-1130: 28 / 31 / 37 (37) | 6.7 / 4.3
+- 204_sequence_81q_complete g300 102-141: 40 / 38 / 40 (40) | 2.6 / 2.6
+- 204_sequence_81q_complete g300 400-432: 23 / 26 / 33 (33) | 20.5 / 5.3
+- 211_sequence_88q_new g319 376-411: 36 / 35 / 36 (36) | 16.6 / 15.6
+- 316_sequence_112q_new g6 2000-2034: 22 / 22 / 35 (35) | 31.6 / 20.7
+
+Episode khác PEG+ (val, B all trên PEG+): seq g<id> frames: covered PEG / PEG+ / lag B (n) | sai số tâm px PEG+ / lag B
+
+- 141_sequence_24q_new g71 161-184: 12 / 12 / 24 (24) | 12.8 / 4.6
+- 178_sequence_58q_new g206 567-609: 2 / 2 / 0 (43) | 24.4 / 11.5
+- 187_sequence_66q_new g247 201-235: 25 / 19 / 35 (35) | 9.1 / 3.5
+- 203_sequence_80q_new g299 104-146: 42 / 42 / 43 (43) | 5.9 / 3.4
+- 203_sequence_80q_new g299 306-340: 35 / 33 / 35 (35) | 11.1 / 4.6
+- 210_sequence_87q_complete g317 192-209: 16 / 16 / 15 (18) | 5.8 / 6.7
+- 332_sequence_99q_complete g1030 209-237: 3 / 6 / 0 (29) | 36.3 / 61.6
+
+Lưu ý trung thực: B all *thay* box coast bằng đường thẳng giữa hai detection nên chỉnh lại quá khứ (có độ trễ ≤ L khung), không phải số online. Tăng trên test nằm ở 6 lần chói, lớn nhất 316 g6 (22 → 35); 136 g1 (12 → 19); trên val 4 tốt hơn và 3 tệ hơn: 178 g206 (2 → 0); 210 g317 (16 → 15); 332 g1030 (6 → 0).
+
 ## Thach harness (guard bật), val + test
 
 | config | split | T1 HOTA | T1 IDF1 | T1 MOTA | T1 IDSW | T2 HOTA | T2 IDF1 | T2 MOTA | T3 Rcv@.5 | T3 total | T3 ID-off |
@@ -228,6 +312,8 @@ Vòng 2 (4 dòng điểm cao nhất trong 22):
 | PEG-C online | test | 68.80 | 84.26 | 80.98 | 15 | 60.89 | 74.61 | 74.55 | 80.4 | 81.8 | 18.5 |
 | PEG-C fixed-lag 90 (B hidden; val only) | val | 69.70 | 85.00 | 82.85 | 16 | 76.20 | 88.63 | 91.27 | 75.8 | 74.1 | 10.0 |
 | PEG-C fixed-lag 90 (B hidden; val only) | test | – | – | – | – | – | – | – | – | – | – |
+| PEG-C fixed-lag 90 (B all on PEG+; val-chosen) | val | 70.15 | 86.20 | 82.46 | 17 | 77.08 | 89.66 | 90.62 | 71.1 | 70.6 | 10.0 |
+| PEG-C fixed-lag 90 (B all on PEG+; val-chosen) | test | 68.50 | 82.82 | 81.01 | 15 | 62.74 | 77.90 | 74.72 | 86.5 | 86.2 | 15.5 |
 | PEG-C strongest | val | 69.67 | 84.96 | 82.78 | 16 | 77.50 | 90.24 | 91.36 | 75.8 | 74.1 | 10.0 |
 | PEG-C strongest | test | 68.86 | 84.34 | 81.16 | 14 | 62.67 | 78.29 | 75.55 | 81.2 | 81.8 | 10.5 |
 | ALL = PEG-C + Thach greedy | val | 70.09 | 85.55 | 82.75 | 17 | 77.49 | 90.25 | 91.38 | 75.8 | 74.1 | 10.0 |
@@ -322,9 +408,10 @@ Replay có thiết bị đo (`diag_test_losses.py`): cấu hình pegc, guard t�
 ## Kết luận
 
 - Val chấp nhận V; test **không xác nhận** trên T3: PEG-C so với PEG+ -1.8 (CI95 [-7.7, +3.6], 4 tốt hơn / 5 tệ hơn); val +8.6 [+3.0, +15.7] (9/1); pooled +2.4 [-2.1, +6.8].
-- Lợi ích duy nhất trên test (cả hai harness; nhưng val T1 IDF1 lại −1.1 nên chưa chắc): T1 IDF1 +1.0 (guard tắt, vs PEG+) / +1.6 (guard bật, vs PEG).
+- Lợi ích duy nhất trên test (cả hai harness; nhưng val T1 IDF1 lại -1.1 so với PEG+ nên chưa chắc): T1 IDF1 +1.0 (guard tắt, vs PEG+) / +1.6 (guard bật, vs PEG).
 - Chi phí: T2 HOTA -1.4 vs PEG+ (AssA -2.8, IDSW 16 → 20).
 - S (strongest) giúp test T2 HOTA (62.67 so với 60.89 của PEG-C online) nhưng dựa vào một sequence (135 +20.1).
+- **Stage 2b (fixed-lag, B all trên PEG+, val chọn)**: test T3 Rcv@.5 86.5 so với PEG+ 82.2 (+4.3), theo từng lần chói +4.2 [+1.0, +8.3] (6 tốt hơn / 0 tệ hơn); val +3.9; pooled +4.1 [+0.9, +8.0]. Đây là hàng fixed-lag (trễ ≤ 90 khung), không online; T1 HOTA +0.08, T2 HOTA +0.39 so với PEG+.
 - Bài học: lợi ích oracle do val dẫn dắt vẫn do val dẫn dắt; sai số vận tốc dừng ở sàn của mô hình CV, không phải nhiễu.
 
 ## Lệnh

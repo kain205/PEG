@@ -1,0 +1,125 @@
+[
+ {
+  "round": 0,
+  "config": "P[0]",
+  "key": "tv51d09158",
+  "val": [
+   70.11,
+   76.3,
+   67.3
+  ]
+ },
+ {
+  "round": 1,
+  "rows": [
+   {
+    "add": "B[0]",
+    "comp": "B",
+    "idx": 0,
+    "key": "tvb750a735",
+    "delta": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "score": 0.0,
+    "admissible": true
+   },
+   {
+    "add": "B[1]",
+    "comp": "B",
+    "idx": 1,
+    "key": "tv20f34554",
+    "delta": [
+     0.0,
+     0.78,
+     3.8
+    ],
+    "score": 4.58,
+    "admissible": true
+   },
+   {
+    "add": "B[2]",
+    "comp": "B",
+    "idx": 2,
+    "key": "tvbcf1640d",
+    "delta": [
+     0.04,
+     0.0,
+     0.0
+    ],
+    "score": 0.04,
+    "admissible": true
+   },
+   {
+    "add": "B[3]",
+    "comp": "B",
+    "idx": 3,
+    "key": "tv1f02b6d2",
+    "delta": [
+     0.04,
+     0.78,
+     3.8
+    ],
+    "score": 4.62,
+    "admissible": true
+   },
+   {
+    "add": "BB[0]",
+    "comp": "BB",
+    "idx": 0,
+    "key": "tva5f7a141",
+    "delta": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "score": 0.0,
+    "admissible": true
+   }
+  ],
+  "checks": [
+   {
+    "add": "B[3]",
+    "score": 4.62,
+    "checks": {
+     "t1": {
+      "dropped": "195_sequence_73",
+      "delta_without": 0.0
+     },
+     "t2": {
+      "dropped": "187_sequence_66q",
+      "delta_without": 0.62
+     },
+     "t3": {
+      "dropped": "187_sequence_66q|247|201",
+      "delta_without": 1.12
+     }
+    },
+    "score_without": 1.74,
+    "pass": true
+   }
+  ],
+  "accepted": "B[3]"
+ },
+ {
+  "round": 2,
+  "rows": [
+   {
+    "add": "BB[0]",
+    "comp": "BB",
+    "idx": 0,
+    "key": "tv7b89074c",
+    "delta": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "score": 0.0,
+    "admissible": true
+   }
+  ],
+  "checks": [],
+  "accepted": null
+ }
+]

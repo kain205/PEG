@@ -65,16 +65,19 @@ rows = {
                                     "T3": recovery(R("results/eval_recovery/recovery_pegc_rcv_test.txt"))},
     "PEG-C fixed-lag 90 (B hidden; label: fixed-lag)": {"T1": combined(R("results/eval/benchmark_pegcl_test_test.txt")), "T2": combined(R("results/eval_synthfs/benchmark_pegcl_fs_test.txt")),
                                                          "T3": recovery(R("results/eval_recovery/recovery_pegcl_rcv_test.txt"))},
+    "PEG-C fixed-lag 90 (B all on PEG+; val-chosen)": {"T1": combined(R("results/eval/benchmark_pegcbl_test_test.txt")), "T2": combined(R("results/eval_synthfs/benchmark_pegcbl_fs_test.txt")),
+                                                        "T3": recovery(R("results/eval_recovery/recovery_pegcbl_rcv_test.txt"))},
 }
 val_t3 = {"PEG": recovery(R("results/eval_recovery/recovery_v_peg_rcv_val.txt")), "PEG+": recovery(R("results/eval_recovery/recovery_v_A_rcv_val.txt")),
-          "PEG-C online": recovery(R("results/eval_recovery/recovery_v_pegc_rcv_val.txt")), "PEG-C fixed-lag 90": recovery(R("results/eval_recovery/recovery_v_pegcl_rcv_val.txt"))}
+          "PEG-C online": recovery(R("results/eval_recovery/recovery_v_pegc_rcv_val.txt")), "PEG-C fixed-lag 90": recovery(R("results/eval_recovery/recovery_v_pegcl_rcv_val.txt")),
+          "PEG-C fixed-lag 90 (B all on PEG+)": recovery(R("results/eval_recovery/recovery_v_pegcbl_rcv_val.txt"))}
 
 # b. Thach-harness rows (guard on, his setting), val + test, from full_metrics.json
 fm = json.load(open(R("results", "thach_v2", "full_metrics.json"), encoding="utf-8"))
 def pick(prefix):
     return {s: next(r for r in fm[s] if r["config"].startswith(prefix)) for s in ("val", "test")}
 harness = {"PEG": pick("PEG"), "PEG+": pick("PEG+ (ours)"), "PEG-C online": pick("PEG-C online"), "PEG-C fixed-lag 90 (B hidden; val only)": pick("PEG-C fixed-lag"),
-           "PEG-C strongest": pick("PEG-C strongest"), "ALL = PEG-C + Thach greedy": pick("ALL = PEG-C"),
+           "PEG-C fixed-lag 90 (B all on PEG+; val-chosen)": pick("PEG-C fixed-lag 90 (B all on PEG+"), "PEG-C strongest": pick("PEG-C strongest"), "ALL = PEG-C + Thach greedy": pick("ALL = PEG-C"),
            "Thach best (STRONGEST with PEG+ by design)": pick("STRONGEST with PEG+ by design"), "Thach full+M6 (his params, tuned on test)": pick("Thach full+M6")}
 harness["PEG"] = {s: next(r for r in fm[s] if r["config"] == "PEG") for s in ("val", "test")}
 
@@ -90,7 +93,8 @@ def trace(d):
     if os.path.exists(p):
         out["test"] = json.load(open(p))["test"]
     return out
-search = {d: trace(d) for d in ("tune_C", "tune_C_strong", "tune_C_lag", "tune_C_all")}
+search = {d: trace(d) for d in ("tune_C", "tune_C_strong", "tune_C_lag", "tune_C_all", "tune_C_lagP")}
+search["tune_C_lagP_strong"] = {"same_as": open(R("results/thach_v2/tune_C_lagP_strong/SAME_AS_tune_C_lagP.txt")).read().strip()}
 search["tune_C_lag_all"] = {"skipped": open(R("results/thach_v2/tune_C_lag_all/SKIPPED.txt")).read().strip()}
 GRIDS = {"V": ["K20 t0", "K20 t2", "K40 t0", "K40 t2"], "C": ["cap 48", "cap 90"], "S": ["stitch k 1.0", "stitch k 1.5"],
          "B": ["L45 hidden", "L45 all", "L90 hidden", "L90 all"], "BB": ["backward birth"]}
@@ -98,6 +102,7 @@ GRIDS = {"V": ["K20 t0", "K20 t2", "K40 t0", "K40 t2"], "C": ["cap 48", "cap 90"
 # d. episodes
 ep = json.load(open(HERE + "/episodes.json"))
 changed = {s: [e for e in ep["episodes"] if e["split"] == s and (e["PEG-C"] != e["PEG+"] or e["PEG-C lag"] != e["PEG+"])] for s in ("test", "val")}
+changed_lagB = {s: [e for e in ep["episodes"] if e["split"] == s and e["PEG-C lag B"] != e["PEG+"]] for s in ("test", "val")}
 
 # e. oracle rows
 J = json.load(open(R("results", "research", "oracle_t3.json")))
@@ -176,7 +181,7 @@ diag = json.load(open(HERE + "/diag_test_losses.json")) if os.path.exists(HERE +
 
 out = {"commands": COMMANDS, "env_note": "paper-setting rows: " + ENV + "; Thach harness rows use guard ON (his setting)",
        "grids": GRIDS, "paper_setting_test": rows, "val_T3": val_t3, "harness_rows": harness, "search": search,
-       "episodes_summary": ep["summary"], "episodes_changed": changed, "episodes_all": ep["episodes"],
+       "episodes_summary": ep["summary"], "episodes_changed": changed, "episodes_changed_lagB": changed_lagB, "episodes_all": ep["episodes"],
        "lag_B_val_episode_changes_vs_online": lag_B_changes, "where_gain_C": where_gain_C,
        "oracle": oracle, "check21": chk, "slope_noise": slope_noise, "diag_test_losses": diag}
 json.dump(out, open(HERE + "/numbers.json", "w", encoding="utf-8"), indent=1, ensure_ascii=False, default=lambda o: o.item() if hasattr(o, "item") else str(o))

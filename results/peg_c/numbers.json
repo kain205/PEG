@@ -208,6 +208,44 @@
     "IDSW": 3,
     "Frag": 15
    }
+  },
+  "PEG-C fixed-lag 90 (B all on PEG+; val-chosen)": {
+   "T1": {
+    "HOTA": 68.31,
+    "DetA": 66.09,
+    "AssA": 71.67,
+    "IDF1": 82.37,
+    "MOTA": 80.72,
+    "IDSW": 15,
+    "Rcll": 87.65,
+    "Prcn": 92.74,
+    "FP": 1435,
+    "FN": 2583
+   },
+   "T2": {
+    "HOTA": 62.93,
+    "DetA": 61.33,
+    "AssA": 65.5,
+    "IDF1": 78.31,
+    "MOTA": 74.06,
+    "IDSW": 16,
+    "Rcll": 86.93,
+    "Prcn": 87.19,
+    "FP": 2108,
+    "FN": 2158
+   },
+   "T3": {
+    "clear": 93.6,
+    "Rcv@.5": 86.5,
+    "partial": 87.1,
+    "heavy": 86.4,
+    "total": 86.2,
+    "ID_off_pct": 15.5,
+    "ID_off_frames": 132,
+    "survived": "24/30",
+    "IDSW": 3,
+    "Frag": 6
+   }
   }
  },
  "val_T3": {
@@ -258,6 +296,18 @@
    "survived": "11/18",
    "IDSW": 0,
    "Frag": 12
+  },
+  "PEG-C fixed-lag 90 (B all on PEG+)": {
+   "clear": 94.8,
+   "Rcv@.5": 71.1,
+   "partial": 69.3,
+   "heavy": 75.2,
+   "total": 70.6,
+   "ID_off_pct": 10.0,
+   "ID_off_frames": 57,
+   "survived": "11/18",
+   "IDSW": 0,
+   "Frag": 9
   }
  },
  "harness_rows": {
@@ -324,10 +374,7 @@
     "T3 Rcv@.5": 82.2,
     "T3 total": 85.1,
     "T3 ID-off": 15.5,
-    "note": "T2 +0.92: top 176 +6.6, without it +0.41; T3 +6.0: 6 ep. better / 2 worse, without top (325) +3.79",
-    "best": [
-     "T3 total"
-    ]
+    "note": "T2 +0.92: top 176 +6.6, without it +0.41; T3 +6.0: 6 ep. better / 2 worse, without top (325) +3.79"
    }
   },
   "PEG-C online": {
@@ -389,6 +436,43 @@
    "test": {
     "config": "PEG-C fixed-lag 90 (B hidden; rejected by val)",
     "note": "not run in this harness: rejected on val; paper-setting row in results/peg_c"
+   }
+  },
+  "PEG-C fixed-lag 90 (B all on PEG+; val-chosen)": {
+   "val": {
+    "config": "PEG-C fixed-lag 90 (B all on PEG+; val-chosen)",
+    "T1 HOTA": 70.15,
+    "T1 IDF1": 86.2,
+    "T1 MOTA": 82.46,
+    "T1 IDSW": 17.0,
+    "T2 HOTA": 77.08,
+    "T2 IDF1": 89.66,
+    "T2 MOTA": 90.62,
+    "T3 Rcv@.5": 71.1,
+    "T3 total": 70.6,
+    "T3 ID-off": 10.0,
+    "note": "T2 +0.83: top 141 +3.9, without it +0.69; T3 +3.5: 4 ep. better / 3 worse, without top (141) +1.46",
+    "best": [
+     "T3 ID-off"
+    ]
+   },
+   "test": {
+    "config": "PEG-C fixed-lag 90 (B all on PEG+; val-chosen)",
+    "T1 HOTA": 68.5,
+    "T1 IDF1": 82.82,
+    "T1 MOTA": 81.01,
+    "T1 IDSW": 15.0,
+    "T2 HOTA": 62.74,
+    "T2 IDF1": 77.9,
+    "T2 MOTA": 74.72,
+    "T3 Rcv@.5": 86.5,
+    "T3 total": 86.2,
+    "T3 ID-off": 15.5,
+    "note": "T2 +1.33: top 176 +8.3, without it +0.71; T3 +10.3: 8 ep. better / 0 worse, without top (325) +8.20",
+    "best": [
+     "T3 Rcv@.5",
+     "T3 total"
+    ]
    }
   },
   "PEG-C strongest": {
@@ -502,9 +586,7 @@
     "note": "T2 +1.73: top 204 +11.5, without it +1.13; T3 +6.9: 6 ep. better / 2 worse, without top (325) +4.65",
     "best": [
      "T2 HOTA",
-     "T2 IDF1",
-     "T3 Rcv@.5",
-     "T3 total"
+     "T2 IDF1"
     ]
    }
   },
@@ -1619,6 +1701,154 @@
     }
    }
   },
+  "tune_C_lagP": {
+   "start_val": {
+    "T1_HOTA": 70.11,
+    "T2_HOTA": 76.3,
+    "T3_Rcv": 67.3
+   },
+   "final": "B[3] + P[0]",
+   "final_key": "tv1f02b6d2",
+   "final_val": [
+    70.15,
+    77.08,
+    71.1
+   ],
+   "rounds": [
+    {
+     "round": 1,
+     "accepted": "B[3]",
+     "checks": [
+      {
+       "add": "B[3]",
+       "score": 4.62,
+       "checks": {
+        "t1": {
+         "dropped": "195_sequence_73",
+         "delta_without": 0.0
+        },
+        "t2": {
+         "dropped": "187_sequence_66q",
+         "delta_without": 0.62
+        },
+        "t3": {
+         "dropped": "187_sequence_66q|247|201",
+         "delta_without": 1.12
+        }
+       },
+       "score_without": 1.74,
+       "pass": true
+      }
+     ],
+     "rows": [
+      {
+       "add": "B[0]",
+       "delta": [
+        0.0,
+        0.0,
+        0.0
+       ],
+       "score": 0.0,
+       "admissible": true
+      },
+      {
+       "add": "B[1]",
+       "delta": [
+        0.0,
+        0.78,
+        3.8
+       ],
+       "score": 4.58,
+       "admissible": true
+      },
+      {
+       "add": "B[2]",
+       "delta": [
+        0.04,
+        0.0,
+        0.0
+       ],
+       "score": 0.04,
+       "admissible": true
+      },
+      {
+       "add": "B[3]",
+       "delta": [
+        0.04,
+        0.78,
+        3.8
+       ],
+       "score": 4.62,
+       "admissible": true
+      },
+      {
+       "add": "BB[0]",
+       "delta": [
+        0.0,
+        0.0,
+        0.0
+       ],
+       "score": 0.0,
+       "admissible": true
+      }
+     ]
+    },
+    {
+     "round": 2,
+     "accepted": null,
+     "checks": [],
+     "rows": [
+      {
+       "add": "BB[0]",
+       "delta": [
+        0.0,
+        0.0,
+        0.0
+       ],
+       "score": 0.0,
+       "admissible": true
+      }
+     ]
+    }
+   ],
+   "test": {
+    "T1": {
+     "HOTA": 68.5,
+     "DetA": 66.23,
+     "AssA": 71.91,
+     "IDF1": 82.82,
+     "MOTA": 81.01,
+     "IDSW": 15.0,
+     "Rcll": 87.56,
+     "Prcn": 93.11,
+     "FP": 1355.0,
+     "FN": 2601.0
+    },
+    "T2": {
+     "HOTA": 62.74,
+     "DetA": 61.61,
+     "AssA": 64.83,
+     "IDF1": 77.9,
+     "MOTA": 74.72,
+     "IDSW": 15.0,
+     "Rcll": 86.97,
+     "Prcn": 87.73,
+     "FP": 2008.0,
+     "FN": 2151.0
+    },
+    "T3": {
+     "Rcv@.5": 86.5,
+     "total": 86.2,
+     "clear": 93.4,
+     "ID_off": 15.5,
+     "survived": 24,
+     "episodes": 30
+    }
+   }
+  },
+  "tune_C_lagP_strong": {
+   "same_as": "tune_C_lagP_strong final key tv1f02b6d2 == tune_C_lagP final key tv1f02b6d2 (B[3] + P[0]); no separate test run."
+  },
   "tune_C_lag_all": {
    "skipped": "= tune_C_all (lag stage accepted nothing)"
   }
@@ -1631,6 +1861,7 @@
    "PEG+": 82.2,
    "PEG-C": 80.5,
    "PEG-C lag": 80.5,
+   "PEG-C lag B": 86.5,
    "PEG-C_vs_PEG+": {
     "delta": -1.8,
     "ci95": [
@@ -1678,6 +1909,30 @@
     "same": 18,
     "frames_gained": 67,
     "frames_lost": 34
+   },
+   "PEG-C lag B_vs_PEG+": {
+    "delta": 4.2,
+    "ci95": [
+     1.0,
+     8.3
+    ],
+    "better": 6,
+    "worse": 0,
+    "same": 24,
+    "frames_gained": 36,
+    "frames_lost": 0
+   },
+   "PEG-C lag B_vs_PEG": {
+    "delta": 9.9,
+    "ci95": [
+     3.8,
+     16.9
+    ],
+    "better": 8,
+    "worse": 0,
+    "same": 22,
+    "frames_gained": 84,
+    "frames_lost": 0
    }
   },
   "val": {
@@ -1687,6 +1942,7 @@
    "PEG+": 67.3,
    "PEG-C": 75.8,
    "PEG-C lag": 75.8,
+   "PEG-C lag B": 71.1,
    "PEG-C_vs_PEG+": {
     "delta": 8.6,
     "ci95": [
@@ -1734,6 +1990,30 @@
     "same": 8,
     "frames_gained": 48,
     "frames_lost": 1
+   },
+   "PEG-C lag B_vs_PEG+": {
+    "delta": 3.9,
+    "ci95": [
+     -2.2,
+     12.1
+    ],
+    "better": 4,
+    "worse": 3,
+    "same": 11,
+    "frames_gained": 31,
+    "frames_lost": 9
+   },
+   "PEG-C lag B_vs_PEG": {
+    "delta": 3.5,
+    "ci95": [
+     -1.1,
+     9.8
+    ],
+    "better": 4,
+    "worse": 3,
+    "same": 11,
+    "frames_gained": 26,
+    "frames_lost": 6
    }
   },
   "pooled": {
@@ -1743,6 +2023,7 @@
    "PEG+": 76.2,
    "PEG-C": 78.6,
    "PEG-C lag": 78.6,
+   "PEG-C lag B": 80.3,
    "PEG-C_vs_PEG+": {
     "delta": 2.4,
     "ci95": [
@@ -1790,6 +2071,30 @@
     "same": 26,
     "frames_gained": 115,
     "frames_lost": 35
+   },
+   "PEG-C lag B_vs_PEG+": {
+    "delta": 4.1,
+    "ci95": [
+     0.9,
+     8.0
+    ],
+    "better": 10,
+    "worse": 3,
+    "same": 35,
+    "frames_gained": 67,
+    "frames_lost": 9
+   },
+   "PEG-C lag B_vs_PEG": {
+    "delta": 7.3,
+    "ci95": [
+     3.1,
+     12.4
+    ],
+    "better": 12,
+    "worse": 3,
+    "same": 33,
+    "frames_gained": 110,
+    "frames_lost": 6
    }
   }
  },
@@ -1806,12 +2111,15 @@
     "PEG+": 4,
     "PEG-C": 2,
     "PEG-C lag": 2,
+    "PEG-C lag B": 4,
     "cerr_PEG+": 70.5,
     "nbox_PEG+": 43,
     "cerr_PEG-C": 88.6,
     "nbox_PEG-C": 43,
     "cerr_PEG-C lag": 88.6,
-    "nbox_PEG-C lag": 43
+    "nbox_PEG-C lag": 43,
+    "cerr_PEG-C lag B": 70.5,
+    "nbox_PEG-C lag B": 43
    },
    {
     "split": "test",
@@ -1824,12 +2132,15 @@
     "PEG+": 31,
     "PEG-C": 36,
     "PEG-C lag": 36,
+    "PEG-C lag B": 37,
     "cerr_PEG+": 6.7,
     "nbox_PEG+": 37,
     "cerr_PEG-C": 6.4,
     "nbox_PEG-C": 37,
     "cerr_PEG-C lag": 6.4,
-    "nbox_PEG-C lag": 37
+    "nbox_PEG-C lag": 37,
+    "cerr_PEG-C lag B": 4.3,
+    "nbox_PEG-C lag B": 37
    },
    {
     "split": "test",
@@ -1842,12 +2153,15 @@
     "PEG+": 25,
     "PEG-C": 10,
     "PEG-C lag": 10,
+    "PEG-C lag B": 25,
     "cerr_PEG+": 11.9,
     "nbox_PEG+": 25,
     "cerr_PEG-C": 14.7,
     "nbox_PEG-C": 25,
     "cerr_PEG-C lag": 14.7,
-    "nbox_PEG-C lag": 25
+    "nbox_PEG-C lag": 25,
+    "cerr_PEG-C lag B": 6.5,
+    "nbox_PEG-C lag B": 25
    },
    {
     "split": "test",
@@ -1860,12 +2174,15 @@
     "PEG+": 24,
     "PEG-C": 21,
     "PEG-C lag": 21,
+    "PEG-C lag B": 24,
     "cerr_PEG+": 12.7,
     "nbox_PEG+": 24,
     "cerr_PEG-C": 13.8,
     "nbox_PEG-C": 24,
     "cerr_PEG-C lag": 13.8,
-    "nbox_PEG-C lag": 24
+    "nbox_PEG-C lag": 24,
+    "cerr_PEG-C lag B": 17.3,
+    "nbox_PEG-C lag B": 24
    },
    {
     "split": "test",
@@ -1878,12 +2195,15 @@
     "PEG+": 38,
     "PEG-C": 40,
     "PEG-C lag": 40,
+    "PEG-C lag B": 40,
     "cerr_PEG+": 2.6,
     "nbox_PEG+": 40,
     "cerr_PEG-C": 3.0,
     "nbox_PEG-C": 40,
     "cerr_PEG-C lag": 3.0,
-    "nbox_PEG-C lag": 40
+    "nbox_PEG-C lag": 40,
+    "cerr_PEG-C lag B": 2.6,
+    "nbox_PEG-C lag B": 40
    },
    {
     "split": "test",
@@ -1896,12 +2216,15 @@
     "PEG+": 25,
     "PEG-C": 21,
     "PEG-C lag": 21,
+    "PEG-C lag B": 25,
     "cerr_PEG+": 13.6,
     "nbox_PEG+": 42,
     "cerr_PEG-C": 16.0,
     "nbox_PEG-C": 42,
     "cerr_PEG-C lag": 16.0,
-    "nbox_PEG-C lag": 42
+    "nbox_PEG-C lag": 42,
+    "cerr_PEG-C lag B": 13.6,
+    "nbox_PEG-C lag B": 42
    },
    {
     "split": "test",
@@ -1914,12 +2237,15 @@
     "PEG+": 25,
     "PEG-C": 13,
     "PEG-C lag": 13,
+    "PEG-C lag B": 25,
     "cerr_PEG+": 20.3,
     "nbox_PEG+": 25,
     "cerr_PEG-C": 27.4,
     "nbox_PEG-C": 25,
     "cerr_PEG-C lag": 27.4,
-    "nbox_PEG-C lag": 25
+    "nbox_PEG-C lag": 25,
+    "cerr_PEG-C lag B": 13.6,
+    "nbox_PEG-C lag B": 25
    },
    {
     "split": "test",
@@ -1932,12 +2258,15 @@
     "PEG+": 22,
     "PEG-C": 35,
     "PEG-C lag": 35,
+    "PEG-C lag B": 35,
     "cerr_PEG+": 31.6,
     "nbox_PEG+": 35,
     "cerr_PEG-C": 17.5,
     "nbox_PEG-C": 35,
     "cerr_PEG-C lag": 17.5,
-    "nbox_PEG-C lag": 35
+    "nbox_PEG-C lag": 35,
+    "cerr_PEG-C lag B": 20.7,
+    "nbox_PEG-C lag B": 35
    },
    {
     "split": "test",
@@ -1950,12 +2279,15 @@
     "PEG+": 30,
     "PEG-C": 31,
     "PEG-C lag": 31,
+    "PEG-C lag B": 30,
     "cerr_PEG+": 59.0,
     "nbox_PEG+": 33,
     "cerr_PEG-C": 35.7,
     "nbox_PEG-C": 33,
     "cerr_PEG-C lag": 35.7,
-    "nbox_PEG-C lag": 33
+    "nbox_PEG-C lag": 33,
+    "cerr_PEG-C lag B": 59.0,
+    "nbox_PEG-C lag B": 33
    }
   ],
   "val": [
@@ -1970,12 +2302,15 @@
     "PEG+": 17,
     "PEG-C": 24,
     "PEG-C lag": 24,
+    "PEG-C lag B": 17,
     "cerr_PEG+": 20.3,
     "nbox_PEG+": 37,
     "cerr_PEG-C": 13.3,
     "nbox_PEG-C": 37,
     "cerr_PEG-C lag": 13.3,
-    "nbox_PEG-C lag": 37
+    "nbox_PEG-C lag": 37,
+    "cerr_PEG-C lag B": 20.3,
+    "nbox_PEG-C lag B": 37
    },
    {
     "split": "val",
@@ -1988,12 +2323,15 @@
     "PEG+": 12,
     "PEG-C": 22,
     "PEG-C lag": 22,
+    "PEG-C lag B": 24,
     "cerr_PEG+": 12.8,
     "nbox_PEG+": 24,
     "cerr_PEG-C": 8.6,
     "nbox_PEG-C": 24,
     "cerr_PEG-C lag": 8.6,
-    "nbox_PEG-C lag": 24
+    "nbox_PEG-C lag": 24,
+    "cerr_PEG-C lag B": 4.6,
+    "nbox_PEG-C lag B": 24
    },
    {
     "split": "val",
@@ -2006,12 +2344,15 @@
     "PEG+": 38,
     "PEG-C": 40,
     "PEG-C lag": 40,
+    "PEG-C lag B": 38,
     "cerr_PEG+": 7.6,
     "nbox_PEG+": 45,
     "cerr_PEG-C": 6.9,
     "nbox_PEG-C": 45,
     "cerr_PEG-C lag": 6.9,
-    "nbox_PEG-C lag": 45
+    "nbox_PEG-C lag": 45,
+    "cerr_PEG-C lag B": 7.6,
+    "nbox_PEG-C lag B": 45
    },
    {
     "split": "val",
@@ -2024,12 +2365,15 @@
     "PEG+": 30,
     "PEG-C": 36,
     "PEG-C lag": 36,
+    "PEG-C lag B": 30,
     "cerr_PEG+": 39.8,
     "nbox_PEG+": 36,
     "cerr_PEG-C": 17.4,
     "nbox_PEG-C": 36,
     "cerr_PEG-C lag": 17.4,
-    "nbox_PEG-C lag": 36
+    "nbox_PEG-C lag": 36,
+    "cerr_PEG-C lag B": 39.8,
+    "nbox_PEG-C lag B": 36
    },
    {
     "split": "val",
@@ -2042,12 +2386,15 @@
     "PEG+": 2,
     "PEG-C": 4,
     "PEG-C lag": 4,
+    "PEG-C lag B": 0,
     "cerr_PEG+": 24.4,
     "nbox_PEG+": 43,
     "cerr_PEG-C": 11.7,
     "nbox_PEG-C": 43,
     "cerr_PEG-C lag": 11.7,
-    "nbox_PEG-C lag": 43
+    "nbox_PEG-C lag": 43,
+    "cerr_PEG-C lag B": 11.5,
+    "nbox_PEG-C lag B": 43
    },
    {
     "split": "val",
@@ -2060,12 +2407,15 @@
     "PEG+": 19,
     "PEG-C": 35,
     "PEG-C lag": 35,
+    "PEG-C lag B": 35,
     "cerr_PEG+": 9.1,
     "nbox_PEG+": 35,
     "cerr_PEG-C": 4.7,
     "nbox_PEG-C": 35,
     "cerr_PEG-C lag": 4.7,
-    "nbox_PEG-C lag": 35
+    "nbox_PEG-C lag": 35,
+    "cerr_PEG-C lag B": 3.5,
+    "nbox_PEG-C lag B": 35
    },
    {
     "split": "val",
@@ -2078,12 +2428,15 @@
     "PEG+": 42,
     "PEG-C": 43,
     "PEG-C lag": 43,
+    "PEG-C lag B": 43,
     "cerr_PEG+": 5.9,
     "nbox_PEG+": 43,
     "cerr_PEG-C": 3.4,
     "nbox_PEG-C": 43,
     "cerr_PEG-C lag": 3.4,
-    "nbox_PEG-C lag": 43
+    "nbox_PEG-C lag": 43,
+    "cerr_PEG-C lag B": 3.4,
+    "nbox_PEG-C lag B": 43
    },
    {
     "split": "val",
@@ -2096,12 +2449,15 @@
     "PEG+": 33,
     "PEG-C": 35,
     "PEG-C lag": 35,
+    "PEG-C lag B": 35,
     "cerr_PEG+": 11.1,
     "nbox_PEG+": 35,
     "cerr_PEG-C": 12.7,
     "nbox_PEG-C": 35,
     "cerr_PEG-C lag": 12.7,
-    "nbox_PEG-C lag": 35
+    "nbox_PEG-C lag": 35,
+    "cerr_PEG-C lag B": 4.6,
+    "nbox_PEG-C lag B": 35
    },
    {
     "split": "val",
@@ -2114,12 +2470,15 @@
     "PEG+": 16,
     "PEG-C": 15,
     "PEG-C lag": 15,
+    "PEG-C lag B": 15,
     "cerr_PEG+": 5.8,
     "nbox_PEG+": 18,
     "cerr_PEG-C": 6.6,
     "nbox_PEG-C": 18,
     "cerr_PEG-C lag": 6.6,
-    "nbox_PEG-C lag": 18
+    "nbox_PEG-C lag": 18,
+    "cerr_PEG-C lag B": 6.7,
+    "nbox_PEG-C lag B": 18
    },
    {
     "split": "val",
@@ -2132,12 +2491,294 @@
     "PEG+": 6,
     "PEG-C": 10,
     "PEG-C lag": 10,
+    "PEG-C lag B": 0,
     "cerr_PEG+": 36.3,
     "nbox_PEG+": 29,
     "cerr_PEG-C": 33.3,
     "nbox_PEG-C": 29,
     "cerr_PEG-C lag": 33.3,
-    "nbox_PEG-C lag": 29
+    "nbox_PEG-C lag": 29,
+    "cerr_PEG-C lag B": 61.6,
+    "nbox_PEG-C lag B": 29
+   }
+  ]
+ },
+ "episodes_changed_lagB": {
+  "test": [
+   {
+    "split": "test",
+    "seq": "136_sequence_2q_new",
+    "tid": 1,
+    "start": 234,
+    "end": 252,
+    "n": 19,
+    "PEG": 12,
+    "PEG+": 12,
+    "PEG-C": 12,
+    "PEG-C lag": 12,
+    "PEG-C lag B": 19,
+    "cerr_PEG+": 11.1,
+    "nbox_PEG+": 19,
+    "cerr_PEG-C": 10.4,
+    "nbox_PEG-C": 19,
+    "cerr_PEG-C lag": 10.4,
+    "nbox_PEG-C lag": 19,
+    "cerr_PEG-C lag B": 5.0,
+    "nbox_PEG-C lag B": 19
+   },
+   {
+    "split": "test",
+    "seq": "145_sequence_28q_new",
+    "tid": 84,
+    "start": 1094,
+    "end": 1130,
+    "n": 37,
+    "PEG": 28,
+    "PEG+": 31,
+    "PEG-C": 36,
+    "PEG-C lag": 36,
+    "PEG-C lag B": 37,
+    "cerr_PEG+": 6.7,
+    "nbox_PEG+": 37,
+    "cerr_PEG-C": 6.4,
+    "nbox_PEG-C": 37,
+    "cerr_PEG-C lag": 6.4,
+    "nbox_PEG-C lag": 37,
+    "cerr_PEG-C lag B": 4.3,
+    "nbox_PEG-C lag B": 37
+   },
+   {
+    "split": "test",
+    "seq": "204_sequence_81q_complete",
+    "tid": 300,
+    "start": 102,
+    "end": 141,
+    "n": 40,
+    "PEG": 40,
+    "PEG+": 38,
+    "PEG-C": 40,
+    "PEG-C lag": 40,
+    "PEG-C lag B": 40,
+    "cerr_PEG+": 2.6,
+    "nbox_PEG+": 40,
+    "cerr_PEG-C": 3.0,
+    "nbox_PEG-C": 40,
+    "cerr_PEG-C lag": 3.0,
+    "nbox_PEG-C lag": 40,
+    "cerr_PEG-C lag B": 2.6,
+    "nbox_PEG-C lag B": 40
+   },
+   {
+    "split": "test",
+    "seq": "204_sequence_81q_complete",
+    "tid": 300,
+    "start": 400,
+    "end": 432,
+    "n": 33,
+    "PEG": 23,
+    "PEG+": 26,
+    "PEG-C": 26,
+    "PEG-C lag": 26,
+    "PEG-C lag B": 33,
+    "cerr_PEG+": 20.5,
+    "nbox_PEG+": 33,
+    "cerr_PEG-C": 20.6,
+    "nbox_PEG-C": 33,
+    "cerr_PEG-C lag": 20.6,
+    "nbox_PEG-C lag": 33,
+    "cerr_PEG-C lag B": 5.3,
+    "nbox_PEG-C lag B": 33
+   },
+   {
+    "split": "test",
+    "seq": "211_sequence_88q_new",
+    "tid": 319,
+    "start": 376,
+    "end": 411,
+    "n": 36,
+    "PEG": 36,
+    "PEG+": 35,
+    "PEG-C": 35,
+    "PEG-C lag": 35,
+    "PEG-C lag B": 36,
+    "cerr_PEG+": 16.6,
+    "nbox_PEG+": 36,
+    "cerr_PEG-C": 17.9,
+    "nbox_PEG-C": 36,
+    "cerr_PEG-C lag": 17.9,
+    "nbox_PEG-C lag": 36,
+    "cerr_PEG-C lag B": 15.6,
+    "nbox_PEG-C lag B": 36
+   },
+   {
+    "split": "test",
+    "seq": "316_sequence_112q_new",
+    "tid": 6,
+    "start": 2000,
+    "end": 2034,
+    "n": 35,
+    "PEG": 22,
+    "PEG+": 22,
+    "PEG-C": 35,
+    "PEG-C lag": 35,
+    "PEG-C lag B": 35,
+    "cerr_PEG+": 31.6,
+    "nbox_PEG+": 35,
+    "cerr_PEG-C": 17.5,
+    "nbox_PEG-C": 35,
+    "cerr_PEG-C lag": 17.5,
+    "nbox_PEG-C lag": 35,
+    "cerr_PEG-C lag B": 20.7,
+    "nbox_PEG-C lag B": 35
+   }
+  ],
+  "val": [
+   {
+    "split": "val",
+    "seq": "141_sequence_24q_new",
+    "tid": 71,
+    "start": 161,
+    "end": 184,
+    "n": 24,
+    "PEG": 12,
+    "PEG+": 12,
+    "PEG-C": 22,
+    "PEG-C lag": 22,
+    "PEG-C lag B": 24,
+    "cerr_PEG+": 12.8,
+    "nbox_PEG+": 24,
+    "cerr_PEG-C": 8.6,
+    "nbox_PEG-C": 24,
+    "cerr_PEG-C lag": 8.6,
+    "nbox_PEG-C lag": 24,
+    "cerr_PEG-C lag B": 4.6,
+    "nbox_PEG-C lag B": 24
+   },
+   {
+    "split": "val",
+    "seq": "178_sequence_58q_new",
+    "tid": 206,
+    "start": 567,
+    "end": 609,
+    "n": 43,
+    "PEG": 2,
+    "PEG+": 2,
+    "PEG-C": 4,
+    "PEG-C lag": 4,
+    "PEG-C lag B": 0,
+    "cerr_PEG+": 24.4,
+    "nbox_PEG+": 43,
+    "cerr_PEG-C": 11.7,
+    "nbox_PEG-C": 43,
+    "cerr_PEG-C lag": 11.7,
+    "nbox_PEG-C lag": 43,
+    "cerr_PEG-C lag B": 11.5,
+    "nbox_PEG-C lag B": 43
+   },
+   {
+    "split": "val",
+    "seq": "187_sequence_66q_new",
+    "tid": 247,
+    "start": 201,
+    "end": 235,
+    "n": 35,
+    "PEG": 25,
+    "PEG+": 19,
+    "PEG-C": 35,
+    "PEG-C lag": 35,
+    "PEG-C lag B": 35,
+    "cerr_PEG+": 9.1,
+    "nbox_PEG+": 35,
+    "cerr_PEG-C": 4.7,
+    "nbox_PEG-C": 35,
+    "cerr_PEG-C lag": 4.7,
+    "nbox_PEG-C lag": 35,
+    "cerr_PEG-C lag B": 3.5,
+    "nbox_PEG-C lag B": 35
+   },
+   {
+    "split": "val",
+    "seq": "203_sequence_80q_new",
+    "tid": 299,
+    "start": 104,
+    "end": 146,
+    "n": 43,
+    "PEG": 42,
+    "PEG+": 42,
+    "PEG-C": 43,
+    "PEG-C lag": 43,
+    "PEG-C lag B": 43,
+    "cerr_PEG+": 5.9,
+    "nbox_PEG+": 43,
+    "cerr_PEG-C": 3.4,
+    "nbox_PEG-C": 43,
+    "cerr_PEG-C lag": 3.4,
+    "nbox_PEG-C lag": 43,
+    "cerr_PEG-C lag B": 3.4,
+    "nbox_PEG-C lag B": 43
+   },
+   {
+    "split": "val",
+    "seq": "203_sequence_80q_new",
+    "tid": 299,
+    "start": 306,
+    "end": 340,
+    "n": 35,
+    "PEG": 35,
+    "PEG+": 33,
+    "PEG-C": 35,
+    "PEG-C lag": 35,
+    "PEG-C lag B": 35,
+    "cerr_PEG+": 11.1,
+    "nbox_PEG+": 35,
+    "cerr_PEG-C": 12.7,
+    "nbox_PEG-C": 35,
+    "cerr_PEG-C lag": 12.7,
+    "nbox_PEG-C lag": 35,
+    "cerr_PEG-C lag B": 4.6,
+    "nbox_PEG-C lag B": 35
+   },
+   {
+    "split": "val",
+    "seq": "210_sequence_87q_complete",
+    "tid": 317,
+    "start": 192,
+    "end": 209,
+    "n": 18,
+    "PEG": 16,
+    "PEG+": 16,
+    "PEG-C": 15,
+    "PEG-C lag": 15,
+    "PEG-C lag B": 15,
+    "cerr_PEG+": 5.8,
+    "nbox_PEG+": 18,
+    "cerr_PEG-C": 6.6,
+    "nbox_PEG-C": 18,
+    "cerr_PEG-C lag": 6.6,
+    "nbox_PEG-C lag": 18,
+    "cerr_PEG-C lag B": 6.7,
+    "nbox_PEG-C lag B": 18
+   },
+   {
+    "split": "val",
+    "seq": "332_sequence_99q_complete",
+    "tid": 1030,
+    "start": 209,
+    "end": 237,
+    "n": 29,
+    "PEG": 3,
+    "PEG+": 6,
+    "PEG-C": 10,
+    "PEG-C lag": 10,
+    "PEG-C lag B": 0,
+    "cerr_PEG+": 36.3,
+    "nbox_PEG+": 29,
+    "cerr_PEG-C": 33.3,
+    "nbox_PEG-C": 29,
+    "cerr_PEG-C lag": 33.3,
+    "nbox_PEG-C lag": 29,
+    "cerr_PEG-C lag B": 61.6,
+    "nbox_PEG-C lag B": 29
    }
   ]
  },
@@ -2153,12 +2794,15 @@
    "PEG+": 26,
    "PEG-C": 26,
    "PEG-C lag": 26,
+   "PEG-C lag B": 26,
    "cerr_PEG+": 9.0,
    "nbox_PEG+": 26,
    "cerr_PEG-C": 7.5,
    "nbox_PEG-C": 26,
    "cerr_PEG-C lag": 7.5,
-   "nbox_PEG-C lag": 26
+   "nbox_PEG-C lag": 26,
+   "cerr_PEG-C lag B": 5.2,
+   "nbox_PEG-C lag B": 26
   },
   {
    "split": "test",
@@ -2171,12 +2815,15 @@
    "PEG+": 4,
    "PEG-C": 2,
    "PEG-C lag": 2,
+   "PEG-C lag B": 4,
    "cerr_PEG+": 70.5,
    "nbox_PEG+": 43,
    "cerr_PEG-C": 88.6,
    "nbox_PEG-C": 43,
    "cerr_PEG-C lag": 88.6,
-   "nbox_PEG-C lag": 43
+   "nbox_PEG-C lag": 43,
+   "cerr_PEG-C lag B": 70.5,
+   "nbox_PEG-C lag B": 43
   },
   {
    "split": "test",
@@ -2189,12 +2836,15 @@
    "PEG+": 20,
    "PEG-C": 20,
    "PEG-C lag": 20,
+   "PEG-C lag B": 20,
    "cerr_PEG+": 13.6,
    "nbox_PEG+": 20,
    "cerr_PEG-C": 9.7,
    "nbox_PEG-C": 20,
    "cerr_PEG-C lag": 9.7,
-   "nbox_PEG-C lag": 20
+   "nbox_PEG-C lag": 20,
+   "cerr_PEG-C lag B": 3.9,
+   "nbox_PEG-C lag B": 20
   },
   {
    "split": "test",
@@ -2207,12 +2857,15 @@
    "PEG+": 12,
    "PEG-C": 12,
    "PEG-C lag": 12,
+   "PEG-C lag B": 19,
    "cerr_PEG+": 11.1,
    "nbox_PEG+": 19,
    "cerr_PEG-C": 10.4,
    "nbox_PEG-C": 19,
    "cerr_PEG-C lag": 10.4,
-   "nbox_PEG-C lag": 19
+   "nbox_PEG-C lag": 19,
+   "cerr_PEG-C lag B": 5.0,
+   "nbox_PEG-C lag B": 19
   },
   {
    "split": "test",
@@ -2225,12 +2878,15 @@
    "PEG+": 19,
    "PEG-C": 19,
    "PEG-C lag": 19,
+   "PEG-C lag B": 19,
    "cerr_PEG+": 2.5,
    "nbox_PEG+": 19,
    "cerr_PEG-C": 2.5,
    "nbox_PEG-C": 19,
    "cerr_PEG-C lag": 2.5,
-   "nbox_PEG-C lag": 19
+   "nbox_PEG-C lag": 19,
+   "cerr_PEG-C lag B": 4.7,
+   "nbox_PEG-C lag B": 19
   },
   {
    "split": "test",
@@ -2243,12 +2899,15 @@
    "PEG+": 14,
    "PEG-C": 14,
    "PEG-C lag": 14,
+   "PEG-C lag B": 14,
    "cerr_PEG+": 2.6,
    "nbox_PEG+": 14,
    "cerr_PEG-C": 1.5,
    "nbox_PEG-C": 14,
    "cerr_PEG-C lag": 1.5,
-   "nbox_PEG-C lag": 14
+   "nbox_PEG-C lag": 14,
+   "cerr_PEG-C lag B": 0.9,
+   "nbox_PEG-C lag B": 14
   },
   {
    "split": "test",
@@ -2261,12 +2920,15 @@
    "PEG+": 31,
    "PEG-C": 36,
    "PEG-C lag": 36,
+   "PEG-C lag B": 37,
    "cerr_PEG+": 6.7,
    "nbox_PEG+": 37,
    "cerr_PEG-C": 6.4,
    "nbox_PEG-C": 37,
    "cerr_PEG-C lag": 6.4,
-   "nbox_PEG-C lag": 37
+   "nbox_PEG-C lag": 37,
+   "cerr_PEG-C lag B": 4.3,
+   "nbox_PEG-C lag B": 37
   },
   {
    "split": "test",
@@ -2279,12 +2941,15 @@
    "PEG+": 28,
    "PEG-C": 28,
    "PEG-C lag": 28,
+   "PEG-C lag B": 28,
    "cerr_PEG+": 4.5,
    "nbox_PEG+": 28,
    "cerr_PEG-C": 4.0,
    "nbox_PEG-C": 28,
    "cerr_PEG-C lag": 4.0,
-   "nbox_PEG-C lag": 28
+   "nbox_PEG-C lag": 28,
+   "cerr_PEG-C lag B": 2.5,
+   "nbox_PEG-C lag B": 28
   },
   {
    "split": "test",
@@ -2297,12 +2962,15 @@
    "PEG+": 25,
    "PEG-C": 10,
    "PEG-C lag": 10,
+   "PEG-C lag B": 25,
    "cerr_PEG+": 11.9,
    "nbox_PEG+": 25,
    "cerr_PEG-C": 14.7,
    "nbox_PEG-C": 25,
    "cerr_PEG-C lag": 14.7,
-   "nbox_PEG-C lag": 25
+   "nbox_PEG-C lag": 25,
+   "cerr_PEG-C lag B": 6.5,
+   "nbox_PEG-C lag B": 25
   },
   {
    "split": "test",
@@ -2315,12 +2983,15 @@
    "PEG+": 16,
    "PEG-C": 16,
    "PEG-C lag": 16,
+   "PEG-C lag B": 16,
    "cerr_PEG+": 1.4,
    "nbox_PEG+": 16,
    "cerr_PEG-C": 1.8,
    "nbox_PEG-C": 16,
    "cerr_PEG-C lag": 1.8,
-   "nbox_PEG-C lag": 16
+   "nbox_PEG-C lag": 16,
+   "cerr_PEG-C lag B": 0.7,
+   "nbox_PEG-C lag B": 16
   },
   {
    "split": "test",
@@ -2333,12 +3004,15 @@
    "PEG+": 27,
    "PEG-C": 27,
    "PEG-C lag": 27,
+   "PEG-C lag B": 27,
    "cerr_PEG+": 2.5,
    "nbox_PEG+": 27,
    "cerr_PEG-C": 1.2,
    "nbox_PEG-C": 27,
    "cerr_PEG-C lag": 1.2,
-   "nbox_PEG-C lag": 27
+   "nbox_PEG-C lag": 27,
+   "cerr_PEG-C lag B": 2.6,
+   "nbox_PEG-C lag B": 27
   },
   {
    "split": "test",
@@ -2351,12 +3025,15 @@
    "PEG+": 20,
    "PEG-C": 20,
    "PEG-C lag": 20,
+   "PEG-C lag B": 20,
    "cerr_PEG+": 4.3,
    "nbox_PEG+": 20,
    "cerr_PEG-C": 3.0,
    "nbox_PEG-C": 20,
    "cerr_PEG-C lag": 3.0,
-   "nbox_PEG-C lag": 20
+   "nbox_PEG-C lag": 20,
+   "cerr_PEG-C lag B": 1.9,
+   "nbox_PEG-C lag B": 20
   },
   {
    "split": "test",
@@ -2369,12 +3046,15 @@
    "PEG+": 35,
    "PEG-C": 35,
    "PEG-C lag": 35,
+   "PEG-C lag B": 35,
    "cerr_PEG+": 9.6,
    "nbox_PEG+": 35,
    "cerr_PEG-C": 7.2,
    "nbox_PEG-C": 35,
    "cerr_PEG-C lag": 7.2,
-   "nbox_PEG-C lag": 35
+   "nbox_PEG-C lag": 35,
+   "cerr_PEG-C lag B": 3.2,
+   "nbox_PEG-C lag B": 35
   },
   {
    "split": "test",
@@ -2387,12 +3067,15 @@
    "PEG+": 24,
    "PEG-C": 21,
    "PEG-C lag": 21,
+   "PEG-C lag B": 24,
    "cerr_PEG+": 12.7,
    "nbox_PEG+": 24,
    "cerr_PEG-C": 13.8,
    "nbox_PEG-C": 24,
    "cerr_PEG-C lag": 13.8,
-   "nbox_PEG-C lag": 24
+   "nbox_PEG-C lag": 24,
+   "cerr_PEG-C lag B": 17.3,
+   "nbox_PEG-C lag B": 24
   },
   {
    "split": "test",
@@ -2405,12 +3088,15 @@
    "PEG+": 20,
    "PEG-C": 20,
    "PEG-C lag": 20,
+   "PEG-C lag B": 20,
    "cerr_PEG+": 2.2,
    "nbox_PEG+": 20,
    "cerr_PEG-C": 2.5,
    "nbox_PEG-C": 20,
    "cerr_PEG-C lag": 2.5,
-   "nbox_PEG-C lag": 20
+   "nbox_PEG-C lag": 20,
+   "cerr_PEG-C lag B": 2.3,
+   "nbox_PEG-C lag B": 20
   },
   {
    "split": "test",
@@ -2423,12 +3109,15 @@
    "PEG+": 25,
    "PEG-C": 25,
    "PEG-C lag": 25,
+   "PEG-C lag B": 25,
    "cerr_PEG+": 5.8,
    "nbox_PEG+": 25,
    "cerr_PEG-C": 3.2,
    "nbox_PEG-C": 25,
    "cerr_PEG-C lag": 3.2,
-   "nbox_PEG-C lag": 25
+   "nbox_PEG-C lag": 25,
+   "cerr_PEG-C lag B": 3.0,
+   "nbox_PEG-C lag B": 25
   },
   {
    "split": "test",
@@ -2441,12 +3130,15 @@
    "PEG+": 39,
    "PEG-C": 39,
    "PEG-C lag": 39,
+   "PEG-C lag B": 39,
    "cerr_PEG+": 5.0,
    "nbox_PEG+": 39,
    "cerr_PEG-C": 3.2,
    "nbox_PEG-C": 39,
    "cerr_PEG-C lag": 3.2,
-   "nbox_PEG-C lag": 39
+   "nbox_PEG-C lag": 39,
+   "cerr_PEG-C lag B": 2.4,
+   "nbox_PEG-C lag B": 39
   },
   {
    "split": "test",
@@ -2459,12 +3151,15 @@
    "PEG+": 38,
    "PEG-C": 40,
    "PEG-C lag": 40,
+   "PEG-C lag B": 40,
    "cerr_PEG+": 2.6,
    "nbox_PEG+": 40,
    "cerr_PEG-C": 3.0,
    "nbox_PEG-C": 40,
    "cerr_PEG-C lag": 3.0,
-   "nbox_PEG-C lag": 40
+   "nbox_PEG-C lag": 40,
+   "cerr_PEG-C lag B": 2.6,
+   "nbox_PEG-C lag B": 40
   },
   {
    "split": "test",
@@ -2477,12 +3172,15 @@
    "PEG+": 25,
    "PEG-C": 21,
    "PEG-C lag": 21,
+   "PEG-C lag B": 25,
    "cerr_PEG+": 13.6,
    "nbox_PEG+": 42,
    "cerr_PEG-C": 16.0,
    "nbox_PEG-C": 42,
    "cerr_PEG-C lag": 16.0,
-   "nbox_PEG-C lag": 42
+   "nbox_PEG-C lag": 42,
+   "cerr_PEG-C lag B": 13.6,
+   "nbox_PEG-C lag B": 42
   },
   {
    "split": "test",
@@ -2495,12 +3193,15 @@
    "PEG+": 26,
    "PEG-C": 26,
    "PEG-C lag": 26,
+   "PEG-C lag B": 33,
    "cerr_PEG+": 20.5,
    "nbox_PEG+": 33,
    "cerr_PEG-C": 20.6,
    "nbox_PEG-C": 33,
    "cerr_PEG-C lag": 20.6,
-   "nbox_PEG-C lag": 33
+   "nbox_PEG-C lag": 33,
+   "cerr_PEG-C lag B": 5.3,
+   "nbox_PEG-C lag B": 33
   },
   {
    "split": "test",
@@ -2513,12 +3214,15 @@
    "PEG+": 35,
    "PEG-C": 35,
    "PEG-C lag": 35,
+   "PEG-C lag B": 36,
    "cerr_PEG+": 16.6,
    "nbox_PEG+": 36,
    "cerr_PEG-C": 17.9,
    "nbox_PEG-C": 36,
    "cerr_PEG-C lag": 17.9,
-   "nbox_PEG-C lag": 36
+   "nbox_PEG-C lag": 36,
+   "cerr_PEG-C lag B": 15.6,
+   "nbox_PEG-C lag B": 36
   },
   {
    "split": "test",
@@ -2531,12 +3235,15 @@
    "PEG+": 25,
    "PEG-C": 13,
    "PEG-C lag": 13,
+   "PEG-C lag B": 25,
    "cerr_PEG+": 20.3,
    "nbox_PEG+": 25,
    "cerr_PEG-C": 27.4,
    "nbox_PEG-C": 25,
    "cerr_PEG-C lag": 27.4,
-   "nbox_PEG-C lag": 25
+   "nbox_PEG-C lag": 25,
+   "cerr_PEG-C lag B": 13.6,
+   "nbox_PEG-C lag B": 25
   },
   {
    "split": "test",
@@ -2549,12 +3256,15 @@
    "PEG+": 37,
    "PEG-C": 37,
    "PEG-C lag": 37,
+   "PEG-C lag B": 37,
    "cerr_PEG+": 13.3,
    "nbox_PEG+": 37,
    "cerr_PEG-C": 16.2,
    "nbox_PEG-C": 37,
    "cerr_PEG-C lag": 16.2,
-   "nbox_PEG-C lag": 37
+   "nbox_PEG-C lag": 37,
+   "cerr_PEG-C lag B": 8.0,
+   "nbox_PEG-C lag B": 37
   },
   {
    "split": "test",
@@ -2567,12 +3277,15 @@
    "PEG+": 0,
    "PEG-C": 0,
    "PEG-C lag": 0,
+   "PEG-C lag B": 0,
    "cerr_PEG+": 169.5,
    "nbox_PEG+": 13,
    "cerr_PEG-C": 178.6,
    "nbox_PEG-C": 13,
    "cerr_PEG-C lag": 178.6,
-   "nbox_PEG-C lag": 13
+   "nbox_PEG-C lag": 13,
+   "cerr_PEG-C lag B": 158.2,
+   "nbox_PEG-C lag B": 13
   },
   {
    "split": "test",
@@ -2585,12 +3298,15 @@
    "PEG+": 0,
    "PEG-C": 0,
    "PEG-C lag": 0,
+   "PEG-C lag B": 0,
    "cerr_PEG+": null,
    "nbox_PEG+": 0,
    "cerr_PEG-C": null,
    "nbox_PEG-C": 0,
    "cerr_PEG-C lag": null,
-   "nbox_PEG-C lag": 0
+   "nbox_PEG-C lag": 0,
+   "cerr_PEG-C lag B": null,
+   "nbox_PEG-C lag B": 0
   },
   {
    "split": "test",
@@ -2603,12 +3319,15 @@
    "PEG+": 22,
    "PEG-C": 35,
    "PEG-C lag": 35,
+   "PEG-C lag B": 35,
    "cerr_PEG+": 31.6,
    "nbox_PEG+": 35,
    "cerr_PEG-C": 17.5,
    "nbox_PEG-C": 35,
    "cerr_PEG-C lag": 17.5,
-   "nbox_PEG-C lag": 35
+   "nbox_PEG-C lag": 35,
+   "cerr_PEG-C lag B": 20.7,
+   "nbox_PEG-C lag B": 35
   },
   {
    "split": "test",
@@ -2621,12 +3340,15 @@
    "PEG+": 31,
    "PEG-C": 31,
    "PEG-C lag": 31,
+   "PEG-C lag B": 31,
    "cerr_PEG+": 16.4,
    "nbox_PEG+": 31,
    "cerr_PEG-C": 13.9,
    "nbox_PEG-C": 31,
    "cerr_PEG-C lag": 13.9,
-   "nbox_PEG-C lag": 31
+   "nbox_PEG-C lag": 31,
+   "cerr_PEG-C lag B": 11.1,
+   "nbox_PEG-C lag B": 31
   },
   {
    "split": "test",
@@ -2639,12 +3361,15 @@
    "PEG+": 15,
    "PEG-C": 15,
    "PEG-C lag": 15,
+   "PEG-C lag B": 15,
    "cerr_PEG+": 13.0,
    "nbox_PEG+": 15,
    "cerr_PEG-C": 12.0,
    "nbox_PEG-C": 15,
    "cerr_PEG-C lag": 12.0,
-   "nbox_PEG-C lag": 15
+   "nbox_PEG-C lag": 15,
+   "cerr_PEG-C lag B": 10.9,
+   "nbox_PEG-C lag B": 15
   },
   {
    "split": "test",
@@ -2657,12 +3382,15 @@
    "PEG+": 30,
    "PEG-C": 31,
    "PEG-C lag": 31,
+   "PEG-C lag B": 30,
    "cerr_PEG+": 59.0,
    "nbox_PEG+": 33,
    "cerr_PEG-C": 35.7,
    "nbox_PEG-C": 33,
    "cerr_PEG-C lag": 35.7,
-   "nbox_PEG-C lag": 33
+   "nbox_PEG-C lag": 33,
+   "cerr_PEG-C lag B": 59.0,
+   "nbox_PEG-C lag B": 33
   },
   {
    "split": "test",
@@ -2675,12 +3403,15 @@
    "PEG+": 30,
    "PEG-C": 30,
    "PEG-C lag": 30,
+   "PEG-C lag B": 30,
    "cerr_PEG+": 12.8,
    "nbox_PEG+": 30,
    "cerr_PEG-C": 14.8,
    "nbox_PEG-C": 30,
    "cerr_PEG-C lag": 14.8,
-   "nbox_PEG-C lag": 30
+   "nbox_PEG-C lag": 30,
+   "cerr_PEG-C lag B": 14.1,
+   "nbox_PEG-C lag B": 30
   },
   {
    "split": "val",
@@ -2693,12 +3424,15 @@
    "PEG+": 26,
    "PEG-C": 26,
    "PEG-C lag": 26,
+   "PEG-C lag B": 26,
    "cerr_PEG+": 1.4,
    "nbox_PEG+": 26,
    "cerr_PEG-C": 0.8,
    "nbox_PEG-C": 26,
    "cerr_PEG-C lag": 0.8,
-   "nbox_PEG-C lag": 26
+   "nbox_PEG-C lag": 26,
+   "cerr_PEG-C lag B": 1.0,
+   "nbox_PEG-C lag B": 26
   },
   {
    "split": "val",
@@ -2711,12 +3445,15 @@
    "PEG+": 36,
    "PEG-C": 36,
    "PEG-C lag": 36,
+   "PEG-C lag B": 36,
    "cerr_PEG+": 2.7,
    "nbox_PEG+": 36,
    "cerr_PEG-C": 6.8,
    "nbox_PEG-C": 36,
    "cerr_PEG-C lag": 6.8,
-   "nbox_PEG-C lag": 36
+   "nbox_PEG-C lag": 36,
+   "cerr_PEG-C lag B": 2.8,
+   "nbox_PEG-C lag B": 36
   },
   {
    "split": "val",
@@ -2729,12 +3466,15 @@
    "PEG+": 17,
    "PEG-C": 24,
    "PEG-C lag": 24,
+   "PEG-C lag B": 17,
    "cerr_PEG+": 20.3,
    "nbox_PEG+": 37,
    "cerr_PEG-C": 13.3,
    "nbox_PEG-C": 37,
    "cerr_PEG-C lag": 13.3,
-   "nbox_PEG-C lag": 37
+   "nbox_PEG-C lag": 37,
+   "cerr_PEG-C lag B": 20.3,
+   "nbox_PEG-C lag B": 37
   },
   {
    "split": "val",
@@ -2747,12 +3487,15 @@
    "PEG+": 12,
    "PEG-C": 22,
    "PEG-C lag": 22,
+   "PEG-C lag B": 24,
    "cerr_PEG+": 12.8,
    "nbox_PEG+": 24,
    "cerr_PEG-C": 8.6,
    "nbox_PEG-C": 24,
    "cerr_PEG-C lag": 8.6,
-   "nbox_PEG-C lag": 24
+   "nbox_PEG-C lag": 24,
+   "cerr_PEG-C lag B": 4.6,
+   "nbox_PEG-C lag B": 24
   },
   {
    "split": "val",
@@ -2765,12 +3508,15 @@
    "PEG+": 25,
    "PEG-C": 25,
    "PEG-C lag": 25,
+   "PEG-C lag B": 25,
    "cerr_PEG+": 3.5,
    "nbox_PEG+": 25,
    "cerr_PEG-C": 1.7,
    "nbox_PEG-C": 25,
    "cerr_PEG-C lag": 1.7,
-   "nbox_PEG-C lag": 25
+   "nbox_PEG-C lag": 25,
+   "cerr_PEG-C lag B": 2.6,
+   "nbox_PEG-C lag B": 25
   },
   {
    "split": "val",
@@ -2783,12 +3529,15 @@
    "PEG+": 22,
    "PEG-C": 22,
    "PEG-C lag": 22,
+   "PEG-C lag B": 22,
    "cerr_PEG+": 3.4,
    "nbox_PEG+": 22,
    "cerr_PEG-C": 2.1,
    "nbox_PEG-C": 22,
    "cerr_PEG-C lag": 2.1,
-   "nbox_PEG-C lag": 22
+   "nbox_PEG-C lag": 22,
+   "cerr_PEG-C lag B": 1.6,
+   "nbox_PEG-C lag B": 22
   },
   {
    "split": "val",
@@ -2801,12 +3550,15 @@
    "PEG+": 38,
    "PEG-C": 40,
    "PEG-C lag": 40,
+   "PEG-C lag B": 38,
    "cerr_PEG+": 7.6,
    "nbox_PEG+": 45,
    "cerr_PEG-C": 6.9,
    "nbox_PEG-C": 45,
    "cerr_PEG-C lag": 6.9,
-   "nbox_PEG-C lag": 45
+   "nbox_PEG-C lag": 45,
+   "cerr_PEG-C lag B": 7.6,
+   "nbox_PEG-C lag B": 45
   },
   {
    "split": "val",
@@ -2819,12 +3571,15 @@
    "PEG+": 30,
    "PEG-C": 36,
    "PEG-C lag": 36,
+   "PEG-C lag B": 30,
    "cerr_PEG+": 39.8,
    "nbox_PEG+": 36,
    "cerr_PEG-C": 17.4,
    "nbox_PEG-C": 36,
    "cerr_PEG-C lag": 17.4,
-   "nbox_PEG-C lag": 36
+   "nbox_PEG-C lag": 36,
+   "cerr_PEG-C lag B": 39.8,
+   "nbox_PEG-C lag B": 36
   },
   {
    "split": "val",
@@ -2837,12 +3592,15 @@
    "PEG+": 2,
    "PEG-C": 4,
    "PEG-C lag": 4,
+   "PEG-C lag B": 0,
    "cerr_PEG+": 24.4,
    "nbox_PEG+": 43,
    "cerr_PEG-C": 11.7,
    "nbox_PEG-C": 43,
    "cerr_PEG-C lag": 11.7,
-   "nbox_PEG-C lag": 43
+   "nbox_PEG-C lag": 43,
+   "cerr_PEG-C lag B": 11.5,
+   "nbox_PEG-C lag B": 43
   },
   {
    "split": "val",
@@ -2855,12 +3613,15 @@
    "PEG+": 33,
    "PEG-C": 33,
    "PEG-C lag": 33,
+   "PEG-C lag B": 33,
    "cerr_PEG+": 5.4,
    "nbox_PEG+": 33,
    "cerr_PEG-C": 3.8,
    "nbox_PEG-C": 33,
    "cerr_PEG-C lag": 3.8,
-   "nbox_PEG-C lag": 33
+   "nbox_PEG-C lag": 33,
+   "cerr_PEG-C lag B": 3.7,
+   "nbox_PEG-C lag B": 33
   },
   {
    "split": "val",
@@ -2873,12 +3634,15 @@
    "PEG+": 19,
    "PEG-C": 35,
    "PEG-C lag": 35,
+   "PEG-C lag B": 35,
    "cerr_PEG+": 9.1,
    "nbox_PEG+": 35,
    "cerr_PEG-C": 4.7,
    "nbox_PEG-C": 35,
    "cerr_PEG-C lag": 4.7,
-   "nbox_PEG-C lag": 35
+   "nbox_PEG-C lag": 35,
+   "cerr_PEG-C lag B": 3.5,
+   "nbox_PEG-C lag B": 35
   },
   {
    "split": "val",
@@ -2891,12 +3655,15 @@
    "PEG+": 27,
    "PEG-C": 27,
    "PEG-C lag": 27,
+   "PEG-C lag B": 27,
    "cerr_PEG+": 4.2,
    "nbox_PEG+": 27,
    "cerr_PEG-C": 4.4,
    "nbox_PEG-C": 27,
    "cerr_PEG-C lag": 4.4,
-   "nbox_PEG-C lag": 27
+   "nbox_PEG-C lag": 27,
+   "cerr_PEG-C lag B": 2.4,
+   "nbox_PEG-C lag B": 27
   },
   {
    "split": "val",
@@ -2909,12 +3676,15 @@
    "PEG+": 42,
    "PEG-C": 43,
    "PEG-C lag": 43,
+   "PEG-C lag B": 43,
    "cerr_PEG+": 5.9,
    "nbox_PEG+": 43,
    "cerr_PEG-C": 3.4,
    "nbox_PEG-C": 43,
    "cerr_PEG-C lag": 3.4,
-   "nbox_PEG-C lag": 43
+   "nbox_PEG-C lag": 43,
+   "cerr_PEG-C lag B": 3.4,
+   "nbox_PEG-C lag B": 43
   },
   {
    "split": "val",
@@ -2927,12 +3697,15 @@
    "PEG+": 33,
    "PEG-C": 35,
    "PEG-C lag": 35,
+   "PEG-C lag B": 35,
    "cerr_PEG+": 11.1,
    "nbox_PEG+": 35,
    "cerr_PEG-C": 12.7,
    "nbox_PEG-C": 35,
    "cerr_PEG-C lag": 12.7,
-   "nbox_PEG-C lag": 35
+   "nbox_PEG-C lag": 35,
+   "cerr_PEG-C lag B": 4.6,
+   "nbox_PEG-C lag B": 35
   },
   {
    "split": "val",
@@ -2945,12 +3718,15 @@
    "PEG+": 16,
    "PEG-C": 15,
    "PEG-C lag": 15,
+   "PEG-C lag B": 15,
    "cerr_PEG+": 5.8,
    "nbox_PEG+": 18,
    "cerr_PEG-C": 6.6,
    "nbox_PEG-C": 18,
    "cerr_PEG-C lag": 6.6,
-   "nbox_PEG-C lag": 18
+   "nbox_PEG-C lag": 18,
+   "cerr_PEG-C lag B": 6.7,
+   "nbox_PEG-C lag B": 18
   },
   {
    "split": "val",
@@ -2963,12 +3739,15 @@
    "PEG+": 0,
    "PEG-C": 0,
    "PEG-C lag": 0,
+   "PEG-C lag B": 0,
    "cerr_PEG+": null,
    "nbox_PEG+": 0,
    "cerr_PEG-C": null,
    "nbox_PEG-C": 0,
    "cerr_PEG-C lag": null,
-   "nbox_PEG-C lag": 0
+   "nbox_PEG-C lag": 0,
+   "cerr_PEG-C lag B": null,
+   "nbox_PEG-C lag B": 0
   },
   {
    "split": "val",
@@ -2981,12 +3760,15 @@
    "PEG+": 0,
    "PEG-C": 0,
    "PEG-C lag": 0,
+   "PEG-C lag B": 0,
    "cerr_PEG+": 270.8,
    "nbox_PEG+": 5,
    "cerr_PEG-C": 270.8,
    "nbox_PEG-C": 5,
    "cerr_PEG-C lag": 270.8,
-   "nbox_PEG-C lag": 5
+   "nbox_PEG-C lag": 5,
+   "cerr_PEG-C lag B": 270.8,
+   "nbox_PEG-C lag B": 5
   },
   {
    "split": "val",
@@ -2999,12 +3781,15 @@
    "PEG+": 6,
    "PEG-C": 10,
    "PEG-C lag": 10,
+   "PEG-C lag B": 0,
    "cerr_PEG+": 36.3,
    "nbox_PEG+": 29,
    "cerr_PEG-C": 33.3,
    "nbox_PEG-C": 29,
    "cerr_PEG-C lag": 33.3,
-   "nbox_PEG-C lag": 29
+   "nbox_PEG-C lag": 29,
+   "cerr_PEG-C lag B": 61.6,
+   "nbox_PEG-C lag B": 29
   }
  ],
  "lag_B_val_episode_changes_vs_online": {

@@ -45,6 +45,23 @@ this: σ = 2.2 px gives a white-noise floor σ√(12/K³) of 0.03 px/f at K = 40
 The limit is the constant-velocity model, not noise. The val gain was real on val (9 of 10 changed episodes better)
 and is what the oracle had already flagged: its gain was val-driven (all-episode test +0.5, val +7.3).
 
-**Conclusion: PEG+ stays the recommended held-box fix.** PEG-C's V is a val win that test does not confirm on T3; its
-one test gain is T1 IDF1 (+1.0 guard off, +1.6 guard on), which is −1.1 on val. Not tested by the protocol: B on top
-of PEG+ without V (the literature check measured +4.3/+3.8 T3 there); a velocity estimator that detects pace changes.
+## Stage 2b (Addendum 2, committed a43ae88 before any run): B on PEG+ without V
+The staged protocol only tried B after V, where the gate already emits on every gap frame, so B could not be judged on
+its own. Re-run on PEG+ alone (P, no V, no S), same grid and strict rule. **Val accepted B L 90 mode all**: T1 +0.04,
+T2 HOTA +0.78, T3 Rcv@.5 +3.8 (67.3 → 71.1), single-event check +1.74; BB still never fires; strongest = same final.
+**Test once:** Thach harness (guard on) T1 68.50 · T2 62.74 · T3 86.5 (PEG+ 68.41 · 62.33 · 82.2). Ours, guard off:
+
+| vs PEG+ (guard off) | T1 HOTA | IDF1 | MOTA | IDSW | FP | FN | T2 HOTA | MOTA | FP | FN | T3 Rcv@.5 | total |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| PEG+ | 68.23 | 82.24 | 80.52 | 17 | 1440 | 2618 | 62.54 | 73.37 | 2113 | 2268 | 82.2 | 85.1 |
+| PEG-C fixed-lag 90 (B all on PEG+) | 68.31 | 82.37 | 80.72 | 15 | 1435 | 2583 | 62.93 | 74.06 | 2108 | 2158 | 86.5 | 86.2 |
+
+Per burn episode vs PEG+: test +4.2 [+1.0, +8.3] (6 better / 0 worse), val +3.9 [−2.2, +12.1] (4 / 3: 178 g206 2→0,
+332 g1030 6→0, 210 g317 16→15 — wrong re-acquisition endpoints), pooled +4.1 [+0.9, +8.0]. These equal the literature
+check's numbers to the frame. It is the first held-box change after PEG+ that test confirms on all three tables with
+FP flat or down — but it is **fixed-lag** (output up to 90 frames late), never an online number.
+
+**Conclusion.** Online: PEG+ stays the recommended held-box fix; PEG-C's V is a val win that test does not confirm
+on T3 (its one test gain, T1 IDF1 +1.0 / +1.6, is −1.1 on val). Fixed-lag (when a ≤ 90-frame output delay is
+acceptable): PEG+ + burn-gated backfill (B, L 90, all), test T3 82.2 → 86.5, T2 FN −110, T1 FN −35, FP −5/−5.
+Still open: a velocity estimator that detects pace changes; B together with S (stitch) for the burn-exit new-id cases.

@@ -1,6 +1,6 @@
 ---
 name: peg-c-coast-design
-description: PEG-C (2026-10-20) — designed coast (long-baseline velocity V, cap C, stitch S, fixed-lag backfill B/BB); val picked P+V (T3 +8.5) but test once T3 −1.8 vs PEG+; PEG+ stays best. Velocity error floor is the CV model.
+description: PEG-C (2026-10-20) — designed coast. Online V (long-baseline velocity) won val but lost test T3 (−1.8); fixed-lag B (burn-gated backfill, L90 all) on PEG+ won val AND test (T3 82.2→86.5). Online best = PEG+; fixed-lag best = PEG+ + B.
 metadata:
   type: project
 ---
@@ -19,7 +19,12 @@ Kalman velocity was closer to the truth than the 40-frame OLS (walker changes pa
 Slope noise σ√(12/K³) (σ 2.2 px) is tiny at K 40, but measured |v_est − v_true| plateaus at ≈ 0.3 px/f = the GT-fit
 model error: the CV model, not noise, is the limit.
 
+**Stage 2b (Addendum 2, a43ae88):** B on PEG+ without V — val accepted L 90 mode all (T3 +3.8, T2 +0.78); test once
+guard off T1 FN 2618→2583, T2 FN 2268→2158, FP −5/−5, T3 82.2→86.5; per episode test +4.2 [+1.0, +8.3] 6/0, pooled
++4.1 [+0.9, +8.0]. Fixed-lag only (≤ 90 frames late), names `pegcbl_*`. Lesson: test each component on its own
+mechanism — the staged protocol had judged B after V, where V already emits on every gap frame.
+
 **Why it matters:** the oracle had warned the b40 gain was val-driven (all-episode test +0.5, val +7.3) and that is
 exactly what happened; an oracle gain that comes from one split stays in that split. **How to apply:** don't push
-pre-burn velocity further; untested leftovers are B on PEG+ without V, and a pace-change-aware estimator. Related:
+pre-burn velocity further; report PEG+ + B as the fixed-lag row; leftovers: pace-change-aware estimator, B + S. Related:
 [[coast-design-research]], [[peg-o-photometric-odometry]], [[tune-on-val-from-scratch]].

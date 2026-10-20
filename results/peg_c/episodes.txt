@@ -1,18 +1,24 @@
-== test: 30 episodes, 850 burn frames | Rcv@.5 PEG 76.6 PEG+ 82.2 PEG-C 80.5 PEG-C lag 80.5
+== test: 30 episodes, 850 burn frames | Rcv@.5 PEG 76.6 PEG+ 82.2 PEG-C 80.5 PEG-C lag 80.5 PEG-C lag B 86.5
    PEG-C vs PEG+: d -1.8 CI95 [-7.7, +3.6] better 4 worse 5 same 21 frames +21 -36
    PEG-C vs PEG: d +3.9 CI95 [-3.9, +12.2] better 6 worse 6 same 18 frames +67 -34
    PEG-C lag vs PEG+: d -1.8 CI95 [-7.7, +3.6] better 4 worse 5 same 21 frames +21 -36
    PEG-C lag vs PEG: d +3.9 CI95 [-3.9, +12.2] better 6 worse 6 same 18 frames +67 -34
-== val: 18 episodes, 571 burn frames | Rcv@.5 PEG 67.6 PEG+ 67.3 PEG-C 75.8 PEG-C lag 75.8
+   PEG-C lag B vs PEG+: d +4.2 CI95 [+1.0, +8.3] better 6 worse 0 same 24 frames +36 -0
+   PEG-C lag B vs PEG: d +9.9 CI95 [+3.8, +16.9] better 8 worse 0 same 22 frames +84 -0
+== val: 18 episodes, 571 burn frames | Rcv@.5 PEG 67.6 PEG+ 67.3 PEG-C 75.8 PEG-C lag 75.8 PEG-C lag B 71.1
    PEG-C vs PEG+: d +8.6 CI95 [+3.0, +15.7] better 9 worse 1 same 8 frames +50 -1
    PEG-C vs PEG: d +8.2 CI95 [+3.4, +13.9] better 9 worse 1 same 8 frames +48 -1
    PEG-C lag vs PEG+: d +8.6 CI95 [+3.0, +15.7] better 9 worse 1 same 8 frames +50 -1
    PEG-C lag vs PEG: d +8.2 CI95 [+3.4, +13.9] better 9 worse 1 same 8 frames +48 -1
-== pooled: 48 episodes, 1421 burn frames | Rcv@.5 PEG 73.0 PEG+ 76.2 PEG-C 78.6 PEG-C lag 78.6
+   PEG-C lag B vs PEG+: d +3.9 CI95 [-2.2, +12.1] better 4 worse 3 same 11 frames +31 -9
+   PEG-C lag B vs PEG: d +3.5 CI95 [-1.1, +9.8] better 4 worse 3 same 11 frames +26 -6
+== pooled: 48 episodes, 1421 burn frames | Rcv@.5 PEG 73.0 PEG+ 76.2 PEG-C 78.6 PEG-C lag 78.6 PEG-C lag B 80.3
    PEG-C vs PEG+: d +2.4 CI95 [-2.1, +6.8] better 13 worse 6 same 29 frames +71 -37
    PEG-C vs PEG: d +5.6 CI95 [+0.5, +11.1] better 15 worse 7 same 26 frames +115 -35
    PEG-C lag vs PEG+: d +2.4 CI95 [-2.1, +6.8] better 13 worse 6 same 29 frames +71 -37
    PEG-C lag vs PEG: d +5.6 CI95 [+0.5, +11.1] better 15 worse 7 same 26 frames +115 -35
+   PEG-C lag B vs PEG+: d +4.1 CI95 [+0.9, +8.0] better 10 worse 3 same 35 frames +67 -9
+   PEG-C lag B vs PEG: d +7.3 CI95 [+3.1, +12.4] better 12 worse 3 same 33 frames +110 -6
 
 test episodes where PEG-C or PEG-C lag != PEG+ (seq tid frames: covered PEG / PEG+ / PEG-C / PEG-C lag of n | centre err px PEG+ / PEG-C / PEG-C lag):
   135_sequence_19q_new g53 409-451: 4 / 4 / 2 / 2 of 43 | 70.5 / 88.6 / 88.6
@@ -36,3 +42,20 @@ val episodes where PEG-C or PEG-C lag != PEG+ (seq tid frames: covered PEG / PEG
   203_sequence_80q_new g299 306-340: 35 / 33 / 35 / 35 of 35 | 11.1 / 12.7 / 12.7
   210_sequence_87q_complete g317 192-209: 16 / 16 / 15 / 15 of 18 | 5.8 / 6.6 / 6.6
   332_sequence_99q_complete g1030 209-237: 3 / 6 / 10 / 10 of 29 | 36.3 / 33.3 / 33.3
+
+test episodes where PEG-C lag B (B all L90 on PEG+) != PEG+ (seq tid frames: covered PEG / PEG+ / PEG-C lag B of n | centre err px PEG+ / lag B):
+  136_sequence_2q_new g1 234-252: 12 / 12 / 19 of 19 | 11.1 / 5.0
+  145_sequence_28q_new g84 1094-1130: 28 / 31 / 37 of 37 | 6.7 / 4.3
+  204_sequence_81q_complete g300 102-141: 40 / 38 / 40 of 40 | 2.6 / 2.6
+  204_sequence_81q_complete g300 400-432: 23 / 26 / 33 of 33 | 20.5 / 5.3
+  211_sequence_88q_new g319 376-411: 36 / 35 / 36 of 36 | 16.6 / 15.6
+  316_sequence_112q_new g6 2000-2034: 22 / 22 / 35 of 35 | 31.6 / 20.7
+
+val episodes where PEG-C lag B (B all L90 on PEG+) != PEG+ (seq tid frames: covered PEG / PEG+ / PEG-C lag B of n | centre err px PEG+ / lag B):
+  141_sequence_24q_new g71 161-184: 12 / 12 / 24 of 24 | 12.8 / 4.6
+  178_sequence_58q_new g206 567-609: 2 / 2 / 0 of 43 | 24.4 / 11.5
+  187_sequence_66q_new g247 201-235: 25 / 19 / 35 of 35 | 9.1 / 3.5
+  203_sequence_80q_new g299 104-146: 42 / 42 / 43 of 43 | 5.9 / 3.4
+  203_sequence_80q_new g299 306-340: 35 / 33 / 35 of 35 | 11.1 / 4.6
+  210_sequence_87q_complete g317 192-209: 16 / 16 / 15 of 18 | 5.8 / 6.7
+  332_sequence_99q_complete g1030 209-237: 3 / 6 / 0 of 29 | 36.3 / 61.6

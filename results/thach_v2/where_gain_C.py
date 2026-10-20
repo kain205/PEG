@@ -8,11 +8,14 @@ k0 = "tvb9600652"          # PEG = S0
 fin = lambda d: json.load(open(os.path.join(HERE, d, "final.json")))["key"]
 lag = json.load(open(os.path.join(HERE, "tune_C_lag", "trace.json")))
 kB = next(r["key"] for r in lag[1]["rows"] if r["add"] == "B[2]")
-CFG = {"C": (fin("tune_C"), ("val", "test")), "Clag": (kB, ("val",)), "Cstrong": (fin("tune_C_strong"), ("val", "test")),
+CFG = {"C": (fin("tune_C"), ("val", "test")), "ClagP": (fin("tune_C_lagP"), ("val", "test")), "Clag": (kB, ("val",)), "Cstrong": (fin("tune_C_strong"), ("val", "test")),
        "Call": (fin("tune_C_all"), ("val", "test"))}
 p = os.path.join(HERE, "where_gain.json")
 wg = json.load(open(p))
+ONLY = os.environ.get("WG_ONLY")           # e.g. WG_ONLY=ClagP: compute just this entry, leave all others untouched
 for name, (k, splits) in CFG.items():
+    if ONLY and name != ONLY:
+        continue
     for split in splits:
         m0, m = an.metrics(k0, split), an.metrics(k, split)
         r = {"key": k}

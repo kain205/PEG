@@ -1,0 +1,28 @@
+S0 (70.11, 76.3, 67.3)
+t2 val tvb750a735: exit 0, 16s
+t3 val tvb750a735: exit 0, 12s
+t1 val tvb750a735: exit 0, 28s
+  round 1: B[0] + P[0]                              d=[0.0, 0.0, 0.0] score=+0.00
+t2 val tv20f34554: exit 0, 16s
+t3 val tv20f34554: exit 0, 12s
+t1 val tv20f34554: exit 0, 28s
+  round 1: B[1] + P[0]                              d=[0.0, 0.78, 3.8] score=+4.58
+t2 val tvbcf1640d: exit 0, 16s
+t3 val tvbcf1640d: exit 0, 12s
+t1 val tvbcf1640d: exit 0, 28s
+  round 1: B[2] + P[0]                              d=[0.04, 0.0, 0.0] score=+0.04
+t2 val tv1f02b6d2: exit 0, 16s
+t3 val tv1f02b6d2: exit 0, 12s
+t1 val tv1f02b6d2: exit 0, 28s
+  round 1: B[3] + P[0]                              d=[0.04, 0.78, 3.8] score=+4.62
+t2 val tva5f7a141: exit 0, 16s
+t3 val tva5f7a141: exit 0, 13s
+t1 val tva5f7a141: exit 0, 29s
+  round 1: BB[0] + P[0]                             d=[0.0, 0.0, 0.0] score=+0.00
+  check B[3]: score +4.62, without most favourable unit +1.74
+ACCEPT B[3] -> B[3] + P[0] (70.15, 77.08, 71.1)
+t2 val tv7b89074c: exit 0, 16s
+t1 val tv7b89074c: exit 0, 29s
+t3 val tv7b89074c: exit 0, 13s
+  round 2: B[3] + BB[0] + P[0]                      d=[0.0, 0.0, 0.0] score=+0.00
+FINAL B[3] + P[0] (70.15, 77.08, 71.1)

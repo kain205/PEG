@@ -98,3 +98,23 @@ Plan: `C:\Users\thanh\.claude\plans\peg-c-coast-design.md`. Orchestrator = Opus 
   from HEAD + the user's single uncommitted MoRongMo line (known from the earlier `git diff`); blob hash 4fcd236 = the user's
   original working copy, so the restore is exact. AGENTS.md committed WITHOUT the user's line (staged via hash-object).
 - One local commit, no push.
+
+## Follow-up: Stage 2b, B on PEG+ without V (coordinator request; protocol Addendum 2 committed a43ae88 before any run)
+- Val (tune_C_lagP, strict): round 1 vs PEG+ (70.11, 76.30, 67.3): B L45 hidden 0 / L45 all [0, +0.78, +3.8] +4.58 /
+  L90 hidden +0.04 / **L90 all [+0.04, +0.78, +3.8] +4.62** / BB 0. Single-event check B[3] +1.74 → ACCEPT. Round 2 BB 0.
+  **Final B[3] + P = fixed-lag 90 (all) on PEG+**, val (70.15, 77.08, 71.1). Strongest variant: same final → not tested separately.
+- As the literature check predicted (val 67.3 → 71.1 there too). B hidden still fills nothing: PEG+'s gate emits the gap.
+- **Test once** (tune_C_lagP/test.json, harness guard on): T1 68.50 / 82.82 / 81.01 / IDSW 15 / FP 1355 / FN 2601; T2 62.74 / 77.90 /
+  74.72 / FP 2008 / FN 2151; T3 Rcv 86.5 / total 86.2 / ID-off 15.5 (PEG+ 68.41 / 62.33 / 82.2).
+- **Our repo, guard off** (verified from the report files): pegcbl T1 HOTA 68.31 / IDF1 82.37 / MOTA 80.72 / IDSW 15 / FP 1435 /
+  FN 2583 (PEG+ 68.23 / 82.24 / 80.52 / 17 / 1440 / 2618); T2 HOTA 62.93 / MOTA 74.06 / IDF1 78.31 / FP 2108 / FN 2158 (PEG+ 62.54 /
+  73.37 / 77.95 / 2113 / 2268); T3 Rcv 86.5 / total 86.2 / ID-off 15.5% (82.2 / 85.1 / 15.5%); val T3 71.1 (67.3).
+  = the literature check's numbers to the frame. Gain on both splits, FP flat/down: the first coast change that test confirms.
+- Per episode vs PEG+: test +4.2 [+1.0, +8.3] (6 better / 0 worse), val +3.9 [−2.2, +12.1] (4 / 3: 178 g206 2→0, 332 g1030 6→0,
+  210 g317 16→15), pooled +4.1 [+0.9, +8.0]. Executor updated episodes.py, full_metrics (row "PEG-C fixed-lag 90 (B all on PEG+;
+  val-chosen)", pre-existing lines unchanged), numbers.json, RESULTS.md (Stage 2b section; the typed −1.1 is now computed from
+  full_metrics.json), deck 34/35/41/42. Executor slip: a deck patch duplicated a block; it restored deck_build.js from cef2370
+  (which contains my slide-42 fix — checked) and re-applied. I viewed 34, 35, 41, 42; fixed myself the slide-34 footnote
+  ("PEG-C fixed-lag không chạy test" → "fixed-lag B hidden (sau V)"), rebuilt, re-rendered, viewed again.
+- docs/PEG_C_RESULTS.md Stage 2b section + new conclusion (online best PEG+; fixed-lag best PEG+ + B L90 all), AGENTS.md
+  reference line (committed without the user's MoRongMo line), memory updated + mirrored. One local commit, no push.

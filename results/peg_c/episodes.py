@@ -8,10 +8,10 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 from glaremot.eval.eval_recovery import BURN_THR, burn_index, load_events, load_mot, match_frame  # noqa: E402
 SYNTH = os.path.join(ROOT, "datasets", "synth"); RCV = os.path.join(ROOT, "results", "eval_recovery", "trackers")
 HERE = os.path.dirname(os.path.abspath(__file__))
-RUNS = {"test": {"PEG": "peg_rcv_ng", "PEG+": "pegplus_A_rcv", "PEG-C": "pegc_rcv", "PEG-C lag": "pegcl_rcv"},
-        "val": {"PEG": "v_peg_rcv", "PEG+": "v_A_rcv", "PEG-C": "v_pegc_rcv", "PEG-C lag": "v_pegcl_rcv"}}
-METHODS = ("PEG", "PEG+", "PEG-C", "PEG-C lag")
-CERR = ("PEG+", "PEG-C", "PEG-C lag")
+RUNS = {"test": {"PEG": "peg_rcv_ng", "PEG+": "pegplus_A_rcv", "PEG-C": "pegc_rcv", "PEG-C lag": "pegcl_rcv", "PEG-C lag B": "pegcbl_rcv"},
+        "val": {"PEG": "v_peg_rcv", "PEG+": "v_A_rcv", "PEG-C": "v_pegc_rcv", "PEG-C lag": "v_pegcl_rcv", "PEG-C lag B": "v_pegcbl_rcv"}}
+METHODS = ("PEG", "PEG+", "PEG-C", "PEG-C lag", "PEG-C lag B")   # "PEG-C lag B" = B all L90 on PEG+ (no V), Addendum 2
+CERR = ("PEG+", "PEG-C", "PEG-C lag", "PEG-C lag B")
 
 
 def cerr(gt, trk, ep, tid):
@@ -60,7 +60,7 @@ for split in ("test", "val"):
     eps = episodes(split); res["episodes"] += eps; allx += eps
 for name, eps in (("test", [e for e in allx if e["split"] == "test"]), ("val", [e for e in allx if e["split"] == "val"]), ("pooled", allx)):
     s = {"n_episodes": len(eps), "burn_frames": sum(e["n"] for e in eps), **{k: round(rcv(eps, k), 1) for k in METHODS}}
-    for m in ("PEG-C", "PEG-C lag"):
+    for m in ("PEG-C", "PEG-C lag", "PEG-C lag B"):
         for ref in ("PEG+", "PEG"):
             ch = [e[m] - e[ref] for e in eps]
             s[f"{m}_vs_{ref}"] = {"delta": round(rcv(eps, m) - rcv(eps, ref), 1), "ci95": boot(eps, m, ref),
@@ -72,8 +72,8 @@ json.dump(res, open(os.path.join(HERE, "episodes.json"), "w"), indent=1)
 buf = io.StringIO()
 def P(s=""): print(s, file=buf)
 for name, s in res["summary"].items():
-    P(f"== {name}: {s['n_episodes']} episodes, {s['burn_frames']} burn frames | Rcv@.5 PEG {s['PEG']} PEG+ {s['PEG+']} PEG-C {s['PEG-C']} PEG-C lag {s['PEG-C lag']}")
-    for m in ("PEG-C", "PEG-C lag"):
+    P(f"== {name}: {s['n_episodes']} episodes, {s['burn_frames']} burn frames | Rcv@.5 PEG {s['PEG']} PEG+ {s['PEG+']} PEG-C {s['PEG-C']} PEG-C lag {s['PEG-C lag']} PEG-C lag B {s['PEG-C lag B']}")
+    for m in ("PEG-C", "PEG-C lag", "PEG-C lag B"):
         for ref in ("PEG+", "PEG"):
             v = s[f"{m}_vs_{ref}"]
             P(f"   {m} vs {ref}: d {v['delta']:+.1f} CI95 [{v['ci95'][0]:+.1f}, {v['ci95'][1]:+.1f}] better {v['better']} worse {v['worse']} same {v['same']} frames +{v['frames_gained']} -{v['frames_lost']}")
@@ -83,6 +83,11 @@ for sp in ("test", "val"):
         if e["split"] == sp and (e["PEG-C"] != e["PEG+"] or e["PEG-C lag"] != e["PEG+"]):
             P(f"  {e['seq']} g{e['tid']} {e['start']}-{e['end']}: {e['PEG']} / {e['PEG+']} / {e['PEG-C']} / {e['PEG-C lag']} of {e['n']} | "
               f"{e['cerr_PEG+']} / {e['cerr_PEG-C']} / {e['cerr_PEG-C lag']}")
+for sp in ("test", "val"):
+    P(f"\n{sp} episodes where PEG-C lag B (B all L90 on PEG+) != PEG+ (seq tid frames: covered PEG / PEG+ / PEG-C lag B of n | centre err px PEG+ / lag B):")
+    for e in res["episodes"]:
+        if e["split"] == sp and e["PEG-C lag B"] != e["PEG+"]:
+            P(f"  {e['seq']} g{e['tid']} {e['start']}-{e['end']}: {e['PEG']} / {e['PEG+']} / {e['PEG-C lag B']} of {e['n']} | {e['cerr_PEG+']} / {e['cerr_PEG-C lag B']}")
 txt = buf.getvalue()
 print(txt)
 open(os.path.join(HERE, "episodes.txt"), "w", encoding="utf-8").write(txt)

@@ -169,6 +169,8 @@ if __name__ == "__main__":
                     "(+ --strong -> tune_C_strong/; + --lag -> tune_C_lag/ adds B, BB on top of tune_C/final.json; "
                     "+ --all -> tune_C_all/ adds Thach components, strongest rule; --lag --all -> tune_C_lag_all/)")
     ap.add_argument("--lag", action="store_true", help="with --peg_c: fixed-lag stage (B, BB)")
+    ap.add_argument("--lag_base", action="store_true", help="with --peg_c (Addendum 2): B, BB on top of PEG+ only (no V) -> tune_C_lagP/ "
+                    "(+ --strong -> tune_C_lagP_strong/)")
     a = ap.parse_args()
     if a.peg_c:
         C_GRIDS = dict(
@@ -182,7 +184,13 @@ if __name__ == "__main__":
         ONLINE = ("P", "V", "C", "S")
         THACH = {"R", "M1q", "M1c", "M1d", "M2", "M3", "M4", "M5", "M6"}
         use = {**C_GRIDS, **(LAG_GRIDS if a.lag else {})}
-        if a.all:
+        if a.lag_base:
+            GRID.clear(); GRID.update(P=C_GRIDS["P"], **LAG_GRIDS)
+            STRONG = a.strong
+            CANDIDATES = {"B", "BB"}
+            FORCE = {"P": 0}
+            sub = "tune_C_lagP_strong" if a.strong else "tune_C_lagP"
+        elif a.all:
             STRONG = True
             CANDIDATES = set(THACH)
             GRID.update(use)

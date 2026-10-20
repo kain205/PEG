@@ -17,3 +17,15 @@ rows() { # prefix, extra env...
 rows pegc GPEG_X=0
 rows pegcl GPEG_BACKFILL_L=90 GPEG_BACKFILL_MODE=hidden
 echo ROWS_DONE
+# --- Stage 2b (Addendum 2): B on PEG+ without V (val-chosen B[3] = L90, mode all). Label: fixed-lag 90 (B on PEG+). ---
+rows_bl() {
+  env GPEG_SIZE_LOCK=1 GPEG_BACKFILL_L=90 GPEG_BACKFILL_MODE=all GMOT_TRACKER=beacon GMOT_BIRTH_SIZE_GUARD=0 \
+    $PY scripts/06_eval_mot.py --split test --percep_cache results/percep_cache/real --tracker_name pegcbl_test
+  env GPEG_SIZE_LOCK=1 GPEG_BACKFILL_L=90 GPEG_BACKFILL_MODE=all GMOT_TRACKER=beacon GMOT_BIRTH_SIZE_GUARD=0 \
+    $PY scripts/06_eval_mot.py --split test --data_root datasets/synth --results_subdir eval_synthfs --percep_cache results/percep_cache/synth --tracker_name pegcbl_fs
+  env GPEG_SIZE_LOCK=1 GPEG_BACKFILL_L=90 GPEG_BACKFILL_MODE=all GMOT_TRACKER=beacon GMOT_BIRTH_SIZE_GUARD=0 \
+    $PY scripts/07_eval_recovery.py --split test --percep_cache results/percep_cache/synth --tracker_name pegcbl_rcv
+  env GPEG_SIZE_LOCK=1 GPEG_BACKFILL_L=90 GPEG_BACKFILL_MODE=all GMOT_TRACKER=beacon GMOT_BIRTH_SIZE_GUARD=0 \
+    $PY scripts/07_eval_recovery.py --split val --percep_cache results/percep_cache/synth --tracker_name v_pegcbl_rcv
+}
+# rows_bl   # (run once; commented so re-sourcing the file does not re-run)

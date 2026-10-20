@@ -331,6 +331,23 @@
     "T3 total",
     "T3 ID-off"
    ]
+  },
+  {
+   "config": "PEG-C fixed-lag 90 (B all on PEG+; val-chosen)",
+   "T1 HOTA": 70.15,
+   "T1 IDF1": 86.2,
+   "T1 MOTA": 82.46,
+   "T1 IDSW": 17.0,
+   "T2 HOTA": 77.08,
+   "T2 IDF1": 89.66,
+   "T2 MOTA": 90.62,
+   "T3 Rcv@.5": 71.1,
+   "T3 total": 70.6,
+   "T3 ID-off": 10.0,
+   "note": "T2 +0.83: top 141 +3.9, without it +0.69; T3 +3.5: 4 ep. better / 3 worse, without top (141) +1.46",
+   "best": [
+    "T3 ID-off"
+   ]
   }
  ],
  "test": [
@@ -360,10 +377,7 @@
    "T3 Rcv@.5": 82.2,
    "T3 total": 85.1,
    "T3 ID-off": 15.5,
-   "note": "T2 +0.92: top 176 +6.6, without it +0.41; T3 +6.0: 6 ep. better / 2 worse, without top (325) +3.79",
-   "best": [
-    "T3 total"
-   ]
+   "note": "T2 +0.92: top 176 +6.6, without it +0.41; T3 +6.0: 6 ep. better / 2 worse, without top (325) +3.79"
   },
   {
    "config": "PEG + M1 cone [M1c[0]]",
@@ -542,9 +556,7 @@
    "note": "T2 +1.73: top 204 +11.5, without it +1.13; T3 +6.9: 6 ep. better / 2 worse, without top (325) +4.65",
    "best": [
     "T2 HOTA",
-    "T2 IDF1",
-    "T3 Rcv@.5",
-    "T3 total"
+    "T2 IDF1"
    ]
   },
   {
@@ -601,6 +613,24 @@
    "T3 total": 81.8,
    "T3 ID-off": 11.6,
    "note": "T1 +0.44: top 320 +2.9, without it +0.25; T3 +5.0: 6 ep. better / 6 worse, without top (325) +2.69"
+  },
+  {
+   "config": "PEG-C fixed-lag 90 (B all on PEG+; val-chosen)",
+   "T1 HOTA": 68.5,
+   "T1 IDF1": 82.82,
+   "T1 MOTA": 81.01,
+   "T1 IDSW": 15.0,
+   "T2 HOTA": 62.74,
+   "T2 IDF1": 77.9,
+   "T2 MOTA": 74.72,
+   "T3 Rcv@.5": 86.5,
+   "T3 total": 86.2,
+   "T3 ID-off": 15.5,
+   "note": "T2 +1.33: top 176 +8.3, without it +0.71; T3 +10.3: 8 ep. better / 0 worse, without top (325) +8.20",
+   "best": [
+    "T3 Rcv@.5",
+    "T3 total"
+   ]
   }
  ],
  "best_overall": {
@@ -620,6 +650,6 @@
    "val": "Best overall (chosen on val by \u03a3\u0394 T1 HOTA + T2 HOTA + T3 Rcv@.5 vs PEG): ALL = PEG-C + Thach greedy (M1 cone) \u2014 val \u03a3\u0394 +9.29; test: T1 HOTA 68.78, T2 HOTA 61.35, T3 Rcv@.5 81.20",
    "test": "Best overall (chosen on val by \u03a3\u0394 T1 HOTA + T2 HOTA + T3 Rcv@.5 vs PEG): ALL = PEG-C + Thach greedy (M1 cone) \u2014 val \u03a3\u0394 +9.29; test: T1 HOTA 68.78, T2 HOTA 61.35, T3 Rcv@.5 81.20"
   },
-  "footnote": "S (armed survival): byte-identical to PEG+ on val, never fires. ALL (Stage B: PEG-O's Stage-A final + Thach greedy) = Stage-A final is PEG+, so ALL = 'STRONGEST with PEG+ by design' above. PEG-C: lag stage (B, BB) accepted nothing (B hidden \u00b10.03, B all T3 \u22122.1; BB never fires); C (cap) \u2264 +0.09; tune_C_lag_all = tune_C_all."
+  "footnote": "S (armed survival): byte-identical to PEG+ on val, never fires. ALL (Stage B: PEG-O's Stage-A final + Thach greedy) = Stage-A final is PEG+, so ALL = 'STRONGEST with PEG+ by design' above. PEG-C: lag stage (B, BB) on top of V accepted nothing (B hidden \u00b10.03, B all T3 \u22122.1; BB never fires); C (cap) \u2264 +0.09; tune_C_lag_all = tune_C_all. Stage 2b (B on PEG+, no V): B[3] (L90, all) accepted on val (fixed-lag; test run once in this harness)."
  }
 }
