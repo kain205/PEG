@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 0df269ad-f5e2-495b-a234-6df8236c01ce
-  modified: 2026-10-20T23:09:18.496Z
+  modified: 2026-10-21T05:45:09.599Z
 ---
 
 MoRongMo labeling (frames 35068-56611) was redone on 2026-10-21 as a KEYFRAME job: `scripts/18_project_edit.py rekey`
@@ -28,6 +28,12 @@ Round 7 (same day): user reviewed the early part by hand, then asked for three f
 `blob` (delete tracks that are not a recognizable person; none found). 95 -> 59 tracks, ids 200-258.
 The API key hit its monthly usage limit on 2026-10-21; the user raised the limit the same day, so the second
 `unshrink` pass ran (423 more keyframes). Final round-7 result: 59 tracks, ids 200-258, `kf/project_r7.json`.
+
+Round 9/10 (same day, noon): user asked to redo everything incl. hand-edited tracks (jitter), finer grain, fast.
+Pipeline scripts `results/label_MoRongMo/kf/r9/pipeline*.sh`; new `23 misses` (uncovered detections -> tracks;
+respect user deletions by overlap check). Pitfalls: killing a pipeline left a python child alive that kept writing
+verdicts.jsonl (torn lines) and editing a running bash script corrupts it -> always kill python children and never edit a
+running .sh. 4 processes x 14 workers ≈ 800 keyframes/min on Opus. API limit was hit twice; user raised it each time.
 
 **How to apply:** for any further label fixes, edit the app project with script 18 (app closed), re-run
 `23 run` only for changed tracks (resumable), then `rekey --keep '*' --first_id 200`. Related: [[morongmo-labeling-task]],
