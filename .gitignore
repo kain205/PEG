@@ -13,3 +13,6 @@ datasets/
 dataset/
 # Local copy of the upstream repo archive
 PEG-main.zip
+
+# API keys
+.env

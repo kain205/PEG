@@ -56,6 +56,7 @@ glaremot/
   analysis/                   failure-analysis harness (events, sheets, casebook); skill: .claude/skills/failure-analysis
 scripts/  01-04 optional retraining | 05 run tracker | 06 eval MOT | 07 eval recovery | 08 failure analysis | 09 presentation figures | 10 Table II vs I glare delta | 11 PEG vs PEG+ figures | 12 appearance sidecar for percep cache | 13 PEG-F figures
           | 19 PEG-O estimator check | 20 PEG-O figures | 21 PEG-C velocity check (oracle b40) | 22 PEG-C figures
+          | 14-17 MoRongMo labeling for FastLabeler (14 record dets+track, 15 MOT->project.json, 16 QA sheets, 17 app-timeline frames); see results/label_MoRongMo/NOTES.md
 weights/  detector/best.pt, hpsi/h_psi_head.pt (shipped)
 results/  outputs (gitignored), except results/paper_logs/ (reference logs, tracked)
 ```
