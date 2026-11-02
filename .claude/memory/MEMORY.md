@@ -7,3 +7,4 @@
 - [Principles from failures are OK](principles-from-failures-ok.md) — general principles may come from observed (even test) failures; only parameter tuning on test is forbidden
 - [Keyframe vision check](keyframe-vision-check.md) — 2026-10-21: MoRongMo labels = few keyframes, each judged by Opus vision via API (scripts/23); user rules: whole-person box, spend API not Claude Code tokens
 - [PEG-C coast design](peg-c-coast-design.md) — 2026-10-20: online V won val, lost test; fixed-lag B on PEG+ won val AND test (T3 82.2→86.5); online best PEG+, fixed-lag best PEG+ + B
+- [YOLOX detector on GlareMOT2](yolox-detector-glaremot2.md) — 2026-10-26 Minh's task: YOLOX-X from TrackTrack weights, 2.5 fps/halves/glare filter; MoRongMo dominates val

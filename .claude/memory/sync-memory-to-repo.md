@@ -8,7 +8,7 @@ metadata:
   modified: 2026-10-16T14:58:04.770Z
 ---
 
-After adding or changing any memory file, copy the whole memory dir to `D:/PROJECT/PEG/.claude/memory/`, commit only that path, and push to `origin` (kain205/PEG, main). Never push to `upstream`.
+After adding or changing any memory file, copy the whole memory dir to `.claude/memory/` in the repo (now /home/thanh1402/Projects/PEG on the WSL machine; was D:/PROJECT/PEG), commit only that path, and push to `origin` (kain205/PEG, main). Never push to `upstream`.
 
 **Why:** User said (2026-10-16): "Tự động ghi nhớ là push lên repo đi nhé, cũng để mày dùng thôi" — memory is for the agent anyway, so keep it in the repo where other machines/sessions get it.
 
