@@ -25,10 +25,15 @@ YOLO11m P3 features. Either retrain h_psi on YOLOX features or keep YOLO11m for 
 
 2026-10-28 run (fixed 400/401 labels from Minh; the old labels drifted up to 98 frames; MOT20 init per Minh):
 val AP50 .641 -> .888 at epoch 15, the first epoch without mosaic. On val_half_nomrm: .366 -> .946 / AP50:95 .526.
-The old-label MOT17 run peaked at ~.70 val AP50. Best checkpoint: results/yolox_glaremot2_half_fixed/ckpt/epoch_15_fp16.pth.
+The old-label MOT17 run peaked at ~.70 val AP50. (Run 1/2 weights deleted 2026-11-04, logs kept.)
 Next: full-frame det cache of all 119 seqs (scripts/26, configs/yolox/colab_cache.sh) for train_half/val_half/test.
 
 2026-11-02 (Minh): labels fixed twice. Fix 1 = 400/401 timing; fix 2 = 23 cam-5 seqs (in both train and test) re-boxed
 as whole person (`configs/yolox/make_overlay.sh`). Retrain on both fixes, then cache only val_half + test on the
 unfiltered full-frame data. Colab: PEG has its own account, profile `peg3` (tyler.ramirez). acc2/douglas belongs to
 LifeMate; the user set this split on 2026-11-02, so never run PEG jobs there. Run 3 pulls: results/yolox_glaremot2_half_fix2/.
+Run 3 done 2026-11-03: best epoch 15, val_half_nomrm .9465/.5265; test (once) AP50 .880 / AP50:95 .484. Kept weight:
+results/yolox_glaremot2_half_fix2/yolox_x_glaremot2_half_best_fp16.pth (Drive 1DExg2ilth5RR4Y1BSA7s4IZu8rL-jbEh);
+cache zip val_half 71 + test 48 seqs on Drive 1XPU7xqfqqC8zAXhbtyX838_Ndqx77GhZ (team folder). Code in commits 9638d87, 939c1a4.
+2026-11-04 owner decision: peg3 is LENT to LifeMate until the 2026-11-16 freeze. Do not stop its lifemate-* sessions;
+mention it if peg3 CU drops below ~50. Ask the owner before starting PEG jobs on peg3 in that window.
