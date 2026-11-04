@@ -470,6 +470,35 @@ def square_frame(frame, S):
         cv2.resize(frame, (S, S), interpolation=cv2.INTER_AREA)
 
 
+def letterbox_params(H, W, S):
+    """GlareMOT v1 frames are S x S letterboxes of the video (black pad, centred); the whole pipeline (detector,
+    h_psi, photometric masks, pixel thresholds) assumes that. GlareMOT2 frames are native 16:9, which square_frame
+    would stretch. Returns (scale, pad_x, pad_y, rw, rh) to letterbox a non-square frame, None for a square one."""
+    if H == W:
+        return None
+    s = S / float(max(H, W))
+    rw, rh = round(W * s), round(H * s)
+    return s, (S - rw) // 2, (S - rh) // 2, rw, rh
+
+
+def letterbox_frame(frame, S, lb):
+    s, px, py, rw, rh = lb
+    out = np.zeros((S, S, 3), np.uint8)
+    out[py:py + rh, px:px + rw] = cv2.resize(frame, (rw, rh), interpolation=cv2.INTER_AREA)
+    return out
+
+
+def unletterbox_row(row, lb, W, H):
+    """Map a MOT row written in letterbox pixels back to the original W x H frame."""
+    s, px, py = lb[:3]
+    p = row.split(",")
+    x1, y1 = (float(p[2]) - px) / s, (float(p[3]) - py) / s
+    x2, y2 = x1 + float(p[4]) / s, y1 + float(p[5]) / s
+    x1, y1, x2, y2 = max(0.0, x1), max(0.0, y1), min(float(W), x2), min(float(H), y2)
+    p[2:6] = [f"{x1:.2f}", f"{y1:.2f}", f"{max(1.0, x2 - x1):.2f}", f"{max(1.0, y2 - y1):.2f}"]
+    return ",".join(p)
+
+
 class Perception:
     """YOLO detector + frozen-backbone h_psi head + photometric runtime.
 

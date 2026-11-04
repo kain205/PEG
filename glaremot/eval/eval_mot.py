@@ -31,7 +31,7 @@ if not hasattr(np, "bool"):
 from ..config import data_path, load_config, results_dir, weight_path
 from ..data.splits import make_splits
 from ..tracking.tracker import (FS, GlareAwareTracker, Perception, apply_backfill, backfill_lag,
-                                mot_row, norm_box_to_xyxy)
+                                letterbox_frame, letterbox_params, mot_row, norm_box_to_xyxy, unletterbox_row)
 
 if os.environ.get("TRACKEVAL_ROOT"):
     sys.path.insert(0, os.environ["TRACKEVAL_ROOT"])
@@ -85,6 +85,12 @@ def track_sequence(seq_dir, percep, out_txt, max_frames=0, diag_out=None):
     if hasattr(tracker, "attach_perception"):
         tracker.attach_perception(percep)
     H, W = cv2.imread(img_paths[0]).shape[:2]
+    # non-square (GlareMOT2) frames: track on the S x S letterbox like v1, map rows back at write time
+    S = int(load_config().imgsz)
+    lb = letterbox_params(H, W, S)
+    H0, W0 = H, W
+    if lb is not None:
+        H = W = S
     rows = []
     index = {}               # (frame, track id) -> position in rows (PEG-C B / BB fixed-lag rewrites)
     n_added = 0
@@ -96,7 +102,7 @@ def track_sequence(seq_dir, percep, out_txt, max_frames=0, diag_out=None):
 
     def _reader():
         for p in img_paths:
-            rq.put(cv2.imread(p))
+            rq.put(cv2.imread(p) if lb is None else letterbox_frame(cv2.imread(p), S, lb))
         rq.put(None)
 
     if not getattr(percep, "needs_frame", True):
@@ -134,6 +140,8 @@ def track_sequence(seq_dir, percep, out_txt, max_frames=0, diag_out=None):
         FS.inc("pegc_rows_added", n_added)
     if hasattr(tracker, "dump_stats"):
         tracker.dump_stats(os.path.basename(seq_dir.rstrip("/\\")))
+    if lb is not None:
+        rows = [unletterbox_row(r, lb, W0, H0) for r in rows]
     os.makedirs(os.path.dirname(out_txt), exist_ok=True)
     with open(out_txt, "w", encoding="utf-8") as f:
         f.write("\n".join(rows) + ("\n" if rows else ""))
