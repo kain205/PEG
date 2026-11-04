@@ -13,30 +13,94 @@ improve it, make it more robust, or just find failure cases and write analysis.
   and reports the numbers. Don't hand back "run this command" instructions.
 - Report results against the paper numbers (see "Reference numbers" below), with the
   exact command + env vars used, so the run can be repeated.
-- Long runs (full eval ≈ 17k frames ≈ 40 min on the GTX 1650): run in the background,
+- Long runs (full eval ≈ 17k frames; ≈ 40 min on the old GTX 1650): run in the background,
   use `--resume` so an interrupted run picks up where it stopped.
 - Commit/push only when asked. `origin` = `kain205/PEG` (private, ours);
   `upstream` = `minhdq245/PEG` (original, read-only — never push there).
 
 ## Environment rules
-- Machine: Windows 11, **GTX 1650 (4 GB, sm_75)**. CPU fallback works but is slow.
-- venv: `.venv/` (Python 3.10) managed by **uv** (`~/.local/bin/uv.exe`). Don't use
-  system Python (3.13) or conda.
-- Always call the venv interpreter directly: `.venv/Scripts/python.exe …` (no activate needed).
-- Installed: torch 2.11.0+cu128, torchvision 0.26.0+cu128, pinned `requirements.txt`, TrackEval.
+- Machine (since 2026-10-26): WSL2 Ubuntu on Windows, **RTX 5060 Ti (16 GB, sm_120)**, repo at
+  `/home/thanh1402/Projects/PEG`. **Disk: WSL's ext4.vhdx lives on Windows D:, so the real free space is D:'s (48 GB on 2026-11-03), not what `df /` shows (591 GB); D: full = WSL crashes. Never pull big data locally.** (Old machine: Windows 11, GTX 1650, `.venv/Scripts/python.exe`.)
+- venv: `.venv/` (Python 3.10) managed by **uv** (`~/.local/bin/uv`). Don't use system Python (3.14) or conda.
+- Always call the venv interpreter directly: `.venv/bin/python …` (no activate needed).
+- Installed: torch 2.11.0+cu128, torchvision 0.26.0+cu128 (cu128 has sm_120 kernels), pinned `requirements.txt`, TrackEval.
 - Add packages with `uv pip install --python .venv <pkg>`. Torch must come from
-  `--index-url https://download.pytorch.org/whl/cu128` (cu128 still supports sm_75).
-- Measured: detector @1536 ≈ 7.4 fps, ~0.6 GB VRAM. fp16 gives no speedup — leave it off.
+  `--index-url https://download.pytorch.org/whl/cu128`.
+- Measured 2026-10-26 on the 5060 Ti: full pipeline ≈ 19.5 fps (~2 GB VRAM), full Table I ≈ 15 min; percep-cache replay 13 s.
+  Sanity on v1 data matched the paper: T1 68.19/82.30/80.62/17, T2 MOTA 73.24 FP 2024 Rcll 85.61 IDF1 75.29, T3 Rcv 76.5 total 77.6 ID-off 18.5.
+  (GTX 1650: detector ≈ 7.4 fps; fp16 gave no speedup there.)
 - TrackEval uses `np.float`/`np.int`; `glaremot/eval/eval_mot.py` already shims them for numpy 2.
-- Env vars: in PowerShell use `$env:GMOT_TRACKER="beacon"; …`; in Bash `GMOT_TRACKER=beacon …`.
+- Env vars in Bash: `GMOT_TRACKER=beacon …`.
+
+## Colab (training lane; retrain only when asked)
+- Account **martha** (one session is ours for PEG training). Use the official `colab` CLI that lives in the
+  gemma4ever venv with martha's profile as HOME (OAuth token already there; re-auth: `~/Projects/gemma4ever/scripts/colab/remote_auth.sh`):
+  `HOME=~/Projects/gemma4ever/.local/colab-profiles/martha SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt ~/Projects/gemma4ever/.venv/bin/colab --auth=oauth2 <new|exec|upload|download|stop|sessions|usage>`.
+  `colab exec` exits 0 even when the code raises: print one result line and check it. Always `stop` the session after use.
+- Data: do NOT mount Drive (drivemount needs a human browser grant per VM). `scripts/24_fetch_glaremot.py` streams
+  only the wanted members from the public Drive zip by HTTP Range (no zip copy on disk). Probed 2026-10-26 on a CPU VM:
+  206 GB free disk, ~41 MB/s per stream, ~64 MB/s with 8 streams (train 115 GB ≈ 30 min).
+- **Quota way out (2026-11-03): read the zip through the Drive API as a user.** Own Desktop OAuth client of the user
+  (project cool-subset-513601-n3, test user = tyler), token via `configs/yolox/drive_auth.py` (secrets in
+  ~/.config/peg_drive, never in git); `configs/yolox/push_token.sh` pushes a <=1 h access token to the VM every 2 min;
+  scripts/24 uses it when `GDRIVE_TOKEN_FILE` is set. rclone's built-in client shares a global per-minute quota (403s);
+  the Cloud-SDK client is blocked by Google for Drive scopes ("This app is blocked").
+- The GlareMOT2 Drive zip has a per-file anonymous download quota: after ~150 GB of range reads in a day it
+  answers HTTP 200 "Quota exceeded" (HTML) to every client. Fetch only what you need, once.
+- Checkpoints: pull them to this machine with `colab download` (VM disk is lost on disconnect).
+- **2026-11-02, account peg3: a blocking cell no longer keeps the VM alive** (reclaimed ~30 min after launch, twice;
+  downloads do not count either). Liveness follows kernel EXEC activity: launch the job detached on the VM
+  (`nohup setsid bash ... &` inside an exec) and run `configs/yolox/keepalive.sh` locally, detached with setsid; it
+  execs a tiny cell every 4 min (as LifeMate's tools/colab.py does). Older note, kept for history:
+- Long jobs: run them as a BLOCKING kernel cell (`subprocess.run(...)` piped to `colab exec --timeout 20`): the CLI
+  returns, the kernel stays BUSY and the runtime stays alive. A `nohup ... &` job with an idle kernel was reclaimed
+  after ~40 min (2026-10-26, VM disk lost). Watch with `colab download <log>` / `colab status` (both work while busy).
+  Martha: H100 rejected, A100 80GB ok (6.8 CU/h). An IDLE kernel after the job ends is reclaimed too (2026-10-27: a
+  finished 20-epoch run, ALL_EXIT 0, lost with every checkpoint). colab_all.sh now packs /content/yx_out and holds
+  the kernel busy until /content/PULLED exists. Local background shells get reaped when this machine is low on RAM
+  (another project's vLLM uses it), so do not rely on a local watcher; check in by hand.
+  2026-10-27 22:30: this machine rebooted and the A100 VM was gone too, mid-run. Now `configs/yolox/pull_ckpts.sh`
+  pulls every epoch's checkpoint (fp16 copy + newest full one) to `results/yolox_glaremot2_half/`; to resume, upload
+  `latest_full_ckpt.pth.tar` to `/content/resume_ckpt.pth.tar` (ssh) and relaunch colab_all.sh (colab_run.sh resumes).
+  `colab download` ~10 MB/s; `colab upload` fails over ~300 MB (use ssh: `ssh -o ProxyCommand="... colab ssh
+  --proxy-mode -s peg" root@colab`, ~2.5 MB/s up).
+- **YOLOX-X detector lane (team task from Minh, 2026-10-26)**: `configs/yolox/README.md` (recipe + decisions),
+  data `scripts/25_build_yolox_glaremot.py`. GlareMOT2 train split, 2.5 fps, halves, glare filter >25 % sat ->
+  train 6818 / val 6972 imgs; `400_sequence_morongmo` (73k frames) is ~half of both, 78 % of val boxes, so AP is
+  also scored on `val_half_nomrm`. Init TrackTrack mot17 YOLOX-X: val AP50 .434 / AP50:95 .169 (nomrm .424/.169).
+  2026-10-28: labels of 400 (MoRongMo) and 401 (nga3) fixed by Minh (old labels drifted up to 98 frames behind the
+  video); init switched to TrackTrack **MOT20** (Minh). MOT20 init on fixed val: AP50 .641 / .295, nomrm .366 / .153.
+  Then `configs/yolox/colab_cache.sh` (armed on the VM) caches detections of the best epoch (val_half_nomrm AP50) on
+  every frame of every seq -> /content/dets; `configs/yolox/pull_cache.sh` pulls it to results/yolox_dets_cache/.
+  2026-11-02: fix 2 = 23 cam-5 seqs re-boxed (whole person); both fixes = `configs/yolox/make_overlay.sh` (`--overlay` in
+  scripts 25/26). Run 3 on Colab profile **peg3** (tyler.ramirez, PEG-only; acc2 belongs to LifeMate, do not use):
+  colab_all.sh now does overlay, train+test build, train, best epoch, test AP once, cache `--splits val_half,test`.
 
 ## Data (not in git)
 - `datasets/` is gitignored and access-controlled — never commit it.
-- Source: `dataset/GlareMOT_full.zip` (85 GB), extracted with dirs renamed to the
+- Source: `GlareMOT_full.zip` (85 GB, see below), extracted with dirs renamed to the
   `splits.json` names (zip drops `_complete`/`_new`/`_in_progress` suffixes).
 - `configs/paths.yaml`: `datasets/real` (real test seqs, Table I), `datasets/synth`
   (synthetic-burn twins, Tables II–IV). Layout: `<seq>/images/*.jpg`, `<seq>/mot/gt/gt.txt`.
 - Split is frozen: `glaremot/data/splits.json` (train 80 / val 17 / test 20).
+- **GlareMOT2 full.zip** (Drive id `1kUTdfRNbZzbwyl94JE--Vz8C5YVkzgms`, public link, 217.8 GB, stored/uncompressed):
+  119 seqs = the old 117 + `400_sequence_morongmo` (train) + `401_sequence_nga3` (test), names without suffixes.
+  Its own "official v1" split (seed 20261024): **train 71 / test 48, no val**. It is NOT our frozen split: of our 20
+  test seqs, 10 are in its train; of our 80 train + 17 val, 37 are in its test → the shipped weights are not clean
+  on its test. Ask the user before adopting it. Per seq: `images/ labels/ labels_all/ meta/ mot/gt/`.
+  Zip byte layout: test 0–102.4 GB, train 102.4–217.7 GB. No synthetic twins inside.
+  **GlareMOT2 frames differ from v1**: v1 frames are 1536×1536 letterboxes of the video (black pad, e.g. 333 px
+  top/bottom); GlareMOT2 frames are the native video (2688×1520, 320: 2944×1656), re-timed to integer fps, GT in
+  native pixels (= v1 GT ×1.75 minus pad); seqs 305/312/316/320/325 relabelled. `Perception` stretched any non-square
+  frame to S×S (`square_frame`) → HOTA 47.90 (boxes ~1.3× too wide). Fixed 2026-10-26: `eval_mot.track_sequence`
+  letterboxes non-square frames (`letterbox_params/letterbox_frame/unletterbox_row` in tracker.py) and maps rows
+  back; square frames are untouched (v1 output byte-identical). PEG on GlareMOT2 frames of our 20 test seqs:
+  HOTA 68.11 · IDF1 82.66 · MOTA 80.93 · IDSW 18 (`results/eval_v2/trackers/peg_v2_lb`, data `datasets_v2/real_oldtest`).
+  Other `square_frame` users (scripts/05 video, 03, 12, h_psi training) still stretch: fix before using them on 16:9.
+- Old zip **GlareMOT_full.zip** (Drive id `1LEHAvE7r85UsUUdZcDeRONabZSUwxIt-`, public, 85.7 GB): `GlareMOT/<seq>` (real)
+  and `GlareMOT-Synth/<seq>` (twins). This machine's `datasets/real` + `datasets/synth` (test split) come from it:
+  `24_fetch_glaremot.py --zip v1 --out datasets/real --old_split test --parts images,mot,meta` and
+  `--zip v1synth --out datasets/synth --old_split test`.
 
 ## Repo map
 ```
@@ -56,6 +120,8 @@ glaremot/
   analysis/                   failure-analysis harness (events, sheets, casebook); skill: .claude/skills/failure-analysis
 scripts/  01-04 optional retraining | 05 run tracker | 06 eval MOT | 07 eval recovery | 08 failure analysis | 09 presentation figures | 10 Table II vs I glare delta | 11 PEG vs PEG+ figures | 12 appearance sidecar for percep cache | 13 PEG-F figures
           | 19 PEG-O estimator check | 20 PEG-O figures | 21 PEG-C velocity check (oracle b40) | 22 PEG-C figures
+          | 24 stream GlareMOT2 seqs from the Drive zip (no full download) | 25 YOLOX COCO set from GlareMOT2 train
+          | 26 full-frame YOLOX det cache for all 119 seqs (train_half / val_half / test, native fps; Colab)
           | 14-17 MoRongMo labeling for FastLabeler (14 record dets+track, 15 MOT->project.json, 16 QA sheets, 17 app-timeline frames); see results/label_MoRongMo/NOTES.md
 weights/  detector/best.pt, hpsi/h_psi_head.pt (shipped)
 results/  outputs (gitignored), except results/paper_logs/ (reference logs, tracked)
@@ -63,7 +129,7 @@ results/  outputs (gitignored), except results/paper_logs/ (reference logs, trac
 
 ## How to run (agent runs these)
 ```bash
-PY=.venv/Scripts/python.exe
+PY=.venv/bin/python
 # GMOT_BIRTH_SIZE_GUARD=0 is REQUIRED to match the paper (all tables; verified).
 # Table I — real test (20 seqs)
 GMOT_TRACKER=beacon GMOT_BIRTH_SIZE_GUARD=0 $PY scripts/06_eval_mot.py --split test --tracker_name peg --resume
