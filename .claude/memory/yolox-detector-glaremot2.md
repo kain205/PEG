@@ -37,3 +37,7 @@ results/yolox_glaremot2_half_fix2/yolox_x_glaremot2_half_best_fp16.pth (Drive 1D
 cache zip val_half 71 + test 48 seqs on Drive 1XPU7xqfqqC8zAXhbtyX838_Ndqx77GhZ (team folder). Code in commits 9638d87, 939c1a4.
 2026-11-04 owner decision: peg3 is LENT to LifeMate until the 2026-11-16 freeze. Do not stop its lifemate-* sessions;
 mention it if peg3 CU drops below ~50. Ask the owner before starting PEG jobs on peg3 in that window.
+2026-11-10: Table I baselines (8 methods, official repos via adapters in glaremot/baselines, scripts 27/28,
+configs/baselines/README.md) re-run on the fix-2 YOLOX cache, test 48 seqs once: TrackTrack HOTA 58.88 best, DIP 51.28
+last; table in configs/baselines/README.md. Lessons: /tmp is a RAM tmpfs on this WSL (never stream data there); peg3
+Colab often "Service Unavailable" (capacity) -> home GPU under LifeMate's gpulock + systemd-run MemoryMax scope.
