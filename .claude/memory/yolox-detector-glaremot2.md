@@ -41,3 +41,5 @@ mention it if peg3 CU drops below ~50. Ask the owner before starting PEG jobs on
 configs/baselines/README.md) re-run on the fix-2 YOLOX cache, test 48 seqs once: TrackTrack HOTA 58.88 best, DIP 51.28
 last; table in configs/baselines/README.md. Lessons: /tmp is a RAM tmpfs on this WSL (never stream data there); peg3
 Colab often "Service Unavailable" (capacity) -> home GPU under LifeMate's gpulock + systemd-run MemoryMax scope.
+PEG on the same cache (option A, owner's choice 2026-11-10: analytic m_glare, present=1, scripts/29 saturation maps):
+HOTA 58.19 all / 61.94 w/o 401 (TrackTrack 58.88 / 61.60); PEG best IDF1/IDSW w/o 401, worse MOTA (FP, esp. on 401).
