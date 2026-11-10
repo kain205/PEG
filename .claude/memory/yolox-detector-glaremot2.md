@@ -43,3 +43,4 @@ last; table in configs/baselines/README.md. Lessons: /tmp is a RAM tmpfs on this
 Colab often "Service Unavailable" (capacity) -> home GPU under LifeMate's gpulock + systemd-run MemoryMax scope.
 PEG on the same cache (option A, owner's choice 2026-11-10: analytic m_glare, present=1, scripts/29 saturation maps):
 HOTA 58.19 all / 61.94 w/o 401 (TrackTrack 58.88 / 61.60); PEG best IDF1/IDSW w/o 401, worse MOTA (FP, esp. on 401).
+- 2026-11-11 ExSORT (selected.json, own NMS 0.65 + own sat mask, scripts/29 --kind exsort) on test: HOTA 61.39 IDF1 79.69 MOTA 72.50 FP 13041 (w/o 401: 63.92/78.61/79.11). Long's own cache gave 61.48 for the same config -> our shared cache reproduces it. Long's re-tuned config: 61.16 (CI [-0.90,+0.06] vs old); val gain was morongmo only.
