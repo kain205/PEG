@@ -10,3 +10,4 @@
 - [YOLOX detector on GlareMOT2](yolox-detector-glaremot2.md) — 2026-10-26 Minh's task: YOLOX-X from TrackTrack weights, 2.5 fps/halves/glare filter; MoRongMo dominates val
 - [Local disk is drive D](local-disk-is-drive-d.md) — WSL vhdx on D: (~48 GB free); df / lies; D: full crashes WSL
 - [Drive upload remotes](drive-upload-remotes.md) — gdrive_rw = user, gdrive_own/gdrive2 = hieukainxoi; deliverables folder ids
+- [ExSORT is the team method](exsort-is-team-method.md) — 2026-11-17: algorithm is ExSORT (minhdq245/exsort); PEG = old version, dropped from reports
