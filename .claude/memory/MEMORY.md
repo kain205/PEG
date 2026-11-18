@@ -11,3 +11,4 @@
 - [Local disk is drive D](local-disk-is-drive-d.md) — WSL vhdx on D: (~48 GB free); df / lies; D: full crashes WSL
 - [Drive upload remotes](drive-upload-remotes.md) — gdrive_rw = user, gdrive_own/gdrive2 = hieukainxoi; deliverables folder ids
 - [ExSORT is the team method](exsort-is-team-method.md) — 2026-11-17: algorithm is ExSORT (minhdq245/exsort); PEG = old version, dropped from reports
+- [ExSORT emission finding](exsort-emission-finding.md) — 2026-11-18: FP = coast-box emission; val-chosen tau<=3 gives test HOTA 62.49 / MOTA 77.70 / FP 5603
